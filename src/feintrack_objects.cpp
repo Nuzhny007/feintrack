@@ -469,25 +469,30 @@ void CTrackingObject::set_last_center(int new_center_x, int new_center_y)
     dy = new_center_y - center_y;
 
     traectory_x.push_back(traectory_cont::value_type(traectory_x.back().x + 1, new_center_x));
-    if (traectory_x.size() > 1000)
+    if (traectory_x.size() > MaxTrajectorySize)
+    {
         traectory_x.pop_front();
+    }
 
     traectory_y.push_back(traectory_cont::value_type(traectory_y.back().x + 1, new_center_y));
-    if (traectory_y.size() > 1000)
+    if (traectory_y.size() > MaxTrajectorySize)
+    {
         traectory_y.pop_front();
+    }
 
 #if 0
-    if (traectory_x.size() > 300)
+    // Debug case
+    if (traectory_x.size() > MaxTrajectorySize / 2)
     {
-        char tmp[255];
+        char tmp[1024];
         static int iii = 0;
-        sprintf_s(tmp, sizeof(tmp), "d:\\qqq\\%05u_%04i_x.txt", traectory_x.size(), iii);
+        sprintf(tmp, "/home/nuzhny/Documents/tmp/%05u_%04i_x.txt", traectory_x.size(), iii);
         std::ofstream ff(tmp);
         for (size_t i = 0; i < traectory_x.size(); ++i)
         {
             ff << traectory_x[i].y << std::endl;
         }
-        sprintf_s(tmp, sizeof(tmp), "d:\\qqq\\%05u_%04i_y.txt", traectory_y.size(), iii);
+        sprintf(tmp, "/home/nuzhny/Documents/tmp/%05u_%04i_y.txt", traectory_y.size(), iii);
         ff.close();
         ff.open(tmp);
         for (size_t i = 0; i < traectory_y.size(); ++i)
@@ -572,17 +577,19 @@ void CTrackingObject::recalc_center()
 ////////////////////////////////////////////////////////////////////////////
 void CTrackingObject::get_traectory(CObjRect &obj_rect, uint frame_width, uint frame_height, int left_padding, int top_padding) const
 {
-    size_t i = (traectory_x.size() > CObjRect::MAX_TRAECTORY)? (traectory_x.size() - CObjRect::MAX_TRAECTORY): 0;
-    int half_height = height() / 2;
+    size_t i = (traectory_x.size() > CObjRect::MAX_TRAECTORY)? (traectory_x.size() - CObjRect::MAX_TRAECTORY): 1;
     obj_rect.traectory_size = 0;
-    for (size_t stop = traectory_x.size(); i < stop; ++obj_rect.traectory_size, ++i)
+    float alpha = 0.7;
+    for (size_t stop = traectory_x.size(); i < stop; ++i)
     {
-        obj_rect.traectory[obj_rect.traectory_size].x = traectory_x[i].y;
-        obj_rect.traectory[obj_rect.traectory_size].y = traectory_y[i].y + half_height;
-        set_range<int>(obj_rect.traectory[obj_rect.traectory_size].x, 0, frame_width - 1);
-        set_range<int>(obj_rect.traectory[obj_rect.traectory_size].y, 0, frame_height - 1);
-        obj_rect.traectory[obj_rect.traectory_size].x += left_padding;
-        obj_rect.traectory[obj_rect.traectory_size].y += top_padding;
+        int vx = static_cast<int>(alpha * traectory_x[i].y + (1- alpha) * traectory_x[i - 1].y) + left_padding;
+        int vy = static_cast<int>(alpha * traectory_y[i].y + (1- alpha) * traectory_y[i - 1].y) + top_padding;
+        set_range<int>(vx, 0, frame_width - 1);
+        set_range<int>(vy, 0, frame_height - 1);
+        obj_rect.traectory[obj_rect.traectory_size].x = vx;
+        obj_rect.traectory[obj_rect.traectory_size].y = vy;
+
+        ++obj_rect.traectory_size;
     }
     obj_rect.traectory_size--;
 }

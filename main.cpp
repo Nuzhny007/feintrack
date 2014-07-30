@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
     }
     if (!capture.isOpened())
     {
-        std::cout << "File " <<  input_file_name << " not opened!" << std::endl;
+        std::cerr << "File " <<  input_file_name << " not opened!" << std::endl;
         return 1;
     }
 #if (CV_VERSION_EPOCH > 2)
@@ -84,21 +84,21 @@ int main(int argc, char* argv[])
 
     ftp.set_fps(25);
     ftp.set_show_objects(true);
-    ftp.set_min_region_width(5);
-    ftp.set_min_region_height(5);
-    ftp.set_left_object_time1_sec(15);
-    ftp.set_left_object_time2_sec(30);
-    ftp.set_left_object_time3_sec(60);
+    ftp.set_min_region_width(10);
+    ftp.set_min_region_height(10);
+    ftp.set_left_object_time1_sec(10);
+    ftp.set_left_object_time2_sec(20);
+    ftp.set_left_object_time3_sec(30);
     ftp.set_show_left_objects(true);
     ftp.set_use_square_segmentation(true);
     ftp.set_detect_patches_of_sunlight(false);
     ftp.set_cut_shadows(false);
     ftp.set_analyze_area(vl_feintrack::RECT_(0, 100, 0, 100));
-    ftp.set_sensitivity(80);
+    ftp.set_sensitivity(70);
     ftp.set_use_recognition(false);
     ftp.set_use_morphology(true);
     ftp.set_selection_time(12);
-    ftp.set_show_trajectory(false);
+    ftp.set_show_trajectory(true);
     ftp.set_use_cuda(false, 0);
 #if 1
     ftp.set_bgrnd_type(vl_feintrack::norm_back);
@@ -121,171 +121,172 @@ int main(int argc, char* argv[])
     cv::Mat adv_img;
 #endif
 
-    cv::Mat frame;
-    for (;;)
+    for (int vc = 0; vc < 3; ++vc)
     {
-        capture >> frame;
-        if (frame.empty())
+        frame_num = 0;
+        capture.set(CV_CAP_PROP_POS_FRAMES, 100);
+
+        cv::Mat frame;
+        for (capture >> frame; !frame.empty(); capture >> frame)
         {
-            break;
-        }
 #ifdef ADV_OUT
-        if (adv_img.empty())
-        {
-            adv_img = cv::Mat(frame.rows, frame.cols, CV_8UC3, cv::Scalar(0, 0, 0));
-        }
+            if (adv_img.empty())
+            {
+                adv_img = cv::Mat(frame.rows, frame.cols, CV_8UC3, cv::Scalar(0, 0, 0));
+            }
 #endif
 
-        if (!init_zones)
-        {
+            if (!init_zones)
+            {
 #if 0
-            vl_feintrack::zones_cont zones;
+                vl_feintrack::zones_cont zones;
 
-            vl_feintrack::CZone zone;
-            zone.left = 0;
-            zone.right = frame->width - 1;
-            zone.top = 0;
-            zone.bottom = frame->height / 3;
-            zone.uid = 1;
-            zone.name = "Zone 1";
-            zone.min_obj_width = 5;
-            zone.min_obj_height = 5;
-            zone.use_detection = true;
-            zones.push_back(zone);
+                vl_feintrack::CZone zone;
+                zone.left = 0;
+                zone.right = frame->width - 1;
+                zone.top = 0;
+                zone.bottom = frame->height / 3;
+                zone.uid = 1;
+                zone.name = "Zone 1";
+                zone.min_obj_width = 5;
+                zone.min_obj_height = 5;
+                zone.use_detection = true;
+                zones.push_back(zone);
 
-            zone.top = zone.bottom;
-            zone.bottom = (2 * frame->height) / 3;
-            zone.uid = 2;
-            zone.name = "Zone 2";
-            zones.push_back(zone);
+                zone.top = zone.bottom;
+                zone.bottom = (2 * frame->height) / 3;
+                zone.uid = 2;
+                zone.name = "Zone 2";
+                zones.push_back(zone);
 
-            zone.top = zone.bottom;
-            zone.bottom = frame->height - 1;
-            zone.uid = 3;
-            zone.name = "Zone 3";
-            zones.push_back(zone);
+                zone.top = zone.bottom;
+                zone.bottom = frame->height - 1;
+                zone.uid = 3;
+                zone.name = "Zone 3";
+                zones.push_back(zone);
 
-            ftp.set_zones(zones);
+                ftp.set_zones(zones);
 
-            vl_feintrack::SetFeintrackConfigStruct(feintrack, &ftp);
+                vl_feintrack::SetFeintrackConfigStruct(feintrack, &ftp);
 #endif
 
-            init_zones = true;
-        }
+                init_zones = true;
+            }
 
-        cv::Mat curr_frame;
-        switch (cl_type)
-        {
-        case vl_feintrack::buf_gray:
-        {
-            cv::cvtColor(frame, curr_frame, CV_RGB2GRAY);
-            break;
-        }
+            cv::Mat curr_frame;
+            switch (cl_type)
+            {
+            case vl_feintrack::buf_gray:
+            {
+                cv::cvtColor(frame, curr_frame, CV_RGB2GRAY);
+                break;
+            }
 
-        case vl_feintrack::buf_rgb32:
-        {
-            cv::cvtColor(frame, curr_frame, CV_RGB2RGBA);
-            break;
-        }
+            case vl_feintrack::buf_rgb32:
+            {
+                cv::cvtColor(frame, curr_frame, CV_RGB2RGBA);
+                break;
+            }
 
-        default:
-            curr_frame = frame;
-            break;
-        }
+            default:
+                curr_frame = frame;
+                break;
+            }
 
-        int64 t1 = cv::getTickCount();
+            int64 t1 = cv::getTickCount();
 #ifndef ADV_OUT
-        FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type);
+            FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type);
 #else
-        FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
+            FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
 #endif
-        int64 t2 = cv::getTickCount();
-        double freq = cv::getTickFrequency();
+            int64 t2 = cv::getTickCount();
+            double freq = cv::getTickFrequency();
 
 
 #if 1
-        // Обводка объектов
-        vl_feintrack::CObjRect *rect_arr;
-        size_t rect_count;
-        GetObjects(feintrack, rect_arr, rect_count);
+            // Обводка объектов
+            vl_feintrack::CObjRect *rect_arr;
+            size_t rect_count;
+            GetObjects(feintrack, rect_arr, rect_count);
 
-        if (rect_count && rect_arr)
-        {
-            cv::Scalar colors[5] = {
-                cv::Scalar(0, 255, 0),
-                cv::Scalar(0, 0, 0),
-                cv::Scalar(0, 0, 0),
-                cv::Scalar(0, 0, 0),
-                cv::Scalar(0, 0, 0)
-            };
-
-            for (size_t i = 0; i < rect_count; ++i)
+            if (rect_count && rect_arr)
             {
-                cv::rectangle(frame, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::Point(rect_arr[i].right, rect_arr[i].bottom), colors[rect_arr[i].type]);
+                cv::Scalar colors[5] = {
+                    cv::Scalar(0, 255, 0),
+                    cv::Scalar(0, 0, 0),
+                    cv::Scalar(0, 0, 0),
+                    cv::Scalar(0, 0, 0),
+                    cv::Scalar(0, 0, 0)
+                };
 
-                // Вывод траектории
-                cv::Point p1(rect_arr[i].traectory[0].x, rect_arr[i].traectory[0].y);
-                cv::Point p2;
-                for (size_t j = 1, stop = rect_arr[i].traectory_size - 1; j < stop; ++j)
+                for (size_t i = 0; i < rect_count; ++i)
                 {
-                    p2.x = rect_arr[i].traectory[j].x;
-                    p2.y = rect_arr[i].traectory[j].y;
+                    cv::rectangle(frame, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::Point(rect_arr[i].right, rect_arr[i].bottom), colors[rect_arr[i].type]);
 
-                    cv::line(frame, p1, p2, cv::Scalar(0, 0, 255));
-                    p1 = p2;
-                }
+                    // Вывод траектории
+                    cv::Point p1(rect_arr[i].traectory[0].x, rect_arr[i].traectory[0].y);
+                    cv::Point p2;
+                    for (size_t j = 1, stop = rect_arr[i].traectory_size - 1; j < stop; ++j)
+                    {
+                        p2.x = rect_arr[i].traectory[j].x;
+                        p2.y = rect_arr[i].traectory[j].y;
+
+                        cv::line(frame, p1, p2, cv::Scalar(0, 0, 255));
+                        p1 = p2;
+                    }
 
 #if 1
-                char object_name[256];
-                std::string type_str("u");
-                switch (rect_arr[i].type)
-                {
-                case vl_feintrack::unknown_object: type_str = "u";  break;
-                case vl_feintrack::human:          type_str = "h";  break;
-                case vl_feintrack::vehicle:        type_str = "v";  break;
-                case vl_feintrack::animal:         type_str = "a";  break;
-                case vl_feintrack::humans:         type_str = "hh"; break;
+                    char object_name[256];
+                    std::string type_str("u");
+                    switch (rect_arr[i].type)
+                    {
+                    case vl_feintrack::unknown_object: type_str = "u";  break;
+                    case vl_feintrack::human:          type_str = "h";  break;
+                    case vl_feintrack::vehicle:        type_str = "v";  break;
+                    case vl_feintrack::animal:         type_str = "a";  break;
+                    case vl_feintrack::humans:         type_str = "hh"; break;
+                    }
+                    sprintf(object_name, "%u %s", rect_arr[i].uid, type_str.c_str());
+                    cv::putText(frame, object_name, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 255, 255));
+#endif
                 }
-                sprintf(object_name, "%u %s", rect_arr[i].uid, type_str.c_str());
-                cv::putText(frame, object_name, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 255, 255));
-#endif
             }
-        }
 
-        // Обводка оставленных объектов
-        vl_feintrack::CLeftObjRect *left_rect_arr;
-        size_t left_rect_count;
-        vl_feintrack::GetLeftObjects(feintrack, left_rect_arr, left_rect_count);
+            // Обводка оставленных объектов
+            vl_feintrack::CLeftObjRect *left_rect_arr;
+            size_t left_rect_count;
+            vl_feintrack::GetLeftObjects(feintrack, left_rect_arr, left_rect_count);
 
-        for (size_t i = 0; i < left_rect_count; ++i)
-        {
-            switch (left_rect_arr[i].type)
+            for (size_t i = 0; i < left_rect_count; ++i)
             {
-            case vl_feintrack::CLeftObjRect::first:
-                cv::rectangle(frame, cv::Point(left_rect_arr[i].left, left_rect_arr[i].top), cv::Point(left_rect_arr[i].right, left_rect_arr[i].bottom), cv::Scalar(0, 0, 255));
-                break;
+                switch (left_rect_arr[i].type)
+                {
+                case vl_feintrack::CLeftObjRect::first:
+                    cv::rectangle(frame, cv::Point(left_rect_arr[i].left, left_rect_arr[i].top), cv::Point(left_rect_arr[i].right, left_rect_arr[i].bottom), cv::Scalar(0, 0, 255));
+                    break;
 
-            case vl_feintrack::CLeftObjRect::second:
-                cv::rectangle(frame, cv::Point(left_rect_arr[i].left, left_rect_arr[i].top), cv::Point(left_rect_arr[i].right, left_rect_arr[i].bottom), cv::Scalar(255, 0, 255));
-                break;
+                case vl_feintrack::CLeftObjRect::second:
+                    cv::rectangle(frame, cv::Point(left_rect_arr[i].left, left_rect_arr[i].top), cv::Point(left_rect_arr[i].right, left_rect_arr[i].bottom), cv::Scalar(255, 0, 255));
+                    break;
+                }
             }
-        }
 #endif
 
-        cv::imshow("frame", frame);
+            cv::imshow("frame", frame);
 
 #ifdef ADV_OUT
-        cv::imshow("adv_img", adv_img);
+            cv::imshow("adv_img", adv_img);
 #endif
 
-        std::cout << "Frame " << frame_num << " of " << framesNum << ": " << rect_count << " objects are tracking at " << ((t2 - t1) / freq) << " sec" << std::endl;
+            std::cout << "Frame " << frame_num << " of " << framesNum << ": " << rect_count << " objects are tracking at " << ((t2 - t1) / freq) << " sec" << std::endl;
 
-        int workTime = static_cast<int>(1000. * (t2 - t1) / freq);
-        int waitTime = (workTime >= 40) ? 1 : (40 - workTime);
-        if (cv::waitKey(waitTime) > 0)
-            break;
+            int workTime = static_cast<int>(1000. * (t2 - t1) / freq);
+            int waitTime = (workTime >= 40) ? 1 : (40 - workTime);
+            if (cv::waitKey(waitTime) > 0)
+                break;
 
-        ++frame_num;
+            ++frame_num;
+        }
     }
 
     vl_feintrack::DelFeintrack(feintrack);

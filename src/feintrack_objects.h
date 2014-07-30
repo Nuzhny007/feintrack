@@ -73,7 +73,8 @@ namespace vl_feintrack
 	class CTrackingObject
 	{
 	private:
-		typedef std::deque<POINT_<int> > traectory_cont;
+        typedef std::deque<POINT_<int> > traectory_cont;
+        static const size_t MaxTrajectorySize = 500;      ///< Maximum size of the object trajectory
 
 		int center_x;                                     //Координаты последнего центра объекта
 		int center_y;                                     //

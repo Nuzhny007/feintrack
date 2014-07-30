@@ -760,7 +760,9 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_r
             {
                 // Объект считается принадлежащим к спискам возможно являющихся оставленными предметами
                 if ((*iter_obj)->get_left_frames() == left_object_time0)
+                {
                     add_to_shady_left_objects(**iter_obj);
+                }
 
                 // Если объект двигается
                 if (((*iter_obj)->get_left_frames() < left_object_time1) || is_merge)
@@ -778,9 +780,13 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_r
                             (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
                             // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
                             if (!(*iter_obj)->get_left_frames())
+                            {
                                 del_uid_from_shady_left_objects((*iter_obj)->uid);
+                            }
                             else
+                            {
                                 inc_time_shady_left_objects((*iter_obj)->uid);
+                            }
                         }
 
                         object_types type_now = unknown_object;
@@ -802,9 +808,13 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_r
                             (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
                             // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
                             if (!(*iter_obj)->get_left_frames())
+                            {
                                 del_uid_from_shady_left_objects((*iter_obj)->uid);
+                            }
                             else
+                            {
                                 inc_time_shady_left_objects((*iter_obj)->uid);
+                            }
                         }
                     }
                 }
@@ -842,9 +852,13 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_r
                     (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
                     // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
                     if (!(*iter_obj)->get_left_frames())
+                    {
                         del_uid_from_shady_left_objects((*iter_obj)->uid);
+                    }
                     else
+                    {
                         inc_time_shady_left_objects((*iter_obj)->uid);
+                    }
                 }
             }
 
@@ -875,9 +889,10 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_r
             // 5. Увеличиваем число кадров, на которых объект не был найден
             (*iter_obj)->frames_left++;
 
-#if 0           // Закомментировано, так как выводится очень много левых объектов, можно включать для тестирования
+#if 1           // Закомментировано, так как выводится очень много левых объектов, можно включать для тестирования
             //6. Отправляем объект на вывод
-            if ((*iter_obj)->life_time > selection_time)
+            if ((*iter_obj)->life_time > selection_time &&
+                    (*iter_obj)->frames_left < selection_time / 4)
             {
                 //Попадает ли оставленный предмет в зоны детекции
                 mstring zone_name;
