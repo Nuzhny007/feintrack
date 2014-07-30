@@ -575,7 +575,7 @@ void CTrackingObject::recalc_center()
     set_last_center(get_new_center_x(), get_new_center_y());
 }
 ////////////////////////////////////////////////////////////////////////////
-void CTrackingObject::get_traectory(CObjRect &obj_rect, uint frame_width, uint frame_height, int left_padding, int top_padding) const
+void CTrackingObject::get_traectory(CObjRect &obj_rect, uint32_t frame_width, uint32_t frame_height, int left_padding, int top_padding) const
 {
     size_t i = (traectory_x.size() > CObjRect::MAX_TRAECTORY)? (traectory_x.size() - CObjRect::MAX_TRAECTORY): 1;
     obj_rect.traectory_size = 0;

@@ -50,7 +50,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	object_types CRecognition::recognize_object(const CObjectRegion& region, const uchar* buf, uint pitch, uint frame_width, uint frame_height, const mask_type* mask)
+    object_types CRecognition::recognize_object(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask)
 	{
 		object_types ret_val(unknown_object);
 
@@ -148,7 +148,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	object_types CRecognition::is_vehicle(const CObjectRegion& region, uint frame_width, const mask_type* mask)
+    object_types CRecognition::is_vehicle(const CObjectRegion& region, uint32_t frame_width, const mask_type* mask)
 	{
 #if 1
         frame_width;
@@ -192,7 +192,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-    object_types CRecognition::is_animal(const CObjectRegion& region, uint /*frame_width*/, const mask_type* /*mask*/)
+    object_types CRecognition::is_animal(const CObjectRegion& region, uint32_t /*frame_width*/, const mask_type* /*mask*/)
 	{
 		double k = (double)region.width() / (double)region.height();
 		if ((k > 1.2) && (k < 1.8))
@@ -202,7 +202,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	object_types CRecognition::is_human(const CObjectRegion& region, const uchar* buf, uint pitch, uint frame_width, uint frame_height, const mask_type* mask)
+    object_types CRecognition::is_human(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask)
 	{
 #ifdef USE_HOG_RECOGNIZE
         mask;

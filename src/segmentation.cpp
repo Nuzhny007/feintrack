@@ -27,7 +27,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	void CSegmentation::init(uint frame_width_, uint frame_height_, bool& use_cuda_)
+    void CSegmentation::init(uint32_t frame_width_, uint32_t frame_height_, bool& use_cuda_)
 	{
 		frame_width = frame_width_;
 		frame_height = frame_height_;
@@ -130,12 +130,12 @@ namespace vl_feintrack
 			mask_type *pl2 = &morphology_buf[0] + frame_width;
 			std::fill(&morphology_buf[0], pl2, 0);
 
-			for (uint y = 1; y < frame_height - 1; ++y, ++pl1, ++pl2)
+            for (uint32_t y = 1; y < frame_height - 1; ++y, ++pl1, ++pl2)
 			{
 				*pl2 = 0;
 				++pl2;
 				++pl1;
-				for (uint x = 1; x < frame_width - 1; ++x, ++pl1, ++pl2)
+                for (uint32_t x = 1; x < frame_width - 1; ++x, ++pl1, ++pl2)
 				{
 					if (*(pl1 - frame_width - 1) && *(pl1 - frame_width) && *(pl1 - frame_width + 1) &&
 						*(pl1 - 1) && *pl1 && *(pl1 + 1) &&
@@ -151,11 +151,11 @@ namespace vl_feintrack
 			// Наращивание
 			pl1 = &pixels_l[0] + frame_width;
 			pl2 = &morphology_buf[0] + frame_width;
-			for (uint y = 1; y < frame_height - 1; ++y, ++pl1, ++pl2)
+            for (uint32_t y = 1; y < frame_height - 1; ++y, ++pl1, ++pl2)
 			{
 				++pl2;
 				++pl1;
-				for (uint x = 1; x < frame_width - 1; ++x, ++pl1, ++pl2)
+                for (uint32_t x = 1; x < frame_width - 1; ++x, ++pl1, ++pl2)
 				{
 					if (*pl2)
 					{
@@ -201,9 +201,9 @@ namespace vl_feintrack
 		}
 
 		mask_type *pl = &pixels_l[0];
-		for (uint y = 0; y < frame_height; ++y)
+        for (uint32_t y = 0; y < frame_height; ++y)
 		{
-			for (uint x = 0; x < frame_width; ++x)
+            for (uint32_t x = 0; x < frame_width; ++x)
 			{
 				if (*pl)
 				{
@@ -243,9 +243,9 @@ namespace vl_feintrack
 
 		// Окончательная сегментация
 		reg_label *pl = h_reg.buf;
-		for (uint y = 0, stop_y = frame_height / SEGM_BLOCK_SIZE; y < stop_y; ++y)
+        for (uint32_t y = 0, stop_y = frame_height / SEGM_BLOCK_SIZE; y < stop_y; ++y)
 		{
-			for (uint x = 0, stop_x = frame_width / SEGM_BLOCK_SIZE; x < stop_x; ++x, ++pl)
+            for (uint32_t x = 0, stop_x = frame_width / SEGM_BLOCK_SIZE; x < stop_x; ++x, ++pl)
 			{
 				// Добавляем точку объекта к регионам выделения
 				//if (*pl > (SEGM_BLOCK_SIZE * SEGM_BLOCK_SIZE) / 2)
@@ -319,9 +319,9 @@ namespace vl_feintrack
 		mask_cont labs;
 		labs.reserve(4);
 		mask_type *pl = &pixels_l[0];
-		for (uint y = 0; y < frame_height; ++y)
+        for (uint32_t y = 0; y < frame_height; ++y)
 		{
-			for (uint x = 0; x < frame_width; ++x, ++pl)
+            for (uint32_t x = 0; x < frame_width; ++x, ++pl)
 			{
 				if (*pl)
 				{
@@ -416,9 +416,9 @@ namespace vl_feintrack
 	{
 		// Рекурсивная сегментация объектов переднего плана на основе восьмисвязности
 		mask_type label = 0;
-		for (uint y = 0, oi = 0; y < frame_height; ++y)
+        for (uint32_t y = 0, oi = 0; y < frame_height; ++y)
 		{
-			for (uint x = 0; x < frame_width; ++x, ++oi)
+            for (uint32_t x = 0; x < frame_width; ++x, ++oi)
 			{
 				if (pixels_l[oi])
 				{
@@ -432,12 +432,12 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	void CSegmentation::search_components(mask_type label, uint x, uint y, CObjectRegion& reg)
+    void CSegmentation::search_components(mask_type label, uint32_t x, uint32_t y, CObjectRegion& reg)
 	{
 		reg.add_point(x, y);
 
-		uint x_ = x - 1;
-		uint y_ = y - 1;
+        uint32_t x_ = x - 1;
+        uint32_t y_ = y - 1;
 		if (y > 0)
 		{
 			// левая-верхняя
@@ -488,9 +488,9 @@ namespace vl_feintrack
 	void CSegmentation::square_segmentation(regions_container& regions)
 	{
 		mask_type *pl = &pixels_l[0];
-		for (uint y = 0; y < frame_height; ++y)
+        for (uint32_t y = 0; y < frame_height; ++y)
 		{
-			for (uint x = 0; x < frame_width; ++x, ++pl)
+            for (uint32_t x = 0; x < frame_width; ++x, ++pl)
 			{
 				// Добавляем точку объекта к регионам выделения
 				if (*pl)

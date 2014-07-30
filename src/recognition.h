@@ -63,7 +63,7 @@ namespace vl_feintrack
 		~CRecognition();
 
 		// Распознавание объекта
-		object_types recognize_object(const CObjectRegion& region, const uchar* buf, uint pitch, uint frame_width, uint frame_height, const mask_type* mask);
+        object_types recognize_object(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask);
 
 	private:
 		// Является ли данная область похожей на голову
@@ -72,11 +72,11 @@ namespace vl_feintrack
 		bool is_body(int body_height, const hist_cont& h_hist, double head_center, double head_r_mu, double legs_center, double& body_area);
 		
 		// Распознавание людей
-		object_types is_human(const CObjectRegion& region, const uchar* buf, uint pitch, uint frame_width, uint frame_height, const mask_type* mask);
+        object_types is_human(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask);
 		// Распознавание автомобиля
-		object_types is_vehicle(const CObjectRegion& region, uint frame_width, const mask_type* mask);
+        object_types is_vehicle(const CObjectRegion& region, uint32_t frame_width, const mask_type* mask);
 		// Распознавание животного
-		object_types is_animal(const CObjectRegion& region, uint frame_width, const mask_type* mask);
+        object_types is_animal(const CObjectRegion& region, uint32_t frame_width, const mask_type* mask);
 
 #ifdef USE_HOG_RECOGNIZE
 		cv::HOGDescriptor hog; // Распознавание людей с помощью OpenCV'шного HOG

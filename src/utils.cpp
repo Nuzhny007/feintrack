@@ -33,21 +33,21 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	float_t get_contrast_rgb24(const uchar* buf, uint pitch, uint width, uint height)
+    float_t get_contrast_rgb(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, uint32_t pixel_size)
 	{
 		//Получаем выборку значений яркости пикселей на равных интервалах
 		//Возвращаемое значение - отношение максимальной частоты на каком-либо интервале к общему количеству пикселей
 
-        const uint INTERVALS_COUNT = 5;
-		uint values[INTERVALS_COUNT] = {0};
+        const uint32_t INTERVALS_COUNT = 5;
+        uint32_t values[INTERVALS_COUNT] = {0};
 		float_t interval_len = RGB_2_Y<int>(0xff, 0xff, 0xff) / (float_t)INTERVALS_COUNT;
 
-		for (uint y = 0; y < height; ++y, buf += pitch - 3 * width)
+        for (uint32_t y = 0; y < height; ++y, buf += pitch - pixel_size * width)
 		{
-			for (uint x = 0; x < width; ++x, buf += 3)
+            for (uint32_t x = 0; x < width; ++x, buf += pixel_size)
 			{
 				float_t tmp_y = (float_t)RGB_2_Y<int>(buf[2], buf[1], buf[0]);
-				for (uint j = 0; j < INTERVALS_COUNT; ++j)
+                for (uint32_t j = 0; j < INTERVALS_COUNT; ++j)
 				{
 					if ((j + 1 == INTERVALS_COUNT) || (tmp_y < (j + 1) * interval_len))
 					{
@@ -58,11 +58,13 @@ namespace vl_feintrack
 			}
 		}
 
-		uint max_val = values[0];
-		for (uint j = 1; j < INTERVALS_COUNT; ++j)
+        uint32_t max_val = values[0];
+        for (uint32_t j = 1; j < INTERVALS_COUNT; ++j)
 		{
 			if (max_val < values[j])
+            {
 				max_val = values[j];
+            }
 		}
 
 		return (float_t)max_val / (float_t)(width * height);
@@ -80,7 +82,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////// 
 
-	void copy_24to32(uchar* dest_buf, uint dest_pitch, const uchar* src_buf, uint src_width, uint src_heght)
+    void copy_24to32(uchar* dest_buf, uint32_t dest_pitch, const uchar* src_buf, uint32_t src_width, uint32_t src_heght)
 	{
 		const ptrdiff_t src_pitch = 3 * src_width;
         unsigned int* dst = (unsigned int* )dest_buf;
@@ -96,12 +98,12 @@ namespace vl_feintrack
 		}
 	}
 	////////////////////////////////////////////////////////////////////////
-	void copy_24to24_flip(uchar* dest_buf, const uchar* src_buf, uint src_width, uint src_heght)
+    void copy_24to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght)
 	{
-		uint src_pitch = 3 * src_width;
+        uint32_t src_pitch = 3 * src_width;
 		src_buf += src_pitch * src_heght;
         const uchar* from_ptr(nullptr);
-		for (uint i = 0; i < src_heght; ++i)
+        for (uint32_t i = 0; i < src_heght; ++i)
 		{
 			from_ptr = src_buf - src_pitch;
 			for (; from_ptr != src_buf; from_ptr += 3, dest_buf += 3)
@@ -114,7 +116,7 @@ namespace vl_feintrack
 		}
 	}
 	////////////////////////////////////////////////////////////////////////
-	void copy_32to24(uchar* dest_buf, const uchar* src_buf, uint src_heght, uint src_pitch)
+    void copy_32to24(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch)
 	{
 		const uchar* end_ptr = src_buf + src_pitch * src_heght;
 		for (; src_buf != end_ptr; src_buf += 4, dest_buf += 3)
@@ -125,11 +127,11 @@ namespace vl_feintrack
 		}
 	}
 	////////////////////////////////////////////////////////////////////////
-	void copy_32to24_flip(uchar* dest_buf, const uchar* src_buf, uint src_heght, uint src_pitch)
+    void copy_32to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch)
 	{
 		src_buf += src_pitch * src_heght;
         const uchar* from_ptr(nullptr);
-		for (uint i = 0; i < src_heght; ++i)
+        for (uint32_t i = 0; i < src_heght; ++i)
 		{
 			from_ptr = src_buf - src_pitch;
 			for (; from_ptr != src_buf; from_ptr += 4, dest_buf += 3)
@@ -142,7 +144,7 @@ namespace vl_feintrack
 		}
 	}
 	////////////////////////////////////////////////////////////////////////
-	void copy_gray_to_float(float *dest_buf, const uchar* src_buf, uint src_width, uint src_heght)
+    void copy_gray_to_float(float *dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght)
 	{
 		for (size_t i = 0; i < src_heght; ++i)
 		{

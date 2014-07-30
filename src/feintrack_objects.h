@@ -157,7 +157,7 @@ namespace vl_feintrack
 
 		void recalc_center(); //Пересчитывает координаты центра объекта при отсутствии информации о его местоположении на последнем кадре
 
-		void get_traectory(CObjRect &obj_rect, uint frame_width, uint frame_height, int left_padding, int top_padding) const; //Получение траектории движения объекта
+        void get_traectory(CObjRect &obj_rect, uint32_t frame_width, uint32_t frame_height, int left_padding, int top_padding) const; //Получение траектории движения объекта
 
         unsigned int uid;            //Идентификатор (номер) объекта
 

@@ -15,7 +15,7 @@ namespace vl_feintrack
 		CSegmentation();
 		~CSegmentation();
 
-		void init(uint frame_width_, uint frame_height_, bool& use_cuda_); // Инициализация внутренних структур
+        void init(uint32_t frame_width_, uint32_t frame_height_, bool& use_cuda_); // Инициализация внутренних структур
 
 #if ADV_OUT
 		void draw_mask(bool use_cuda, uchar* adv_buf_rgb24);           // Вывод на дополнительный буфер результатов вычитания фона
@@ -46,7 +46,7 @@ namespace vl_feintrack
 		static bool pairs_comp(const eq_regions_cont::value_type &p1, const eq_regions_cont::value_type &p2); // Cравнение эквивалентных регионов
 		typedef std::vector<std::pair<mask_type, CObjectRegion> > tmp_regions_cont;
 		tmp_regions_cont tmp_regions;            // Временный список регионов для итеративной сегментации
-		void search_components(mask_type label, uint x, uint y, CObjectRegion& reg); // Рекурсивный поиск связных компонет при сегментации регионов
+        void search_components(mask_type label, uint32_t x, uint32_t y, CObjectRegion& reg); // Рекурсивный поиск связных компонет при сегментации регионов
 
 		mask_cont pixels_l;                           // Массив размером frame_width * frame_height, в котором хранится результат вычитания фона
 
@@ -60,8 +60,8 @@ namespace vl_feintrack
 
 		mask_cont morphology_buf;                     // Массив размером frame_width * frame_height для хранения промежуточного результата операции математической морфологии "открытие"
 
-		uint frame_width;                             // Ширина
-		uint frame_height;                            // и высота одного кадра в пикселях
+        uint32_t frame_width;                         // Ширина
+        uint32_t frame_height;                        // и высота одного кадра в пикселях
 
 		void add_to_region(regions_container& regions, int x, int y); // Поиск подходящего региона
 	};

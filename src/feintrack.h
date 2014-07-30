@@ -34,8 +34,8 @@ namespace vl_feintrack
 		int left_object_time2_sec;               // Время в секундах, после которого объект считается оставленным
 		int left_object_time3_sec;               // Время в секундах, после которого оставленный предмет удаляется
 
-		uint frame_width;                        // Ширина
-		uint frame_height;                       // и высота одного кадра в пикселях
+        uint32_t frame_width;                    // Ширина
+        uint32_t frame_height;                   // и высота одного кадра в пикселях
 		color_type curr_color_type;              // Текущий тип цветового пространства анализируемого кадра
 
 		int fps;                                 // Количество кадров в секунду, поступающих на фильтр. Обновление статистики производится раз в секунду. Время будет измеряться по кадрам.
@@ -61,11 +61,11 @@ namespace vl_feintrack
 		bool need_background_update;             // Обновлять ли модель заднего плана
 
 		regions_container regions;                                // Список регионов на последнем кадре
-		void regions_preprocessing(const uchar* buf, uint pitch); // Предварительный анализ и обработка регионов: отсечение теней, удаление маленьких регионов и т.д.
+        void regions_preprocessing(const uchar* buf, uint32_t pitch); // Предварительный анализ и обработка регионов: отсечение теней, удаление маленьких регионов и т.д.
 #if !ADV_OUT
-		void tracking_objects(const uchar* buf, uint pitch);      // Анализ регионов и добавление подходящих на вывод
+        void tracking_objects(const uchar* buf, uint32_t pitch);      // Анализ регионов и добавление подходящих на вывод
 #else
-		void tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_rgb24); // Анализ регионов
+        void tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_buf_rgb24); // Анализ регионов
 #endif
 
 		objects_container objects_history;                    // Список объектов, найденных на предыдущих кадрах
@@ -135,9 +135,9 @@ namespace vl_feintrack
 		~CFeinTrack();
 
 #if !ADV_OUT
-		int new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type); // Анализ очередного кадра
+        int new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type); // Анализ очередного кадра
 #else
-        int new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type, uchar* adv_buf_rgb24); // Анализ очередного кадра
+        int new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type, uchar* adv_buf_rgb24); // Анализ очередного кадра
 #endif
 
 		void set_sensitivity(int sens_level);                           // Задаёт уровень чувствительности для вычитания фона (от 1 до 100)

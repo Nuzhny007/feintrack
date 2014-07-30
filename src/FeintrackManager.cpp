@@ -40,15 +40,15 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////////
 
 #if !ADV_OUT
-	int CFTCont::frame_analyze(const uchar* buf, uint width, uint height, color_type buf_type)
+    int CFTCont::frame_analyze(const uchar* buf, uint32_t width, uint32_t height, color_type buf_type)
 #else
-    int CFTCont::frame_analyze(const uchar* buf, uint width, uint height, color_type buf_type, uchar* adv_buf_rgb24)
+    int CFTCont::frame_analyze(const uchar* buf, uint32_t width, uint32_t height, color_type buf_type, uchar* adv_buf_rgb24)
 #endif
 	{
 #if !ADV_OUT
-        int ret_val = fein_track.new_frame(buf, get_pixel_size<uint>(buf_type) * width, width, height, buf_type);
+        int ret_val = fein_track.new_frame(buf, get_pixel_size<uint32_t>(buf_type) * width, width, height, buf_type);
 #else
-        int ret_val = fein_track.new_frame(buf, get_pixel_size<uint>(buf_type) * width, width, height, buf_type, adv_buf_rgb24);
+        int ret_val = fein_track.new_frame(buf, get_pixel_size<uint32_t>(buf_type) * width, width, height, buf_type, adv_buf_rgb24);
 #endif
 		return ret_val;
 	}

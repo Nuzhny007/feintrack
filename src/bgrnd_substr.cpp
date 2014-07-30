@@ -1,21 +1,40 @@
 #include "bgrnd_substr.h"
 
+#if ADV_OUT
+#include <opencv2/core/core.hpp>
+
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc/types_c.h>
+
+//#include <opencv2/photo/photo.hpp>
+#include <opencv2/video/video.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
+
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/highgui/highgui_c.h>
+
+#include <opencv2/contrib/contrib.hpp>
+#include <opencv2/ml/ml.hpp>
+#endif
+
 ////////////////////////////////////////////////////////////////////////////
 namespace vl_feintrack
 {
 ////////////////////////////////////////////////////////////////////////////
 
-const ft_float_t CBackSubstraction::min_sens = (ft_float_t)1.;   // Минимальное и
-const ft_float_t CBackSubstraction::max_sens = (ft_float_t)10.0; // максимальное значение порога при вычитании фона (epsilon)
+const ft_param_t CBackSubstraction::min_sens = (ft_param_t)1;   // Минимальное и
+const ft_param_t CBackSubstraction::max_sens = (ft_param_t)10; // максимальное значение порога при вычитании фона (epsilon)
 
 // Параметры обучения низкочастотного фильтра рекурсивного сглаживания
-const ft_float_t CBackSubstraction::alpha1 = (ft_float_t)0.2; // Для выборочного среднего
-const ft_float_t CBackSubstraction::alpha2 = (ft_float_t)0.1; // Для среднеквадратичного отклонения
+const ft_param_t CBackSubstraction::alpha1 = (ft_param_t)10; // Для выборочного среднего
+const ft_param_t CBackSubstraction::alpha2 = (ft_param_t)10; // Для среднеквадратичного отклонения
 
-const ft_float_t CBackSubstraction::min_sigma_val = (ft_float_t)3.0;  // Минимальное и
-const ft_float_t CBackSubstraction::max_sigma_val = (ft_float_t)20.0; // максимальное значение для среднеквадратичного отклонения (используется при вычитании фона)
+const ft_param_t CBackSubstraction::min_sigma_val = (ft_param_t)3;  // Минимальное и
+const ft_param_t CBackSubstraction::max_sigma_val = (ft_param_t)20; // максимальное значение для среднеквадратичного отклонения (используется при вычитании фона)
 
-const ft_float_t CBackSubstraction::sunlight_threshold = (ft_float_t)150.; // Порог значение пикселя для определения блика
+const ft_param_t CBackSubstraction::sunlight_threshold = (ft_param_t)150; // Порог значение пикселя для определения блика
 ////////////////////////////////////////////////////////////////////////////
 
 CBackSubstraction::CBackSubstraction()
@@ -26,7 +45,7 @@ CBackSubstraction::CBackSubstraction()
 
     detect_patches_of_sunlight = false;
 
-    epsilon = (1.5f * (max_sens + min_sens)) / 4.0f;
+    epsilon = (3 * (max_sens + min_sens)) / 8;
     use_cuda = false;
 
     pixel_size = 3;
@@ -52,7 +71,7 @@ void CBackSubstraction::set_detect_patches_of_sunlight(bool detect_patches_of_su
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CBackSubstraction::is_patch_of_sunlight(const ft_float_t* float_src, const size_t pixel_size)
+bool CBackSubstraction::is_patch_of_sunlight(const ft_param_t* float_src, const size_t pixel_size)
 {
     if (detect_patches_of_sunlight)
     {
@@ -73,13 +92,13 @@ bool CBackSubstraction::is_patch_of_sunlight(const ft_float_t* float_src, const 
 void CBackSubstraction::set_sensitivity(int sens_level)
 {
     set_range(sens_level, 1, 100);
-    epsilon = min_sens + ((100 - sens_level) * (max_sens - min_sens)) / 100.0f;
+    epsilon = min_sens + ((100 - sens_level) * (max_sens - min_sens)) / 100;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 int CBackSubstraction::get_sensitivity() const
 {
-    return 100 - (int)((100.0 * (epsilon - min_sens)) / (max_sens - min_sens));
+    return 100 - (int)((100 * (epsilon - min_sens)) / (max_sens - min_sens));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +131,7 @@ void CBackSubstraction::enable_back_update(bool enable_val)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CBackSubstraction::init(uint width, uint height, color_type buf_type, bool& /*use_cuda_*/)
+bool CBackSubstraction::init(uint32_t width, uint32_t height, color_type buf_type, bool& /*use_cuda_*/)
 {
     pixel_size = get_pixel_size<int>(buf_type);
 
@@ -173,7 +192,7 @@ void CNormBackSubstraction::set_fps(int new_fps)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CNormBackSubstraction::init(uint width, uint height, color_type buf_type, bool& use_cuda_)
+bool CNormBackSubstraction::init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_)
 {
     if (CBackSubstraction::init(width, height, buf_type, use_cuda_) ||
             (((buf_type == buf_rgb24) || (buf_type == buf_rgb32)) ? rgb_params.empty() : gray_params.empty()))
@@ -223,15 +242,15 @@ bool CNormBackSubstraction::init(uint width, uint height, color_type buf_type, b
 
 #if !ADV_OUT
 #ifdef USE_CUDA
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
 #else
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l)
 #endif
 #else
 #ifdef USE_CUDA
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24)
 #else
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24)
 #endif
 #endif
 {
@@ -266,15 +285,15 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 template<class PARAMS_CONT>
 #if !ADV_OUT
 #ifdef USE_CUDA
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
 #else
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, PARAMS_CONT& params)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params)
 #endif
 #else
 #ifdef USE_CUDA
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24)
 #else
-int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24)
+int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24)
 #endif
 #endif
 {
@@ -285,20 +304,20 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 
         auto* par = &params[0];
         const uchar* pbuf = buf;
-        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
-        for (uint y = 0; y < frame_height; ++y)
+        ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+        for (uint32_t y = 0; y < frame_height; ++y)
         {
-            for (uint x = 0; x < frame_width; ++x)
+            for (uint32_t x = 0; x < frame_width; ++x)
             {
                 for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                 {
-                    float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                    float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
                 }
 
                 if (curr_frame == fps)
-                    par->end_create_statistic(float_src, (ft_float_t)curr_frame, min_sigma_val, max_sigma_val);
+                    par->end_create_statistic(float_src, (ft_param_t)curr_frame, min_sigma_val, max_sigma_val);
                 else
-                    par->create_statistic(float_src, (ft_float_t)curr_frame);
+                    par->create_statistic(float_src, (ft_param_t)curr_frame);
 
                 pbuf += pixel_size;
                 ++par;
@@ -369,11 +388,12 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         return 0;
     }
 
-    if (++contrast_frame == contrast_time)
+    if (++contrast_frame == contrast_time &&
+            curr_color_type != buf_gray)
     {
         // Необходимо ли использовать детектор теней
         contrast_frame = 0;
-        use_shadow_detector = (get_contrast_rgb24(buf, pitch, frame_width, frame_height) < contrast_threshold);
+        use_shadow_detector = (get_contrast_rgb(buf, pitch, frame_width, frame_height, pixel_size) < contrast_threshold);
     }
 
     auto* par = &params[0];
@@ -384,12 +404,12 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 
     // Коэффициенты (0.587 / 0.144) и (0.299 / 0.144) служат как примитивный детектор теней
     // Их значения взяты из формулы перевода RGB->YUV для компоненты яркости
-    ft_float_t tmp_eps[3];
+    ft_param_t tmp_eps[3];
     if (use_shadow_detector)
     {
         tmp_eps[0] = epsilon;                        // b
-        tmp_eps[1] = (0.587f / 0.144f) * tmp_eps[0]; // g
-        tmp_eps[2] = (0.299f / 0.144f) * tmp_eps[0]; // r
+        tmp_eps[1] = (0.587f * tmp_eps[0]) / 0.144f; // g
+        tmp_eps[2] = (0.299f * tmp_eps[0]) / 0.144f; // r
     }
     else
     {
@@ -446,21 +466,21 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     }
     else
     {
-        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+        ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
         // Работа алгоритма вычитания фона
         size_t i = 0;
         pitch -= frame_width * pixel_size;
         if (get_detect_patches_of_sunlight())
         {
-            for (uint y = 0; y < frame_height; ++y)
+            for (uint32_t y = 0; y < frame_height; ++y)
             {
-                for (uint x = 0; x < frame_width; ++x, ++i)
+                for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
                     // Классификация пикселя
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
-                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                        float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
                     }
 
                     if (par->is_back(float_src, tmp_eps) || is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
@@ -488,14 +508,14 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         }
         else
         {
-            for (uint y = 0; y < frame_height; ++y)
+            for (uint32_t y = 0; y < frame_height; ++y)
             {
-                for (uint x = 0; x < frame_width; ++x, ++i)
+                for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
                     // Классификация пикселя
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
-                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                        float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
                     }
 
                     if (par->is_back(float_src, tmp_eps))
@@ -526,9 +546,9 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         uchar* adv_dest_buf = adv_buf_rgb24;
         par = &params[0];
         i = 0;
-        for (uint y = 0; y < frame_height; ++y)
+        for (uint32_t y = 0; y < frame_height; ++y)
         {
-            for (uint x = 0; x < frame_width; ++x, ++i)
+            for (uint32_t x = 0; x < frame_width; ++x, ++i)
             {
 
                 adv_dest_buf[0] = (uchar)par->p[0].mu;
@@ -557,12 +577,26 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
             }
         }
 #endif
+
+#if ADV_OUT
+        cv::Mat sigmaImg(frame_height, frame_width, CV_8UC1);
+        par = &params[0];
+        for (uint32_t y = 0; y < frame_height; ++y)
+        {
+            for (uint32_t x = 0; x < frame_width; ++x, ++i)
+            {
+                sigmaImg.at<uchar>(y, x) = (uchar)((255 * (par->p[0].sigma - min_sigma_val)) / (max_sigma_val - min_sigma_val));
+                ++par;
+            }
+        }
+        cv::imshow("sigmaImg", sigmaImg);
+#endif
     }
     return 1;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pitch, const CObjectRegion& region)
+void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region)
 {
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
     {
@@ -576,7 +610,7 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pi
 ////////////////////////////////////////////////////////////////////////////
 
 template<class PARAMS_CONT>
-void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pitch, PARAMS_CONT& params, const CObjectRegion& region)
+void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint32_t pitch, PARAMS_CONT& params, const CObjectRegion& region)
 {
     if (use_cuda)
     {
@@ -600,18 +634,18 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pi
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
-        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+        ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
         for (int y = region.get_top(); y <= region.get_bottom(); ++y)
         {
             for (int x = region.get_left(); x <= region.get_right(); ++x)
             {
                 for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                 {
-                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                    float_src[vc] = static_cast<ft_param_t>(buf[vc]);
                 }
 
-                par->recalc_mu(float_src, 0.2f * alpha1);
-                par->recalc_sigma(float_src, 0.2f * alpha2, min_sigma_val, max_sigma_val);
+                par->recalc_mu(float_src, (20 * alpha1) / 100);
+                par->recalc_sigma(float_src, (20 * alpha2) / 100, min_sigma_val, max_sigma_val);
 
                 ++par;
                 buf += pixel_size;
@@ -623,7 +657,7 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pi
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pitch, const CObjectRegion& region)
+void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region)
 {
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
     {
@@ -637,7 +671,7 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pit
 ////////////////////////////////////////////////////////////////////////////
 
 template<class PARAMS_CONT>
-void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pitch, PARAMS_CONT& params, const CObjectRegion& region)
+void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint32_t pitch, PARAMS_CONT& params, const CObjectRegion& region)
 {
     if (use_cuda)
     {
@@ -660,14 +694,14 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pit
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
-        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+        ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
         for (int y = region.get_top(); y <= region.get_bottom(); ++y)
         {
             for (int x = region.get_left(); x <= region.get_right(); ++x)
             {
                 for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                 {
-                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                    float_src[vc] = static_cast<ft_param_t>(buf[vc]);
                 }
 
                 par->set_mu_sigma(float_src, max_sigma_val);
@@ -686,8 +720,8 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pit
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-const ft_float_t CGaussianMixtureBackSubstr::alpha3 = (ft_float_t)0.05;
-const ft_float_t CGaussianMixtureBackSubstr::weight_threshold = (ft_float_t)0.2;
+const float_t CGaussianMixtureBackSubstr::alpha3 = (float_t)0.05;
+const float_t CGaussianMixtureBackSubstr::weight_threshold = (float_t)0.2;
 ////////////////////////////////////////////////////////////////////////////
 
 CGaussianMixtureBackSubstr::CGaussianMixtureBackSubstr()
@@ -717,7 +751,7 @@ void CGaussianMixtureBackSubstr::set_show_objects(bool show_objects)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CGaussianMixtureBackSubstr::init(uint width, uint height, color_type buf_type, bool& use_cuda_)
+bool CGaussianMixtureBackSubstr::init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_)
 {
     if (CBackSubstraction::init(width, height, buf_type, use_cuda_) ||
             (((buf_type == buf_rgb24) || (buf_type == buf_rgb32)) ? rgb_params.empty() : gray_params.empty()))
@@ -764,15 +798,15 @@ bool CGaussianMixtureBackSubstr::init(uint width, uint height, color_type buf_ty
 
 #if !ADV_OUT
 #ifdef USE_CUDA
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
 #else
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l)
 #endif
 #else
 #ifdef USE_CUDA
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24)
 #else
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24)
 #endif
 #endif
 {
@@ -807,15 +841,15 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 template<class PARAMS_CONT>
 #if !ADV_OUT
 #ifdef USE_CUDA
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
 #else
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, PARAMS_CONT& params)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params)
 #endif
 #else
 #ifdef USE_CUDA
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24)
 #else
-int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24)
+int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24)
 #endif
 #endif
 {
@@ -826,20 +860,20 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 
         auto* par = &params[0];
         const uchar* pbuf = buf;
-        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
-        for (uint y = 0; y < frame_height; ++y)
+        ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+        for (uint32_t y = 0; y < frame_height; ++y)
         {
-            for (uint x = 0; x < frame_width; ++x)
+            for (uint32_t x = 0; x < frame_width; ++x)
             {
                 for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                 {
-                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                    float_src[vc] = static_cast<ft_param_t>(buf[vc]);
                 }
 
                 if (curr_frame == fps)
-                    par->end_create_statistic(float_src, (ft_float_t)curr_frame, min_sigma_val, max_sigma_val);
+                    par->end_create_statistic(float_src, (ft_param_t)curr_frame, min_sigma_val, max_sigma_val);
                 else
-                    par->create_statistic(float_src, (ft_float_t)curr_frame);
+                    par->create_statistic(float_src, (ft_param_t)curr_frame);
 
                 pbuf += pixel_size;
                 ++par;
@@ -858,8 +892,8 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
                 case buf_rgb24:
                 case buf_rgb32:
                 {
-                    std::vector<long> h_curr_processes(params.size(), 0);
-                    std::vector<long> h_created_processes(params.size(), 1);
+                    std::vector<int32_t> h_curr_processes(params.size(), 0);
+                    std::vector<int32_t> h_created_processes(params.size(), 1);
 
                     std::vector<BgrndProcess> h_process1(params.size());
                     std::vector<BgrndProcess> h_process2(params.size());
@@ -886,8 +920,8 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 
                 case buf_gray:
                 {
-                    std::vector<long> h_curr_processes(params.size(), 0);
-                    std::vector<long> h_created_processes(params.size(), 1);
+                    std::vector<int32_t> h_curr_processes(params.size(), 0);
+                    std::vector<int32_t> h_created_processes(params.size(), 1);
 
                     std::vector<BgrndProcess> h_process1(params.size());
                     std::vector<BgrndProcess> h_process2(params.size());
@@ -922,7 +956,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
     auto* par = &params[0];
     const uchar* pbuf = buf;
 
-    ft_float_t tmp_eps[3] = { epsilon, epsilon, epsilon };
+    ft_param_t tmp_eps[3] = { epsilon, epsilon, epsilon };
 
     if (use_cuda)
     {
@@ -964,21 +998,21 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
     }
     else
     {
-        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+        ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
         // Работа алгоритма вычитания фона
         size_t i = 0;
         pitch -= frame_width * pixel_size;
         if (get_detect_patches_of_sunlight())
         {
-            for (uint y = 0; y < frame_height; ++y)
+            for (uint32_t y = 0; y < frame_height; ++y)
             {
-                for (uint x = 0; x < frame_width; ++x, ++i)
+                for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
                     // Классификация пикселя
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
-                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                        float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
                     }
 
                     if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold) ||
@@ -1000,14 +1034,14 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
         }
         else
         {
-            for (uint y = 0; y < frame_height; ++y)
+            for (uint32_t y = 0; y < frame_height; ++y)
             {
-                for (uint x = 0; x < frame_width; ++x, ++i)
+                for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
                     // Классификация пикселя
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
-                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                        float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
                     }
 
                     if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold))
@@ -1031,9 +1065,9 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
         uchar* adv_dest_buf = adv_buf_rgb24;
         par = &params[0];
         i = 0;
-        for (uint y = 0; y < frame_height; ++y)
+        for (uint32_t y = 0; y < frame_height; ++y)
         {
-            for (uint x = 0; x < frame_width; ++x, ++i)
+            for (uint32_t x = 0; x < frame_width; ++x, ++i)
             {
 
                 adv_dest_buf[0] = (uchar)par->proc_list[par->curr_proc].p[0].mu;
@@ -1067,12 +1101,12 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CGaussianMixtureBackSubstr::update_statistic_in_region(const uchar* /*buf*/, uint /*pitch*/, const CObjectRegion& /*region*/)
+void CGaussianMixtureBackSubstr::update_statistic_in_region(const uchar* /*buf*/, uint32_t /*pitch*/, const CObjectRegion& /*region*/)
 {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uint pitch, const CObjectRegion& region)
+void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region)
 {
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
     {
@@ -1086,7 +1120,7 @@ void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uin
 ////////////////////////////////////////////////////////////////////////////
 
 template<class PARAMS_CONT>
-void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uint pitch, PARAMS_CONT& params, const CObjectRegion& region)
+void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uint32_t pitch, PARAMS_CONT& params, const CObjectRegion& region)
 {
     if (use_cuda)
     {
@@ -1102,7 +1136,7 @@ void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uin
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
 
-        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+        ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
         for (int y = region.get_top(); y <= region.get_bottom(); ++y)
         {
@@ -1110,7 +1144,7 @@ void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uin
             {
                 for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                 {
-                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                    float_src[vc] = static_cast<ft_param_t>(buf[vc]);
                 }
 
                 par->set_mu_sigma(float_src, max_sigma_val);

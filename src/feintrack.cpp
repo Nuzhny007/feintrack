@@ -401,9 +401,9 @@ void CFeinTrack::set_fps(int new_fps)
 ////////////////////////////////////////////////////////////////////////////
 
 #if !ADV_OUT
-int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type)
+int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type)
 #else
-int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type, uchar* adv_buf_rgb24)
+int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type, uchar* adv_buf_rgb24)
 #endif
 {
     // Если объекты отображать не нужно, то анализ не проводим
@@ -566,7 +566,7 @@ void CFeinTrack::del_object(std::unique_ptr<CTrackingObject>& object, bool del_a
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CFeinTrack::regions_preprocessing(const uchar* buf, uint pitch)
+void CFeinTrack::regions_preprocessing(const uchar* buf, uint32_t pitch)
 {
     // Очень маленькие регионы и регионы с маленькой плотностью сразу удаляем
     bool need_update = (curr_frame % fps == fps - 1);
@@ -606,9 +606,9 @@ void CFeinTrack::regions_preprocessing(const uchar* buf, uint pitch)
 ////////////////////////////////////////////////////////////////////////////
 
 #if !ADV_OUT
-void CFeinTrack::tracking_objects(const uchar* buf, uint pitch)
+void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch)
 #else
-void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_rgb24)
+void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_buf_rgb24)
 #endif
 {
     // Обнуляем количество найденных объектов
@@ -1435,19 +1435,19 @@ bool CFeinTrack::get_object_points(size_t obj_ind, POINTF* points, size_t& max_p
         return false;
     }
 
-    uint left = obj_rects[obj_ind].left - left_padding;
-    uint right = obj_rects[obj_ind].right - left_padding;
-    uint top = obj_rects[obj_ind].top - top_padding;
-    uint bottom = obj_rects[obj_ind].bottom - top_padding;
+    uint32_t left = obj_rects[obj_ind].left - left_padding;
+    uint32_t right = obj_rects[obj_ind].right - left_padding;
+    uint32_t top = obj_rects[obj_ind].top - top_padding;
+    uint32_t bottom = obj_rects[obj_ind].bottom - top_padding;
 
     mask_type *par = nullptr;
-    uint step_x = std::max<uint>(2, (right - left + 1) / 16);
-    uint step_y = std::max<uint>(2, (bottom - top + 1) / 16);
+    uint32_t step_x = std::max<uint32_t>(2, (right - left + 1) / 16);
+    uint32_t step_y = std::max<uint32_t>(2, (bottom - top + 1) / 16);
     size_t point_ind = 0;
-    for (uint y = top + step_y / 2; y < bottom; y += step_y)
+    for (uint32_t y = top + step_y / 2; y < bottom; y += step_y)
     {
         par = &segmentator.get_mask()[(left + step_x / 2) + frame_width * y];
-        for (uint x = left + step_x / 2; x < right; x += step_x)
+        for (uint32_t x = left + step_x / 2; x < right; x += step_x)
         {
             if (*par)
             {

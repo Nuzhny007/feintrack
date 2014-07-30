@@ -31,9 +31,9 @@ namespace vl_feintrack
 		static void destroy(CFTCont* &ft_cont);     // удаление объекта класса
 
 #if !ADV_OUT
-		int frame_analyze(const uchar* buf, uint width, uint height, color_type buf_type);                // Анализ очередного кадра
+        int frame_analyze(const uchar* buf, uint32_t width, uint32_t height, color_type buf_type);                // Анализ очередного кадра
 #else
-        int frame_analyze(const uchar* buf, uint width, uint height, color_type buf_type, uchar* adv_buf_rgb24); // Анализ очередного кадра
+        int frame_analyze(const uchar* buf, uint32_t width, uint32_t height, color_type buf_type, uchar* adv_buf_rgb24); // Анализ очередного кадра
 #endif
 
 		void set_config(const void* config_struct); // Задание конфигурации Feintrack'a

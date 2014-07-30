@@ -20,10 +20,10 @@ __device__ T sqr_(T val)
 #define get_r(v) (unsigned char)(0x000000ff & ((v) >> 16));
 ////////////////////////////////////////////////////////////////////////
 
-__global__ void back_substraction_(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, mask_type *mask, float eps_b, float eps_g, float eps_r)
+__global__ void back_substraction_(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, mask_type *mask, float eps_b, float eps_g, float eps_r)
 {
 	int i = CALC_I();
-	long p = bgr32[i];
+	int32_t p = bgr32[i];
 	float b = (float)get_b(p);
 	float g = (float)get_g(p);
 	float r = (float)get_r(p);
@@ -40,7 +40,7 @@ __global__ void back_substraction_(long *bgr32, float *params_b_mu, float *param
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void back_substraction(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, mask_type *mask,
+void back_substraction(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, mask_type *mask,
 					   int frame_width, int frame_height, float eps_b, float eps_g, float eps_r)
 {
 	dim3 dim_block = dim3(BACK_BLOCK_SIZE, BACK_BLOCK_SIZE);
@@ -74,12 +74,12 @@ void back_substraction_gray(float *p_val, float *params_mu, float *params_sigma,
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void back_substraction_upd_(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma,
+__global__ void back_substraction_upd_(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma,
 									   mask_type *mask, float eps_b, float eps_g, float eps_r, PixelUpdateParams pup)
 {
 	int i = CALC_I();
 
-	long p = bgr32[i];
+	int32_t p = bgr32[i];
 	float b = (float)get_b(p);
 	float g = (float)get_g(p);
 	float r = (float)get_r(p);
@@ -122,7 +122,7 @@ __global__ void back_substraction_upd_(long *bgr32, float *params_b_mu, float *p
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void back_substraction_upd(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma,
+void back_substraction_upd(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma,
 						   mask_type *mask, int frame_width, int frame_height, float eps_b, float eps_g, float eps_r, PixelUpdateParams pup)
 {
 	dim3 dim_block = dim3(BACK_BLOCK_SIZE, BACK_BLOCK_SIZE);
@@ -170,15 +170,15 @@ void back_substraction_gray_upd(float *p_val, float *params_mu, float *params_si
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void back_substraction_mixture_(long* bgr32,
+__global__ void back_substraction_mixture_(int32_t* bgr32,
 										   BgrndProcess* process1, BgrndProcess* process2, BgrndProcess* process3,
-										   long* curr_processes, long* created_processes, mask_type* mask,
+										   int32_t* curr_processes, int32_t* created_processes, mask_type* mask,
 										   float eps_b, float eps_g, float eps_r,
 										   PixelUpdateParams pup, MixturePixelUpdateParams mup)
 {
 	int i = CALC_I();
 
-	long p = bgr32[i];
+	int32_t p = bgr32[i];
 	float b = (float)get_b(p);
 	float g = (float)get_g(p);
 	float r = (float)get_r(p);
@@ -187,8 +187,8 @@ __global__ void back_substraction_mixture_(long* bgr32,
 
 	bool find_process = false;
 
-	long curr_proc = curr_processes[i];
-	long cr_processes = created_processes[i];
+	int32_t curr_proc = curr_processes[i];
+	int32_t cr_processes = created_processes[i];
 	BgrndProcess proc_list[3] = { process1[i], process2[i], process3[i] };
 
 	for (size_t proc_ind = 0; proc_ind < cr_processes; ++proc_ind)
@@ -283,8 +283,8 @@ __global__ void back_substraction_mixture_(long* bgr32,
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void back_substraction_mixture(long* bgr32, BgrndProcess* process1, BgrndProcess* process2, BgrndProcess* process3,
-							   long* curr_processes, long* created_processes, mask_type* mask,
+void back_substraction_mixture(int32_t* bgr32, BgrndProcess* process1, BgrndProcess* process2, BgrndProcess* process3,
+							   int32_t* curr_processes, int32_t* created_processes, mask_type* mask,
 							   int frame_width, int frame_height, float eps_b, float eps_g, float eps_r,
 							   PixelUpdateParams pup, MixturePixelUpdateParams mup)
 {
@@ -296,7 +296,7 @@ void back_substraction_mixture(long* bgr32, BgrndProcess* process1, BgrndProcess
 
 __global__ void back_substraction_mixture_gray_(float* p_val,
 												BgrndProcess* process1, BgrndProcess* process2, BgrndProcess* process3,
-												long* curr_processes, long* created_processes, mask_type* mask,
+												int32_t* curr_processes, int32_t* created_processes, mask_type* mask,
 												float eps, PixelUpdateParams pup, MixturePixelUpdateParams mup)
 {
 	int i = CALC_I();
@@ -307,8 +307,8 @@ __global__ void back_substraction_mixture_gray_(float* p_val,
 
 	bool find_process = false;
 
-	long curr_proc = curr_processes[i];
-	long cr_processes = created_processes[i];
+	int32_t curr_proc = curr_processes[i];
+	int32_t cr_processes = created_processes[i];
 	BgrndProcess proc_list[3] = { process1[i], process2[i], process3[i] };
 
 	for (size_t proc_ind = 0; proc_ind < cr_processes; ++proc_ind)
@@ -384,7 +384,7 @@ __global__ void back_substraction_mixture_gray_(float* p_val,
 ////////////////////////////////////////////////////////////////////////////////
 
 void back_substraction_mixture_gray(float* p_val, BgrndProcess* process1, BgrndProcess* process2, BgrndProcess* process3,
-							   long* curr_processes, long* created_processes, mask_type* mask,
+							   int32_t* curr_processes, int32_t* created_processes, mask_type* mask,
 							   int frame_width, int frame_height, float eps,
 							   PixelUpdateParams pup, MixturePixelUpdateParams mup)
 {
@@ -398,7 +398,7 @@ void back_substraction_mixture_gray(float* p_val, BgrndProcess* process1, BgrndP
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void reset_statistic_(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
+__global__ void reset_statistic_(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
 								 int left, int right, int top, int bottom, float max_sigma_val)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -408,7 +408,7 @@ __global__ void reset_statistic_(long *bgr32, float *params_b_mu, float *params_
 	{
 		i += left + frame_width * top;
 
-		long p = bgr32[i];
+		int32_t p = bgr32[i];
 		float b = (float)get_b(p);
 		float g = (float)get_g(p);
 		float r = (float)get_r(p);
@@ -424,7 +424,7 @@ __global__ void reset_statistic_(long *bgr32, float *params_b_mu, float *params_
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void reset_statistic(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
+void reset_statistic(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
 					 int left, int right, int top, int bottom, float max_sigma_val)
 {
 	int reset_pixels = (right - left + 1) * (bottom - top + 1);
@@ -470,7 +470,7 @@ void reset_statistic_gray(float *p_val, float *params_mu, float *params_sigma, i
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void update_statistic_(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
+__global__ void update_statistic_(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
 								  int left, int right, int top, int bottom, PixelUpdateParams pup)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -487,7 +487,7 @@ __global__ void update_statistic_(long *bgr32, float *params_b_mu, float *params
 		float r_mu = params_r_mu[i];
 		float r_sigma = params_r_sigma[i];
 
-		long p = bgr32[i];
+		int32_t p = bgr32[i];
 		float b = (float)get_b(p);
 		float g = (float)get_g(p);
 		float r = (float)get_r(p);
@@ -514,7 +514,7 @@ __global__ void update_statistic_(long *bgr32, float *params_b_mu, float *params
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void update_statistic(long *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
+void update_statistic(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
 					  int left, int right, int top, int bottom, PixelUpdateParams pup)
 {
 	int reset_pixels = (right - left + 1) * (bottom - top + 1);

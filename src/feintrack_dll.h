@@ -12,9 +12,10 @@ namespace vl_feintrack
 {
     ////////////////////////////////////////////////////////////////////////////
 
-    typedef unsigned long uint;
+    typedef int int32_t;
+    typedef unsigned int uint32_t;
     typedef unsigned char uchar;
-    typedef double float_t;
+    typedef float float_t;
 
     ////////////////////////////////////////////////////////////////////////////
 

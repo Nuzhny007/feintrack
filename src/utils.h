@@ -441,7 +441,7 @@ namespace vl_feintrack
 
 	// Построение гистограммы по строкам
 	template<class SOME_RECT, class MASK_TYPE>
-	void build_horz_hist(const SOME_RECT& region, int from_h, int to_h, hist_cont& hist, uint frame_width, const MASK_TYPE* mask)
+    void build_horz_hist(const SOME_RECT& region, int from_h, int to_h, hist_cont& hist, uint32_t frame_width, const MASK_TYPE* mask)
 	{
 		int w = frame_width - region.width();
 		const MASK_TYPE* par = mask + region.get_left() + frame_width * (region.get_top() + from_h);
@@ -462,7 +462,7 @@ namespace vl_feintrack
 
 	// Построение гистограммы по столбцам	
 	template<class SOME_RECT, class MASK_TYPE>
-	void build_vert_hist(const SOME_RECT& region, hist_cont& hist, uint frame_width, const MASK_TYPE* mask)
+    void build_vert_hist(const SOME_RECT& region, hist_cont& hist, uint32_t frame_width, const MASK_TYPE* mask)
 	{
 		int w = frame_width - region.width();
 		const MASK_TYPE *par = mask + region.get_left() + frame_width * region.get_top();
@@ -483,7 +483,7 @@ namespace vl_feintrack
 
 	// Вычисление смешанного центрального момента второго порядка
 	template<class SOME_RECT, class MASK_TYPE>
-	double calc_s_mu(const SOME_RECT& region, double center_mass_r, double center_mass_c, double area, uint frame_width, const MASK_TYPE* mask)
+    double calc_s_mu(const SOME_RECT& region, double center_mass_r, double center_mass_c, double area, uint32_t frame_width, const MASK_TYPE* mask)
 	{
 		double sum2(0.);
 		int w = frame_width - region.width();
@@ -506,7 +506,7 @@ namespace vl_feintrack
 
 	// Построение гистограммы яркости
 	template<class MASK_TYPE>
-    void calculate_hist(const uchar* buf, int pitch, int pixel_size, int c_x, int c_y, int width, int height, hist_cont& hist, uint frame_width, const MASK_TYPE* mask)
+    void calculate_hist(const uchar* buf, int pitch, int pixel_size, int c_x, int c_y, int width, int height, hist_cont& hist, uint32_t frame_width, const MASK_TYPE* mask)
 	{
 		// image buffer
         buf += pixel_size * c_x + pitch * c_y;
@@ -539,7 +539,7 @@ namespace vl_feintrack
 			buf += w1;
 		}
 
-		// нормализуем
+        // нормализуем
 		std::transform(hist.begin(), hist.end(), hist.begin(), std::bind2nd(std::divides<float>(), total_sum));
 	}
 	//////////////////////////////////////////////////////////////////
@@ -551,27 +551,27 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////////
 
 	// Получение значения контраста изображения
-	float_t get_contrast_rgb24(const uchar* buf, uint pitch, uint width, uint height);
+    float_t get_contrast_rgb(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, uint32_t pixel_size);
 	////////////////////////////////////////////////////////////////////////
 
 	// Копирование RGB24-буфера на RGB32-буфер
-	void copy_24to32(uchar* dest_buf, uint dest_pitch, const uchar* src_buf, uint src_width, uint src_heght);
+    void copy_24to32(uchar* dest_buf, uint32_t dest_pitch, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	
 	////////////////////////////////////////////////////////////////////////
 	
 	// Копирование RGB24-буфера на RGB24-буфер c переворачиванием
-	void copy_24to24_flip(uchar* dest_buf, const uchar* src_buf, uint src_width, uint src_heght);
+    void copy_24to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	////////////////////////////////////////////////////////////////////////
 	
 	// Копирование RGB32-буфера на RGB24-буфер
-	void copy_32to24(uchar* dest_buf, const uchar* src_buf, uint src_heght, uint src_pitch);
+    void copy_32to24(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch);
 	
 	// Копирование RGB32-буфера на RGB24-буфер c переворачиванием
-	void copy_32to24_flip(uchar* dest_buf, const uchar* src_buf, uint src_heght, uint src_pitch);
+    void copy_32to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch);
 	////////////////////////////////////////////////////////////////////////
 	
 	// Копирование gray-буфера на float-буфер
-	void copy_gray_to_float(float *dest_buf, const uchar* src_buf, uint src_width, uint src_heght);
+    void copy_gray_to_float(float *dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	////////////////////////////////////////////////////////////////////////
 	
 	// Копирование буфера с resize'ом (метод Пешкова-Брезенхама)
@@ -641,7 +641,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////////
 
     template<uchar R, uchar G, uchar B, int pixel_size> inline
-	void paint_point(uchar* buf, uint pitch, int x, int y)                  // Рисование на RGB24 кадре точки
+    void paint_point(uchar* buf, uint32_t pitch, int x, int y)                  // Рисование на RGB24 кадре точки
 	{
         buf += pixel_size * x + y * pitch;
 
@@ -652,7 +652,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
     template<uchar R, uchar G, uchar B, int pixel_size>
-	void paint_h_line(uchar* buf, uint pitch, int x1, int x2, int y)        // Рисование на RGB буфере горизонтальной,
+    void paint_h_line(uchar* buf, uint32_t pitch, int x1, int x2, int y)        // Рисование на RGB буфере горизонтальной,
 	{
         buf += pixel_size * x1 + y * pitch;
         for (; x1 < x2; ++x1, buf += pixel_size)
@@ -665,7 +665,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
     template<uchar R, uchar G, uchar B, int pixel_size>
-	void paint_v_line(uchar* buf, uint pitch, int x, int y1, int y2)        // вертикальной и
+    void paint_v_line(uchar* buf, uint32_t pitch, int x, int y1, int y2)        // вертикальной и
 	{
         buf += pixel_size * x + y1 * pitch;
 		for (; y1 < y2; ++y1, buf += pitch)
@@ -678,7 +678,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
     template<uchar R, uchar G, uchar B, int pixel_size>
-	void paint_line(uchar* buf, uint pitch, int x1, int x2, int y1, int y2) // произвольной линии
+    void paint_line(uchar* buf, uint32_t pitch, int x1, int x2, int y1, int y2) // произвольной линии
 	{
 		int dx = abs(x2 - x1);
 		int dy = abs(y2 - y1);

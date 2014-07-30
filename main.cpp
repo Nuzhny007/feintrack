@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
     vl_feintrack::EnableBackUpdate(feintrack, true);
 
 
-    unsigned long frame_num(0);
+    uint32_t frame_num(0);
 
     vl_feintrack::color_type cl_type = vl_feintrack::buf_gray;
 
