@@ -163,7 +163,7 @@ namespace vl_feintrack
 		float_t a1(0), b1(0); //Коэффициенты 1-й прямой
 		bool trivial1(false); //Вырожденный случай - прямая перпендикулярна оси OX
 
-		if (abs(x1_1 - x2_1) < eps)
+        if (fabs(x1_1 - x2_1) < eps)
 		{
 			trivial1 = true;
 		}
@@ -177,7 +177,7 @@ namespace vl_feintrack
 		float_t a2(0), b2(0); //Коэффициенты 2-й прямой
 		bool trivial2(false); //Вырожденный случай - прямая перпендикулярна оси OX
 
-		if (abs(x1_2 - x2_2) < eps) //Вырожденный случай - прямая перпендикулярна оси OX
+        if (fabs(x1_2 - x2_2) < eps) //Вырожденный случай - прямая перпендикулярна оси OX
 		{
 			trivial2 = true;
 		}
@@ -193,7 +193,7 @@ namespace vl_feintrack
 		if (trivial1)
 		{
 			if (trivial2)
-				return (abs(x1_1 - x1_2) < eps);
+                return (fabs(x1_1 - x1_2) < eps);
 			else
 				x = x1_1;
 			y = a2 * x + b2;
@@ -206,7 +206,7 @@ namespace vl_feintrack
 			}
 			else
 			{
-				if (abs(a2 - a1) > eps)
+                if (fabs(a2 - a1) > eps)
 					x = (b1 - b2) / (a2 - a1);
 				else
 					return false;

@@ -12,8 +12,8 @@ const ft_float_t CBackSubstraction::max_sens = (ft_float_t)10.0; // максимальное
 const ft_float_t CBackSubstraction::alpha1 = (ft_float_t)0.2; // Для выборочного среднего
 const ft_float_t CBackSubstraction::alpha2 = (ft_float_t)0.1; // Для среднеквадратичного отклонения
 
-const ft_float_t CBackSubstraction::max_sigma_val = (ft_float_t)30.0; // Минимальное и
-const ft_float_t CBackSubstraction::min_sigma_val = (ft_float_t)3.0;  // максимальное значение для среднеквадратичного отклонения (используется при вычитании фона)
+const ft_float_t CBackSubstraction::min_sigma_val = (ft_float_t)3.0;  // Минимальное и
+const ft_float_t CBackSubstraction::max_sigma_val = (ft_float_t)20.0; // максимальное значение для среднеквадратичного отклонения (используется при вычитании фона)
 
 const ft_float_t CBackSubstraction::sunlight_threshold = (ft_float_t)150.; // Порог значение пикселя для определения блика
 ////////////////////////////////////////////////////////////////////////////
@@ -285,14 +285,20 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 
         auto* par = &params[0];
         const uchar* pbuf = buf;
+        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
         for (uint y = 0; y < frame_height; ++y)
         {
             for (uint x = 0; x < frame_width; ++x)
             {
+                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                {
+                    float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                }
+
                 if (curr_frame == fps)
-                    par->end_create_statistic(pbuf, (ft_float_t)curr_frame, min_sigma_val, max_sigma_val);
+                    par->end_create_statistic(float_src, (ft_float_t)curr_frame, min_sigma_val, max_sigma_val);
                 else
-                    par->create_statistic(pbuf, (ft_float_t)curr_frame);
+                    par->create_statistic(float_src, (ft_float_t)curr_frame);
 
                 pbuf += pixel_size;
                 ++par;
@@ -440,20 +446,91 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     }
     else
     {
-#if ADV_OUT
-        uchar* adv_dest_buf = adv_buf_rgb24;
-#endif
-
-
         ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
         // Работа алгоритма вычитания фона
         size_t i = 0;
+        pitch -= frame_width * pixel_size;
+        if (get_detect_patches_of_sunlight())
+        {
+            for (uint y = 0; y < frame_height; ++y)
+            {
+                for (uint x = 0; x < frame_width; ++x, ++i)
+                {
+                    // Классификация пикселя
+                    for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                    {
+                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                    }
+
+                    if (par->is_back(float_src, tmp_eps) || is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
+                    {
+                        // Пиксель принадлежит заднему плану
+                        pixels_l[i] = 0;
+
+                        if (curr_background_update)
+                        {
+                            // Обновление параметров модели заднего плана
+                            par->recalc_mu(float_src, alpha1);
+                            par->recalc_sigma(float_src, alpha2, min_sigma_val, max_sigma_val);
+                        }
+                    }
+                    else
+                    {
+                        // Пиксель принадлежит переднему плану
+                        pixels_l[i] = 1;
+                    }
+                    pbuf += pixel_size;
+                    ++par;
+                }
+                pbuf += pitch;
+            }
+        }
+        else
+        {
+            for (uint y = 0; y < frame_height; ++y)
+            {
+                for (uint x = 0; x < frame_width; ++x, ++i)
+                {
+                    // Классификация пикселя
+                    for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                    {
+                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                    }
+
+                    if (par->is_back(float_src, tmp_eps))
+                    {
+                        // Пиксель принадлежит заднему плану
+                        pixels_l[i] = 0;
+
+                        if (curr_background_update)
+                        {
+                            // Обновление параметров модели заднего плана
+                            par->recalc_mu(float_src, alpha1);
+                            par->recalc_sigma(float_src, alpha2, min_sigma_val, max_sigma_val);
+                        }
+                    }
+                    else
+                    {
+                        // Пиксель принадлежит переднему плану
+                        pixels_l[i] = 1;
+                    }
+                    pbuf += pixel_size;
+                    ++par;
+                }
+                pbuf += pitch;
+            }
+        }
+
+#if ADV_OUT
+        uchar* adv_dest_buf = adv_buf_rgb24;
+        par = &params[0];
+        i = 0;
         for (uint y = 0; y < frame_height; ++y)
         {
             for (uint x = 0; x < frame_width; ++x, ++i)
             {
-#if ADV_OUT
+
                 adv_dest_buf[0] = (uchar)par->p[0].mu;
                 if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
                 {
@@ -465,47 +542,21 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
                     adv_dest_buf[1] = (uchar)par->p[0].mu;
                     adv_dest_buf[2] = (uchar)par->p[0].mu;
                 }
-#endif
 
-                // Классификация пикселя
-                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
-                {
-                    float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
-                }
-
-                if (par->is_back(float_src, tmp_eps) || is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
-                {
-                    // Пиксель принадлежит заднему плану
-                    pixels_l[i] = 0;
-
-                    if (curr_background_update)
-                    {
-                        // Обновление параметров модели заднего плана
-                        par->recalc_mu(float_src, alpha1);
-                        par->recalc_sigma(float_src, alpha2, min_sigma_val, max_sigma_val);
-                    }
-                }
-                else
-                {
-                    // Пиксель принадлежит переднему плану
-                    pixels_l[i] = 1;
-
-#if ADV_OUT // Вывести все пиксели переднего плана другим цветом
+                // Вывести все пиксели переднего плана другим цветом
 #if 1
+                if (pixels_l[i])
+                {
                     adv_dest_buf[0] = 0;
                     adv_dest_buf[1] = 0;
                     adv_dest_buf[2] = 0xff;
-#endif
-#endif
                 }
-                pbuf += pixel_size;
-                ++par;
-#if ADV_OUT
-                adv_dest_buf += 3;
 #endif
+                ++par;
+                adv_dest_buf += 3;
             }
-            pbuf += pitch - frame_width * pixel_size;
         }
+#endif
     }
     return 1;
 }
@@ -514,9 +565,13 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pitch, const CObjectRegion& region)
 {
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
+    {
         update_statistic_in_region(buf, pitch, rgb_params, region);
+    }
     else
+    {
         update_statistic_in_region(buf, pitch, gray_params, region);
+    }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -545,12 +600,18 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pi
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
+        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
         for (int y = region.get_top(); y <= region.get_bottom(); ++y)
         {
             for (int x = region.get_left(); x <= region.get_right(); ++x)
             {
-                par->recalc_mu(buf, 0.2f * alpha1);
-                par->recalc_sigma(buf, 0.2f * alpha2, min_sigma_val, max_sigma_val);
+                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                {
+                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                }
+
+                par->recalc_mu(float_src, 0.2f * alpha1);
+                par->recalc_sigma(float_src, 0.2f * alpha2, min_sigma_val, max_sigma_val);
 
                 ++par;
                 buf += pixel_size;
@@ -565,9 +626,13 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pi
 void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pitch, const CObjectRegion& region)
 {
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
+    {
         reset_statistic_in_region(buf, pitch, rgb_params, region);
+    }
     else
+    {
         reset_statistic_in_region(buf, pitch, gray_params, region);
+    }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -595,11 +660,17 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pit
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
+        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
         for (int y = region.get_top(); y <= region.get_bottom(); ++y)
         {
             for (int x = region.get_left(); x <= region.get_right(); ++x)
             {
-                par->set_mu_sigma(buf, max_sigma_val);
+                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                {
+                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                }
+
+                par->set_mu_sigma(float_src, max_sigma_val);
 
                 ++par;
                 buf += pixel_size;
@@ -755,14 +826,20 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 
         auto* par = &params[0];
         const uchar* pbuf = buf;
+        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
         for (uint y = 0; y < frame_height; ++y)
         {
             for (uint x = 0; x < frame_width; ++x)
             {
+                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                {
+                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                }
+
                 if (curr_frame == fps)
-                    par->end_create_statistic(pbuf, (ft_float_t)curr_frame, min_sigma_val, max_sigma_val);
+                    par->end_create_statistic(float_src, (ft_float_t)curr_frame, min_sigma_val, max_sigma_val);
                 else
-                    par->create_statistic(pbuf, (ft_float_t)curr_frame);
+                    par->create_statistic(float_src, (ft_float_t)curr_frame);
 
                 pbuf += pixel_size;
                 ++par;
@@ -887,19 +964,78 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
     }
     else
     {
-#if ADV_OUT
-        uchar* adv_dest_buf = adv_buf_rgb24;
-#endif
-
         ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
         // Работа алгоритма вычитания фона
         size_t i = 0;
+        pitch -= frame_width * pixel_size;
+        if (get_detect_patches_of_sunlight())
+        {
+            for (uint y = 0; y < frame_height; ++y)
+            {
+                for (uint x = 0; x < frame_width; ++x, ++i)
+                {
+                    // Классификация пикселя
+                    for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                    {
+                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                    }
+
+                    if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold) ||
+                            is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
+                    {
+                        // Пиксель принадлежит заднему плану
+                        pixels_l[i] = 0;
+                    }
+                    else
+                    {
+                        // Пиксель принадлежит переднему плану
+                        pixels_l[i] = 1;
+                    }
+                    pbuf += pixel_size;
+                    ++par;
+                }
+                pbuf += pitch;
+            }
+        }
+        else
+        {
+            for (uint y = 0; y < frame_height; ++y)
+            {
+                for (uint x = 0; x < frame_width; ++x, ++i)
+                {
+                    // Классификация пикселя
+                    for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                    {
+                        float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
+                    }
+
+                    if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold))
+                    {
+                        // Пиксель принадлежит заднему плану
+                        pixels_l[i] = 0;
+                    }
+                    else
+                    {
+                        // Пиксель принадлежит переднему плану
+                        pixels_l[i] = 1;
+                    }
+                    pbuf += pixel_size;
+                    ++par;
+                }
+                pbuf += pitch;
+            }
+        }
+
+#if ADV_OUT
+        uchar* adv_dest_buf = adv_buf_rgb24;
+        par = &params[0];
+        i = 0;
         for (uint y = 0; y < frame_height; ++y)
         {
             for (uint x = 0; x < frame_width; ++x, ++i)
             {
-#if ADV_OUT
+
                 adv_dest_buf[0] = (uchar)par->proc_list[par->curr_proc].p[0].mu;
                 if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
                 {
@@ -911,41 +1047,21 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
                     adv_dest_buf[1] = (uchar)par->proc_list[par->curr_proc].p[0].mu;
                     adv_dest_buf[2] = (uchar)par->proc_list[par->curr_proc].p[0].mu;
                 }
-#endif
 
-                // Классификация пикселя
-                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
-                {
-                    float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
-                }
-
-                if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold) ||
-                        is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
-                {
-                    // Пиксель принадлежит заднему плану
-                    pixels_l[i] = 0;
-                }
-                else
-                {
-                    // Пиксель принадлежит переднему плану
-                    pixels_l[i] = 1;
-
-#if ADV_OUT // Вывести все пиксели переднего плана другим цветом
+                // Вывести все пиксели переднего плана другим цветом
 #if 1
+                if (pixels_l[i])
+                {
                     adv_dest_buf[0] = 0;
                     adv_dest_buf[1] = 0;
                     adv_dest_buf[2] = 0xff;
-#endif
-#endif
                 }
-                pbuf += pixel_size;
-                ++par;
-#if ADV_OUT
-                adv_dest_buf += 3;
 #endif
+                ++par;
+                adv_dest_buf += 3;
             }
-            pbuf += pitch - frame_width * pixel_size;
         }
+#endif
     }
     return 1;
 }
@@ -959,9 +1075,13 @@ void CGaussianMixtureBackSubstr::update_statistic_in_region(const uchar* /*buf*/
 void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uint pitch, const CObjectRegion& region)
 {
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
+    {
         reset_statistic_in_region(buf, pitch, rgb_params, region);
+    }
     else
+    {
         reset_statistic_in_region(buf, pitch, gray_params, region);
+    }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -981,11 +1101,19 @@ void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uin
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
+
+        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
+
         for (int y = region.get_top(); y <= region.get_bottom(); ++y)
         {
             for (int x = region.get_left(); x <= region.get_right(); ++x)
             {
-                par->set_mu_sigma(buf, max_sigma_val);
+                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
+                {
+                    float_src[vc] = static_cast<ft_float_t>(buf[vc]);
+                }
+
+                par->set_mu_sigma(float_src, max_sigma_val);
 
                 ++par;
                 buf += pixel_size;

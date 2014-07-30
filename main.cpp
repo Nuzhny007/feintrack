@@ -90,11 +90,11 @@ int main(int argc, char* argv[])
     ftp.set_left_object_time2_sec(20);
     ftp.set_left_object_time3_sec(30);
     ftp.set_show_left_objects(true);
-    ftp.set_use_square_segmentation(true);
+    ftp.set_use_square_segmentation(false);
     ftp.set_detect_patches_of_sunlight(false);
-    ftp.set_cut_shadows(false);
+    ftp.set_cut_shadows(true);
     ftp.set_analyze_area(vl_feintrack::RECT_(0, 100, 0, 100));
-    ftp.set_sensitivity(70);
+    ftp.set_sensitivity(80);
     ftp.set_use_recognition(false);
     ftp.set_use_morphology(true);
     ftp.set_selection_time(12);
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 
     unsigned long frame_num(0);
 
-    vl_feintrack::color_type cl_type = vl_feintrack::buf_rgb24;
+    vl_feintrack::color_type cl_type = vl_feintrack::buf_gray;
 
     bool init_zones = false;
 

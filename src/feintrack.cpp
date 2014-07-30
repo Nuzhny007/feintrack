@@ -5,7 +5,7 @@ namespace vl_feintrack
 {
 ////////////////////////////////////////////////////////////////////////////
 
-const float_t CFeinTrack::density_threshold = 0.2;
+const float_t CFeinTrack::density_threshold = 0.1;
 ////////////////////////////////////////////////////////////////////////////
 
 CFeinTrack::CFeinTrack()
@@ -487,9 +487,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height,
     }
 
 #if ADV_OUT
-#if 1
-    segmentator.draw_mask(use_cuda, adv_buf_rgb24);
-#endif
+    //segmentator.draw_mask(use_cuda, adv_buf_rgb24);
 #endif
 
     // ≈сли используетс€ cuda и требуетс€ распознавание, то копируем маску из видеопам€ти в системную
@@ -588,7 +586,9 @@ void CFeinTrack::regions_preprocessing(const uchar* buf, uint pitch)
                 (it_r->density() < density_threshold))
         {
             if (need_update)
+            {
                 back_substractor->update_statistic_in_region(buf, pitch, *it_r);
+            }
 
             it_r = regions.erase(it_r);
         }
@@ -596,7 +596,9 @@ void CFeinTrack::regions_preprocessing(const uchar* buf, uint pitch)
         {
             // ќтсечение тени в случае необходимости
             if (cut_shadows)
+            {
                 cut_shadow(*it_r);
+            }
             ++it_r;
         }
     }

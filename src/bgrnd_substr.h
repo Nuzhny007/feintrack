@@ -104,14 +104,12 @@ namespace vl_feintrack
 		ft_float_t sigma;    // Среднеквадратичное отклонение
 
 		// Пересчитывает значение выборочного среднего с помощью экспоненциального сглаживания
-		template<class VAL_TYPE>
-		void recalc_mu(VAL_TYPE new_val, ft_float_t alpha)
+        void recalc_mu(ft_float_t new_val, ft_float_t alpha)
 		{
 			mu = (1 - alpha) * mu + alpha * new_val;
 		}
 		// Пересчитывает значение среднеквадратичного отклонения с помощью экспоненциального сглаживания
-		template<class VAL_TYPE>
-		void recalc_sigma(VAL_TYPE new_val, ft_float_t alpha)
+        void recalc_sigma(ft_float_t new_val, ft_float_t alpha)
 		{
 			sigma = sqrt((1 - alpha) * sqr(sigma) + alpha * sqr(new_val - mu));
 		}
@@ -126,8 +124,7 @@ namespace vl_feintrack
         static const size_t PIXEL_VALUES = NORM_COUNT; ///< Count a significant values on pixel
 
 		// Пересчитывает значение выборочного среднего для всех компонент
-		template<class VAL_TYPE>
-		void recalc_mu(VAL_TYPE* new_val, ft_float_t alpha)
+        void recalc_mu(ft_float_t* new_val, ft_float_t alpha)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
 			{
@@ -136,8 +133,7 @@ namespace vl_feintrack
 		}
 
 		// Пересчитывает значение среднеквадратичного отклонения для всех компонент
-		template<class VAL_TYPE>
-		void recalc_sigma(VAL_TYPE* new_val, ft_float_t alpha, ft_float_t min_sigma_val, ft_float_t max_sigma_val)
+        void recalc_sigma(ft_float_t* new_val, ft_float_t alpha, ft_float_t min_sigma_val, ft_float_t max_sigma_val)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
 			{
@@ -147,8 +143,7 @@ namespace vl_feintrack
 		}
 
 		// Создание статистической модели заднего плана на очередном кадре
-		template<class VAL_TYPE>
-		void create_statistic(VAL_TYPE* new_val, ft_float_t curr_frame)
+        void create_statistic(ft_float_t* new_val, ft_float_t curr_frame)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
 			{
@@ -157,8 +152,7 @@ namespace vl_feintrack
 			}
 		}
 		// Завершение создания модели заднего плана
-		template<class VAL_TYPE>
-		void end_create_statistic(VAL_TYPE* new_val, ft_float_t curr_frame, ft_float_t min_sigma_val, ft_float_t max_sigma_val)
+        void end_create_statistic(ft_float_t* new_val, ft_float_t curr_frame, ft_float_t min_sigma_val, ft_float_t max_sigma_val)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
 			{
@@ -175,15 +169,16 @@ namespace vl_feintrack
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
 			{
-				if (eps[i] * p[i].sigma < abs(p[i].mu - new_val[i]))
+                if (eps[i] * p[i].sigma < fabs(p[i].mu - new_val[i]))
+                {
 					return false;
+                }
 			}
 			return true;
 		}
 
 		// Задание значений модели
-		template<class VAL_TYPE>
-		void set_mu_sigma(VAL_TYPE* new_val, ft_float_t new_sigma)
+        void set_mu_sigma(ft_float_t* new_val, ft_float_t new_sigma)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
 			{
@@ -306,8 +301,7 @@ namespace vl_feintrack
         static const size_t PIXEL_VALUES = NORM_COUNT; ///< Count a significant values on pixel
 
 		// Создание статистической модели заднего плана на очередном кадре
-		template<class VAL_TYPE>
-		void create_statistic(VAL_TYPE* new_val, ft_float_t curr_frame)
+        void create_statistic(ft_float_t* new_val, ft_float_t curr_frame)
 		{
 			for (size_t proc_ind = 0; proc_ind < PROC_PER_PIXEL; ++proc_ind)
 			{
@@ -315,8 +309,7 @@ namespace vl_feintrack
 			}
 		}
 		// Завершение создания модели заднего плана
-		template<class VAL_TYPE>
-		void end_create_statistic(VAL_TYPE* new_val, ft_float_t curr_frame, ft_float_t min_sigma_val, ft_float_t max_sigma_val)
+        void end_create_statistic(ft_float_t* new_val, ft_float_t curr_frame, ft_float_t min_sigma_val, ft_float_t max_sigma_val)
 		{
 			for (size_t proc_ind = 0; proc_ind < PROC_PER_PIXEL; ++proc_ind)
 			{
@@ -389,8 +382,7 @@ namespace vl_feintrack
 		}
 
 		// Задание значений модели
-		template<class VAL_TYPE>
-		void set_mu_sigma(VAL_TYPE* new_val, ft_float_t new_sigma)
+        void set_mu_sigma(ft_float_t* new_val, ft_float_t new_sigma)
 		{
 			proc_list[curr_proc].set_mu_sigma(new_val, new_sigma);
 		}

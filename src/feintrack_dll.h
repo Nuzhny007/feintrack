@@ -3,7 +3,7 @@
 #include <string>
 #include <deque>
 
-#define ADV_OUT 0             // Вывод отладочной информации в отдельный буфер
+#define ADV_OUT 1             // Вывод отладочной информации в отдельный буфер
 
 //#define USE_HOG_RECOGNIZE   // Распознавание людей с помощью OpenCV'шного HOG
 
