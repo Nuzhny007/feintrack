@@ -29,7 +29,7 @@ CBackSubstraction::CBackSubstraction()
     epsilon = (1.5f * (max_sens + min_sens)) / 4.0f;
     use_cuda = false;
 
-    PIXEL_SIZE = 3;
+    pixel_size = 3;
     fps = 25;
     need_background_update = true;
 }
@@ -52,17 +52,21 @@ void CBackSubstraction::set_detect_patches_of_sunlight(bool detect_patches_of_su
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CBackSubstraction::is_patch_of_sunlight(const ft_float_t* float_src)
+bool CBackSubstraction::is_patch_of_sunlight(const ft_float_t* float_src, const size_t pixel_size)
 {
     if (detect_patches_of_sunlight)
     {
-        if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
-            return (float_src[0] > sunlight_threshold) && (float_src[1] > sunlight_threshold) && (float_src[2] > sunlight_threshold);
-        else
-            return (float_src[0] > sunlight_threshold);
+        bool res = true;
+        for (size_t i = 0; i < pixel_size; ++i)
+        {
+            res &= (float_src[i] > sunlight_threshold);
+        }
+        return res;
     }
     else
+    {
         return false;
+    }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +114,7 @@ void CBackSubstraction::enable_back_update(bool enable_val)
 
 bool CBackSubstraction::init(uint width, uint height, color_type buf_type, bool& /*use_cuda_*/)
 {
-    PIXEL_SIZE = get_pixel_size<int>(buf_type);
+    pixel_size = get_pixel_size<int>(buf_type);
 
     if ((frame_width != width) || (frame_height != height) || (curr_color_type != buf_type))
     {
@@ -217,7 +221,7 @@ bool CNormBackSubstraction::init(uint width, uint height, color_type buf_type, b
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
 #else
@@ -231,7 +235,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 #endif
 #endif
 {
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
         return background_substraction(curr_frame, buf, pitch, pixels_l, d_mask, rgb_params);
@@ -260,7 +264,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 ////////////////////////////////////////////////////////////////////////////
 
 template<class PARAMS_CONT>
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
 #else
@@ -290,10 +294,10 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
                 else
                     par->create_statistic(pbuf, (ft_float_t)curr_frame);
 
-                pbuf += PIXEL_SIZE;
+                pbuf += pixel_size;
                 ++par;
             }
-            pbuf += pitch - frame_width * PIXEL_SIZE;
+            pbuf += pitch - frame_width * pixel_size;
         }
 
         if (curr_frame == fps)
@@ -436,11 +440,12 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     }
     else
     {
-#ifdef ADV_OUT
+#if ADV_OUT
         uchar* adv_dest_buf = adv_buf_rgb24;
 #endif
 
-        ft_float_t float_src[3];
+
+        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
         // Работа алгоритма вычитания фона
         size_t i = 0;
@@ -448,7 +453,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         {
             for (uint x = 0; x < frame_width; ++x, ++i)
             {
-#ifdef ADV_OUT
+#if ADV_OUT
                 adv_dest_buf[0] = (uchar)par->p[0].mu;
                 if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
                 {
@@ -463,14 +468,12 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 #endif
 
                 // Классификация пикселя
-                float_src[0] = (ft_float_t)pbuf[0];
-                if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
+                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                 {
-                    float_src[1] = (ft_float_t)pbuf[1];
-                    float_src[2] = (ft_float_t)pbuf[2];
+                    float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
                 }
 
-                if (par->is_back(float_src, tmp_eps) || is_patch_of_sunlight(float_src))
+                if (par->is_back(float_src, tmp_eps) || is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
                 {
                     // Пиксель принадлежит заднему плану
                     pixels_l[i] = 0;
@@ -487,7 +490,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
                     // Пиксель принадлежит переднему плану
                     pixels_l[i] = 1;
 
-#ifdef ADV_OUT // Вывести все пиксели переднего плана другим цветом
+#if ADV_OUT // Вывести все пиксели переднего плана другим цветом
 #if 1
                     adv_dest_buf[0] = 0;
                     adv_dest_buf[1] = 0;
@@ -495,13 +498,13 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 #endif
 #endif
                 }
-                pbuf += PIXEL_SIZE;
+                pbuf += pixel_size;
                 ++par;
-#ifdef ADV_OUT
+#if ADV_OUT
                 adv_dest_buf += 3;
 #endif
             }
-            pbuf += pitch - frame_width * PIXEL_SIZE;
+            pbuf += pitch - frame_width * pixel_size;
         }
     }
     return 1;
@@ -535,10 +538,10 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pi
     else
     {
         // Просматриваем прямоугольник региона и в каждом пикселе обновляем статистику
-        int w1 = pitch - PIXEL_SIZE * region.width();
+        int w1 = pitch - pixel_size * region.width();
         int w2 = frame_width - region.width();
 
-        buf += PIXEL_SIZE * region.get_left() + pitch * region.get_top();
+        buf += pixel_size * region.get_left() + pitch * region.get_top();
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
@@ -550,7 +553,7 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint pi
                 par->recalc_sigma(buf, 0.2f * alpha2, min_sigma_val, max_sigma_val);
 
                 ++par;
-                buf += PIXEL_SIZE;
+                buf += pixel_size;
             }
             par += w2;
             buf += w1;
@@ -585,10 +588,10 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pit
     else
     {
         // Просматриваем прямоугольник региона и значение каждого пикселя присваиваем выборочному среднему
-        int w1 = pitch - PIXEL_SIZE * region.width();
+        int w1 = pitch - pixel_size * region.width();
         int w2 = frame_width - region.width();
 
-        buf += PIXEL_SIZE * region.get_left() + pitch * region.get_top();
+        buf += pixel_size * region.get_left() + pitch * region.get_top();
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
@@ -599,7 +602,7 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint pit
                 par->set_mu_sigma(buf, max_sigma_val);
 
                 ++par;
-                buf += PIXEL_SIZE;
+                buf += pixel_size;
             }
             par += w2;
             buf += w1;
@@ -688,7 +691,7 @@ bool CGaussianMixtureBackSubstr::init(uint width, uint height, color_type buf_ty
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
 #else
@@ -702,7 +705,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 #endif
 #endif
 {
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
         return background_substraction(curr_frame, buf, pitch, pixels_l, d_mask, rgb_params);
@@ -731,7 +734,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 ////////////////////////////////////////////////////////////////////////////
 
 template<class PARAMS_CONT>
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
 #else
@@ -761,10 +764,10 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
                 else
                     par->create_statistic(pbuf, (ft_float_t)curr_frame);
 
-                pbuf += PIXEL_SIZE;
+                pbuf += pixel_size;
                 ++par;
             }
-            pbuf += pitch - frame_width * PIXEL_SIZE;
+            pbuf += pitch - frame_width * pixel_size;
         }
 
         if (curr_frame == fps)
@@ -884,11 +887,11 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
     }
     else
     {
-#ifdef ADV_OUT
+#if ADV_OUT
         uchar* adv_dest_buf = adv_buf_rgb24;
 #endif
 
-        ft_float_t float_src[3];
+        ft_float_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
         // Работа алгоритма вычитания фона
         size_t i = 0;
@@ -896,7 +899,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
         {
             for (uint x = 0; x < frame_width; ++x, ++i)
             {
-#ifdef ADV_OUT
+#if ADV_OUT
                 adv_dest_buf[0] = (uchar)par->proc_list[par->curr_proc].p[0].mu;
                 if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
                 {
@@ -911,15 +914,13 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 #endif
 
                 // Классификация пикселя
-                float_src[0] = (ft_float_t)pbuf[0];
-                if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
+                for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                 {
-                    float_src[1] = (ft_float_t)pbuf[1];
-                    float_src[2] = (ft_float_t)pbuf[2];
+                    float_src[vc] = static_cast<ft_float_t>(pbuf[vc]);
                 }
 
                 if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold) ||
-                        is_patch_of_sunlight(float_src))
+                        is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
                 {
                     // Пиксель принадлежит заднему плану
                     pixels_l[i] = 0;
@@ -929,7 +930,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
                     // Пиксель принадлежит переднему плану
                     pixels_l[i] = 1;
 
-#ifdef ADV_OUT // Вывести все пиксели переднего плана другим цветом
+#if ADV_OUT // Вывести все пиксели переднего плана другим цветом
 #if 1
                     adv_dest_buf[0] = 0;
                     adv_dest_buf[1] = 0;
@@ -937,13 +938,13 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 #endif
 #endif
                 }
-                pbuf += PIXEL_SIZE;
+                pbuf += pixel_size;
                 ++par;
-#ifdef ADV_OUT
+#if ADV_OUT
                 adv_dest_buf += 3;
 #endif
             }
-            pbuf += pitch - frame_width * PIXEL_SIZE;
+            pbuf += pitch - frame_width * pixel_size;
         }
     }
     return 1;
@@ -973,10 +974,10 @@ void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uin
     else
     {
         // Просматриваем прямоугольник региона и значение каждого пикселя присваиваем выборочному среднему
-        int w1 = pitch - PIXEL_SIZE * region.width();
+        int w1 = pitch - pixel_size * region.width();
         int w2 = frame_width - region.width();
 
-        buf += PIXEL_SIZE * region.get_left() + pitch * region.get_top();
+        buf += pixel_size * region.get_left() + pitch * region.get_top();
 
         auto* par = &params[region.get_left() + frame_width * region.get_top()];
 
@@ -987,7 +988,7 @@ void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uin
                 par->set_mu_sigma(buf, max_sigma_val);
 
                 ++par;
-                buf += PIXEL_SIZE;
+                buf += pixel_size;
             }
             par += w2;
             buf += w1;

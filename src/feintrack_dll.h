@@ -3,7 +3,7 @@
 #include <string>
 #include <deque>
 
-#define ADV_OUT             // Вывод отладочной информации в отдельный буфер
+#define ADV_OUT 0             // Вывод отладочной информации в отдельный буфер
 
 //#define USE_HOG_RECOGNIZE   // Распознавание людей с помощью OpenCV'шного HOG
 
@@ -150,7 +150,7 @@ namespace vl_feintrack
 
 	// Получение размера пикселя в байтах для различных типов цветовых пространств
 	template<class T> inline
-		T get_pixel_size(color_type cl_type)
+        T get_pixel_size(color_type cl_type)
 	{
 		switch (cl_type)
 		{
@@ -167,7 +167,7 @@ namespace vl_feintrack
     void DelFeintrack(void* feintrack);                                           // и удаление FeinTracker'a
 
 	// Подаёт новый кадр на обработку
-#ifndef ADV_OUT
+#if !ADV_OUT
     int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int height, color_type buf_type);
 #else
     int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int height, color_type buf_type, uchar* adv_buf_rgb24);

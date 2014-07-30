@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 
     bool init_zones = false;
 
-#ifdef ADV_OUT
+#if ADV_OUT
     cv::Mat adv_img;
 #endif
 
@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
         cv::Mat frame;
         for (capture >> frame; !frame.empty(); capture >> frame)
         {
-#ifdef ADV_OUT
+#if ADV_OUT
             if (adv_img.empty())
             {
                 adv_img = cv::Mat(frame.rows, frame.cols, CV_8UC3, cv::Scalar(0, 0, 0));
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
             }
 
             int64 t1 = cv::getTickCount();
-#ifndef ADV_OUT
+#if !ADV_OUT
             FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type);
 #else
             FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
 
             cv::imshow("frame", frame);
 
-#ifdef ADV_OUT
+#if ADV_OUT
             cv::imshow("adv_img", adv_img);
 #endif
 

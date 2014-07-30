@@ -23,7 +23,7 @@ CFeinTrack::CFeinTrack()
       cut_shadows(false),
       use_cuda(false),
       cuda_device_ind(0),
-      PIXEL_SIZE(3),
+      pixel_size(3),
       use_morphology(true),
       min_region_width(5),
       min_region_height(5),
@@ -400,7 +400,7 @@ void CFeinTrack::set_fps(int new_fps)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ADV_OUT
+#if !ADV_OUT
 int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type)
 #else
 int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type, uchar* adv_buf_rgb24)
@@ -410,7 +410,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height,
     if (!show_objects)
         return 0;
 
-    PIXEL_SIZE = get_pixel_size<int>(buf_type);
+    pixel_size = get_pixel_size<int>(buf_type);
 
     // Коррекция размеров кадра, связанная с размером области анализа
     if (!use_cuda)
@@ -420,8 +420,8 @@ int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height,
         recalc_correct_zones();
         recalc_correct_lines();
 
-        buf += top_padding * pitch + PIXEL_SIZE * left_padding;
-#ifdef ADV_OUT
+        buf += top_padding * pitch + pixel_size * left_padding;
+#if ADV_OUT
         adv_buf_rgb24 += top_padding * 3 * width + 3 * left_padding;
 #endif
         width = ((analyze_area.right - analyze_area.left) * width) / 100;
@@ -462,7 +462,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height,
     }
 
     // Вычитание фона
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
     if (!back_substractor->background_substraction(curr_frame, buf, pitch, segmentator.get_mask(), segmentator.get_device_mask()))
 #else
@@ -486,7 +486,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height,
         segmentator.morphology_open(use_cuda);
     }
 
-#ifdef ADV_OUT
+#if ADV_OUT
 #if 1
     segmentator.draw_mask(use_cuda, adv_buf_rgb24);
 #endif
@@ -528,7 +528,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint pitch, uint width, uint height,
     regions_preprocessing(buf, pitch);
 
     // Создание и анализ поведения объектов на основании найденных на текущем кадре регионов
-#ifndef ADV_OUT
+#if !ADV_OUT
     tracking_objects(buf, pitch);
 #else
     tracking_objects(buf, pitch, adv_buf_rgb24);
@@ -603,7 +603,7 @@ void CFeinTrack::regions_preprocessing(const uchar* buf, uint pitch)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ADV_OUT
+#if !ADV_OUT
 void CFeinTrack::tracking_objects(const uchar* buf, uint pitch)
 #else
 void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_rgb24)
@@ -618,7 +618,7 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_r
     for (objects_container::iterator iter_obj = objects_history.begin(); iter_obj != objects_history.end();)
     {
 #if 1
-#ifdef ADV_OUT
+#if ADV_OUT
         RECT_ r((*iter_obj)->get_rect());
         paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * frame_width, r.left, r.right, r.top);
         paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * frame_width, r.left, r.right + 1, r.bottom);
@@ -1057,7 +1057,7 @@ regions_container::iterator CFeinTrack::find_region_by_hist(const uchar* buf, in
 
     hist_cont standart_hist(256, 0);
     // расчитываем гистограмму проверяемого объекта;
-    calculate_hist(buf, pitch, PIXEL_SIZE, left, top, width, height, standart_hist, frame_width, &segmentator.get_mask()[0]);
+    calculate_hist(buf, pitch, pixel_size, left, top, width, height, standart_hist, frame_width, &segmentator.get_mask()[0]);
 
     // был ли найден ближайший регион
     bool isFound = false;
@@ -1084,7 +1084,7 @@ regions_container::iterator CFeinTrack::find_region_by_hist(const uchar* buf, in
     if (isFound)
     {
         hist_cont suggestion_hist(256, 0);
-        calculate_hist(buf, pitch, PIXEL_SIZE, find_region->get_left(), find_region->get_top(),
+        calculate_hist(buf, pitch, pixel_size, find_region->get_left(), find_region->get_top(),
                        find_region->width(), find_region->height(), suggestion_hist, frame_width, &segmentator.get_mask()[0]);
         // если расстояние оказалось слишком велико
         double distance = bhattacharrya_dist(standart_hist, suggestion_hist);

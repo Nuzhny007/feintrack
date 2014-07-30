@@ -20,7 +20,7 @@ void DelFeintrack(void* feintrack)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ADV_OUT
+#if !ADV_OUT
 int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int height, color_type buf_type)
 #else
 int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int height, color_type buf_type, uchar* adv_buf_rgb24)
@@ -38,7 +38,7 @@ int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int heig
 
     CFTCont* ft_cont = reinterpret_cast<CFTCont*>(feintrack);
 
-#ifndef ADV_OUT
+#if !ADV_OUT
     ret_val = ft_cont->frame_analyze(buf, width, height, buf_type);
 #else
     ret_val = ft_cont->frame_analyze(buf, width, height, buf_type, adv_buf_rgb24);

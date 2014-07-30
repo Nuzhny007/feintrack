@@ -506,11 +506,11 @@ namespace vl_feintrack
 
 	// Построение гистограммы яркости
 	template<class MASK_TYPE>
-	void calculate_hist(const uchar* buf, int pitch, int PIXEL_SIZE, int c_x, int c_y, int width, int height, hist_cont& hist, uint frame_width, const MASK_TYPE* mask)
+    void calculate_hist(const uchar* buf, int pitch, int pixel_size, int c_x, int c_y, int width, int height, hist_cont& hist, uint frame_width, const MASK_TYPE* mask)
 	{
 		// image buffer
-		buf += PIXEL_SIZE * c_x + pitch * c_y;
-		int w1 = pitch - PIXEL_SIZE * width;
+        buf += pixel_size * c_x + pitch * c_y;
+        int w1 = pitch - pixel_size * width;
 
 		// mask buffer
 		int padding_par = frame_width - width;
@@ -525,14 +525,14 @@ namespace vl_feintrack
 			{
 				if (*par)
 				{
-					if (PIXEL_SIZE == 1)
+                    if (pixel_size == 1)
 						hist[*buf]++;
 					else
 						hist[RGB_2_Y<uchar>(buf)]++;
 
 					++total_sum;
 				}
-				buf += PIXEL_SIZE;
+                buf += pixel_size;
 				++par;
 			}
 			par += padding_par;
@@ -575,7 +575,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
 	// Копирование буфера с resize'ом (метод Пешкова-Брезенхама)
-	template <size_t SRC_PIXEL_SIZE, size_t DEST_PIXEL_SIZE>
+    template <size_t SRC_pixel_size, size_t DEST_pixel_size>
     void StretchLine(uchar* src_buf, int src_width, uchar* dest_buf, int dest_width)
 	{
 		for (int i = 0; i < dest_width; ++i)
@@ -584,10 +584,10 @@ namespace vl_feintrack
 			if (c_pixel >= src_width)
 				c_pixel = src_width - 1;
 
-            uchar* r_src = src_buf + c_pixel * SRC_PIXEL_SIZE;
-            uchar* r_dst = dest_buf + i * DEST_PIXEL_SIZE;
+            uchar* r_src = src_buf + c_pixel * SRC_pixel_size;
+            uchar* r_dst = dest_buf + i * DEST_pixel_size;
 
-			for (size_t j = 0, stop_j = std::min(SRC_PIXEL_SIZE, DEST_PIXEL_SIZE); j < stop_j; ++j)
+            for (size_t j = 0, stop_j = std::min(SRC_pixel_size, DEST_pixel_size); j < stop_j; ++j)
 			{
 				r_dst[j] = r_src[j];
 			}
@@ -595,7 +595,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////
 	
-	template <size_t SRC_PIXEL_SIZE, size_t DEST_PIXEL_SIZE>
+    template <size_t SRC_pixel_size, size_t DEST_pixel_size>
     void StretchBlt(uchar* src_buf, int src_width, int src_height, uchar* dest_buf, int dest_width, int dest_height, int dest_pitch)
 	{
 		for (int i = 0; i < dest_height; ++i)
@@ -604,7 +604,7 @@ namespace vl_feintrack
 			if (c_line  >= src_height)
 				c_line = src_height - 1;
 
-			StretchLine<SRC_PIXEL_SIZE, DEST_PIXEL_SIZE>(src_buf + SRC_PIXEL_SIZE * src_width * c_line, src_width, dest_buf + i * dest_pitch, dest_width);
+            StretchLine<SRC_pixel_size, DEST_pixel_size>(src_buf + SRC_pixel_size * src_width * c_line, src_width, dest_buf + i * dest_pitch, dest_width);
 		}
 	}
 	////////////////////////////////////////////////////////////////////////
@@ -613,11 +613,11 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
 	// Копирование части изображения в отдельный буфер
-	template<int PIXEL_SIZE>
+    template<int pixel_size>
 	void copy_buf_from_image(uchar* dest_buf, int dest_left, int dest_right, int dest_top, int dest_bottom, const uchar* src_buf, int src_pitch)
 	{
-		src_buf += PIXEL_SIZE * dest_left + dest_top * src_pitch;
-		int pitch_dest = PIXEL_SIZE * (dest_right - dest_left);
+        src_buf += pixel_size * dest_left + dest_top * src_pitch;
+        int pitch_dest = pixel_size * (dest_right - dest_left);
 		for (int j = dest_top; j < dest_bottom; ++j)
 		{
 			memcpy(dest_buf, src_buf, pitch_dest);
@@ -640,10 +640,10 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	template<uchar R, uchar G, uchar B, int PIXEL_SIZE> inline
+    template<uchar R, uchar G, uchar B, int pixel_size> inline
 	void paint_point(uchar* buf, uint pitch, int x, int y)                  // Рисование на RGB24 кадре точки
 	{
-		buf += PIXEL_SIZE * x + y * pitch;
+        buf += pixel_size * x + y * pitch;
 
 		buf[0] = B;
 		buf[1] = G;
@@ -651,11 +651,11 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////
 	
-	template<uchar R, uchar G, uchar B, int PIXEL_SIZE>
+    template<uchar R, uchar G, uchar B, int pixel_size>
 	void paint_h_line(uchar* buf, uint pitch, int x1, int x2, int y)        // Рисование на RGB буфере горизонтальной,
 	{
-		buf += PIXEL_SIZE * x1 + y * pitch;
-		for (; x1 < x2; ++x1, buf += PIXEL_SIZE)
+        buf += pixel_size * x1 + y * pitch;
+        for (; x1 < x2; ++x1, buf += pixel_size)
 		{
 			buf[0] = B;
 			buf[1] = G;
@@ -664,10 +664,10 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////
 	
-	template<uchar R, uchar G, uchar B, int PIXEL_SIZE>
+    template<uchar R, uchar G, uchar B, int pixel_size>
 	void paint_v_line(uchar* buf, uint pitch, int x, int y1, int y2)        // вертикальной и
 	{
-		buf += PIXEL_SIZE * x + y1 * pitch;
+        buf += pixel_size * x + y1 * pitch;
 		for (; y1 < y2; ++y1, buf += pitch)
 		{
 			buf[0] = B;
@@ -677,7 +677,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////
 	
-	template<uchar R, uchar G, uchar B, int PIXEL_SIZE>
+    template<uchar R, uchar G, uchar B, int pixel_size>
 	void paint_line(uchar* buf, uint pitch, int x1, int x2, int y1, int y2) // произвольной линии
 	{
 		int dx = abs(x2 - x1);
@@ -691,7 +691,7 @@ namespace vl_feintrack
 			int d1 = 2 * dy;
 			int d2 = 2 * (dy - dx);
 			int d = d1 - dx;
-			paint_point<R, G, B, PIXEL_SIZE>(buf, pitch, x1, y1);
+            paint_point<R, G, B, pixel_size>(buf, pitch, x1, y1);
 
 			for (int x = x1 + sx, y = y1, i = 1; i <= dx; ++i, x += sx)
 			{
@@ -702,7 +702,7 @@ namespace vl_feintrack
 				}
 				else
 					d += d1;
-				paint_point<R, G, B, PIXEL_SIZE>(buf, pitch, x, y);
+                paint_point<R, G, B, pixel_size>(buf, pitch, x, y);
 			}
 		}
 		else
@@ -710,7 +710,7 @@ namespace vl_feintrack
 			int d1 = 2 * dx;
 			int d2 = 2 * (dx - dy);
 			int d = d1 - dy;
-			paint_point<R, G, B, PIXEL_SIZE>(buf, pitch, x1, y1);
+            paint_point<R, G, B, pixel_size>(buf, pitch, x1, y1);
 
 			for (int x = x1, y = y1 + sy, i = 1; i <= dy; ++i, y += sy)
 			{
@@ -721,7 +721,7 @@ namespace vl_feintrack
 				}
 				else
 					d += d1;
-				paint_point<R, G, B, PIXEL_SIZE>(buf, pitch, x, y);
+                paint_point<R, G, B, pixel_size>(buf, pitch, x, y);
 			}
 		}
 	}

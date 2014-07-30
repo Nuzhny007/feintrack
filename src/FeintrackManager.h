@@ -30,7 +30,7 @@ namespace vl_feintrack
 		static CFTCont* create();                   // Создание и
 		static void destroy(CFTCont* &ft_cont);     // удаление объекта класса
 
-#ifndef ADV_OUT
+#if !ADV_OUT
 		int frame_analyze(const uchar* buf, uint width, uint height, color_type buf_type);                // Анализ очередного кадра
 #else
         int frame_analyze(const uchar* buf, uint width, uint height, color_type buf_type, uchar* adv_buf_rgb24); // Анализ очередного кадра

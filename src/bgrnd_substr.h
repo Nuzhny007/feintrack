@@ -24,7 +24,7 @@ namespace vl_feintrack
 		virtual bool init(uint width, uint height, color_type buf_type, bool& use_cuda_); // Возвращает true, если инициализация была проведена, иначе - false
 
 		// Вычитание фона
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
 		virtual int background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask) = 0;
 #else
@@ -72,7 +72,7 @@ namespace vl_feintrack
 
 		ft_float_t epsilon;                           // Порог, по которому определяется принадлежность пикселя переднему или заднему плану (расстояние Махаланобиса)
 
-		int PIXEL_SIZE;                               // Размер одного пикселя в байтах
+        int pixel_size;                               // Размер одного пикселя в байтах
 
 		bool use_cuda;                                // Использовать CUDA для вычитания фона и морфологии
 
@@ -82,7 +82,7 @@ namespace vl_feintrack
 
 		bool need_background_update;                  // Обновлять ли модель заднего плана
 
-		bool is_patch_of_sunlight(const ft_float_t* float_src); // Является ли данный пиксель частью блика
+        bool is_patch_of_sunlight(const ft_float_t* float_src, const size_t pixel_size); // Является ли данный пиксель частью блика
 
 	private:
 		static const ft_float_t min_sens;             // Минимальное и
@@ -123,6 +123,7 @@ namespace vl_feintrack
 	struct CNormParamsPixel
 	{
 		CNormParams p[NORM_COUNT];  // Параметры нормального распределения для каждого цвета пикселя
+        static const size_t PIXEL_VALUES = NORM_COUNT; ///< Count a significant values on pixel
 
 		// Пересчитывает значение выборочного среднего для всех компонент
 		template<class VAL_TYPE>
@@ -203,7 +204,7 @@ namespace vl_feintrack
 		bool init(uint width, uint height, color_type buf_type, bool& use_cuda_); // Возвращает true, если инициализация была проведена, иначе - false
 
 		// Вычитание фона
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask);
 #else
@@ -251,7 +252,7 @@ namespace vl_feintrack
 
 		// Вычитание фона
 		template<class PARAMS_CONT>
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
 		int background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params);
 #else
@@ -301,6 +302,8 @@ namespace vl_feintrack
 		CNormWeightProcess<NORM_COUNT> proc_list[PROC_PER_PIXEL]; // Параметры распределения на каждый процесс
 		size_t curr_proc;                                         // Текущий процесс
 		size_t created_processes;                                 // Количество уже созданных процессов
+
+        static const size_t PIXEL_VALUES = NORM_COUNT; ///< Count a significant values on pixel
 
 		// Создание статистической модели заднего плана на очередном кадре
 		template<class VAL_TYPE>
@@ -404,7 +407,7 @@ namespace vl_feintrack
 		bool init(uint width, uint height, color_type buf_type, bool& use_cuda_); // Возвращает true, если инициализация была проведена, иначе - false
 
 		// Вычитание фона
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask);
 #else
@@ -447,7 +450,7 @@ namespace vl_feintrack
 
 		// Вычитание фона
 		template<class PARAMS_CONT>
-#ifndef ADV_OUT
+#if !ADV_OUT
 #ifdef USE_CUDA
 		int background_substraction(int& curr_frame, const uchar* buf, uint pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params);
 #else

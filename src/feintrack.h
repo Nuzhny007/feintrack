@@ -47,7 +47,7 @@ namespace vl_feintrack
 		bool use_cuda;                           // Использовать CUDA для вычитания фона и морфологии
 		int cuda_device_ind;                     // Индекс используемого устройства, поддерживающего CUDA
 
-		int PIXEL_SIZE;                          // Размер одного пикселя в байтах
+        int pixel_size;                          // Размер одного пикселя в байтах
 
 		bool use_morphology;                     // Использовать операцию математической морфологии "открытие" для результатов вычитания фона
 
@@ -62,7 +62,7 @@ namespace vl_feintrack
 
 		regions_container regions;                                // Список регионов на последнем кадре
 		void regions_preprocessing(const uchar* buf, uint pitch); // Предварительный анализ и обработка регионов: отсечение теней, удаление маленьких регионов и т.д.
-#ifndef ADV_OUT
+#if !ADV_OUT
 		void tracking_objects(const uchar* buf, uint pitch);      // Анализ регионов и добавление подходящих на вывод
 #else
 		void tracking_objects(const uchar* buf, uint pitch, uchar* adv_buf_rgb24); // Анализ регионов
@@ -134,7 +134,7 @@ namespace vl_feintrack
 		CFeinTrack();
 		~CFeinTrack();
 
-#ifndef ADV_OUT
+#if !ADV_OUT
 		int new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type); // Анализ очередного кадра
 #else
         int new_frame(const uchar* buf, uint pitch, uint width, uint height, color_type buf_type, uchar* adv_buf_rgb24); // Анализ очередного кадра

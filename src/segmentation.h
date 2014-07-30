@@ -17,7 +17,7 @@ namespace vl_feintrack
 
 		void init(uint frame_width_, uint frame_height_, bool& use_cuda_); // Инициализация внутренних структур
 
-#ifdef ADV_OUT
+#if ADV_OUT
 		void draw_mask(bool use_cuda, uchar* adv_buf_rgb24);           // Вывод на дополнительный буфер результатов вычитания фона
 #endif
 

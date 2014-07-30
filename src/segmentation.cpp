@@ -187,7 +187,7 @@ namespace vl_feintrack
 #endif
 	////////////////////////////////////////////////////////////////////////////
 
-#ifdef ADV_OUT
+#if ADV_OUT
 	void CSegmentation::draw_mask(bool use_cuda, uchar* adv_buf_rgb24)
 	{
 		if (use_cuda)
