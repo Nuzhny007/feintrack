@@ -27,7 +27,7 @@ namespace vl_feintrack
 		void iterative_segmentation(regions_container& regions);                // Итеративная сегментация бинарного изображения на основе 8-ми связности
 		void recursive_segmentation(regions_container& regions);                // Рекурсивная сегментация бинарного изображения на основе 8-ми связности
 
-#ifdef USE_CUDA
+#ifdef USE_GPU
         void cuda_segmentation(regions_container& regions);                     // Сегментация объектов с использованием CUDA
 		void copy_gpu2cpu();                          // Копирование маски из видео в системную память
 #endif
@@ -35,7 +35,7 @@ namespace vl_feintrack
 		void set_show_objects(bool show_objects);     // Показывать/не показывать объекты
 
         mask_cont& get_mask();                        // Возвращает маску кадра
-#ifdef USE_CUDA
+#ifdef USE_GPU
 		CCudaBuf<mask_type, true>& get_device_mask(); // Получение маски из видеопамяти
 #endif
 
@@ -50,7 +50,7 @@ namespace vl_feintrack
 
 		mask_cont pixels_l;                           // Массив размером frame_width * frame_height, в котором хранится результат вычитания фона
 
-#ifdef USE_CUDA
+#ifdef USE_GPU
         CCudaBuf<mask_type, true> d_mask;             // Видеопамять под маску
 		CCudaBuf<mask_type, true> d_mask_temp;        // Видеопамять для операции математической морфологии
 		CCudaBuf<reg_label, true> d_reg;              // Видеопамять для предварительной сегментации

@@ -38,7 +38,7 @@ namespace vl_feintrack
 
 		if (use_cuda_)
         {
-#ifdef USE_CUDA
+#ifdef USE_GPU
 			bool success_malloc = true;
 			success_malloc &= d_mask.malloc(pixels_count);
 			success_malloc &= d_mask_temp.malloc(pixels_count);
@@ -62,7 +62,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_CUDA
+#ifdef USE_GPU
 	CCudaBuf<mask_type, true>& CSegmentation::get_device_mask()
 	{
 		return d_mask;
@@ -111,7 +111,7 @@ namespace vl_feintrack
 	{
 		if (use_cuda)
         {
-#ifdef USE_CUDA
+#ifdef USE_GPU
 			// Нет смысла производить морфолоию, она происходит на уровне сегментации
 			//morphology(d_mask.buf, d_mask_temp.buf, frame_width, frame_height, (unsigned int)pixels_l.size());
 #else
@@ -178,7 +178,7 @@ namespace vl_feintrack
 		}
 	}
     ////////////////////////////////////////////////////////////////////////////
-#ifdef USE_CUDA
+#ifdef USE_GPU
     void CSegmentation::copy_gpu2cpu()
     {
 		// Возвращаем маску
@@ -192,7 +192,7 @@ namespace vl_feintrack
 	{
 		if (use_cuda)
         {
-#ifdef USE_CUDA
+#ifdef USE_GPU
 			// Возвращаем маску
 			cudaMemcpy(&pixels_l[0], d_mask.buf, d_mask.buf_size, cudaMemcpyDeviceToHost);
 #else
@@ -224,7 +224,7 @@ namespace vl_feintrack
 	}
 #endif
 	////////////////////////////////////////////////////////////////////////////
-#ifdef USE_CUDA
+#ifdef USE_GPU
 	void CSegmentation::cuda_segmentation(regions_container& regions)
 	{
 		// Предварительная блочная сегментация

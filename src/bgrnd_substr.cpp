@@ -208,7 +208,7 @@ bool CNormBackSubstraction::init(uint32_t width, uint32_t height, color_type buf
 
         if (use_cuda)
         {
-#ifdef USE_CUDA
+#ifdef USE_GPU
             bool success_malloc = true;
             success_malloc &= h_frame_bgrxf.malloc(pixels_count);
             success_malloc &= d_bgr32.malloc(pixels_count);
@@ -241,13 +241,13 @@ bool CNormBackSubstraction::init(uint32_t width, uint32_t height, color_type buf
 ////////////////////////////////////////////////////////////////////////////
 
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
 #else
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l)
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24)
 #else
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24)
@@ -255,7 +255,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 #endif
 {
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
         return background_substraction(curr_frame, buf, pitch, pixels_l, d_mask, rgb_params);
     else
@@ -267,7 +267,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         return background_substraction(curr_frame, buf, pitch, pixels_l, gray_params);
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
         return background_substraction(curr_frame, buf, pitch, pixels_l, d_mask, rgb_params, adv_buf_rgb24);
     else
@@ -284,13 +284,13 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 
 template<class PARAMS_CONT>
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
 #else
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params)
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24)
 #else
 int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24)
@@ -329,7 +329,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         {
             if (use_cuda)
             {
-#ifdef USE_CUDA
+#ifdef USE_GPU
                 // Память под данные статистической модели
                 switch (curr_color_type)
                 {
@@ -420,7 +420,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 
     if (use_cuda)
     {
-#ifdef USE_CUDA
+#ifdef USE_GPU
         // Конвертация кадра в выровненный по 4 байта формат
         switch (curr_color_type)
         {
@@ -449,16 +449,24 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         {
             PixelUpdateParams pup = { alpha1, alpha2, min_sigma_val, max_sigma_val };
             if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
+            {
                 back_substraction_upd(d_bgr32.buf, d_params_b_mu.buf, d_params_b_sigma.buf, d_params_g_mu.buf, d_params_g_sigma.buf, d_params_r_mu.buf, d_params_r_sigma.buf, d_mask.buf, frame_width, frame_height, tmp_eps[0], tmp_eps[1], tmp_eps[2], pup);
+            }
             else
+            {
                 back_substraction_gray_upd((float *)d_bgr32.buf, d_params_b_mu.buf, d_params_b_sigma.buf, d_mask.buf, frame_width, frame_height, tmp_eps[0], pup);
+            }
         }
         else
         {
             if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
+            {
                 back_substraction(d_bgr32.buf, d_params_b_mu.buf, d_params_b_sigma.buf, d_params_g_mu.buf, d_params_g_sigma.buf, d_params_r_mu.buf, d_params_r_sigma.buf, d_mask.buf, frame_width, frame_height, tmp_eps[0], tmp_eps[1], tmp_eps[2]);
+            }
             else
+            {
                 back_substraction_gray((float *)d_bgr32.buf, d_params_b_mu.buf, d_params_b_sigma.buf, d_mask.buf, frame_width, frame_height, tmp_eps[0]);
+            }
         }
 #else
         assert(false);
@@ -614,7 +622,7 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint32_
 {
     if (use_cuda)
     {
-#ifdef USE_CUDA
+#ifdef USE_GPU
         PixelUpdateParams pup = { alpha1, alpha2, min_sigma_val, max_sigma_val };
         if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
             update_statistic(d_bgr32.buf, d_params_b_mu.buf, d_params_b_sigma.buf, d_params_g_mu.buf, d_params_g_sigma.buf, d_params_r_mu.buf, d_params_r_sigma.buf, frame_width, region.get_left(), region.get_right(), region.get_top(), region.get_bottom(), pup);
@@ -675,7 +683,7 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint32_t
 {
     if (use_cuda)
     {
-#ifdef USE_CUDA
+#ifdef USE_GPU
         if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
             reset_statistic(d_bgr32.buf, d_params_b_mu.buf, d_params_b_sigma.buf, d_params_g_mu.buf, d_params_g_sigma.buf, d_params_r_mu.buf, d_params_r_sigma.buf, frame_width, region.get_left(), region.get_right(), region.get_top(), region.get_bottom(), max_sigma_val);
         else
@@ -767,7 +775,7 @@ bool CGaussianMixtureBackSubstr::init(uint32_t width, uint32_t height, color_typ
 
         if (use_cuda)
         {
-#ifdef USE_CUDA
+#ifdef USE_GPU
             bool success_malloc = true;
             success_malloc &= h_frame_bgrxf.malloc(pixels_count);
             success_malloc &= d_bgr32.malloc(pixels_count);
@@ -797,13 +805,13 @@ bool CGaussianMixtureBackSubstr::init(uint32_t width, uint32_t height, color_typ
 ////////////////////////////////////////////////////////////////////////////
 
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask)
 #else
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l)
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24)
 #else
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24)
@@ -811,7 +819,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 #endif
 {
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
         return background_substraction(curr_frame, buf, pitch, pixels_l, d_mask, rgb_params);
     else
@@ -823,7 +831,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
         return background_substraction(curr_frame, buf, pitch, pixels_l, gray_params);
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
     if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
         return background_substraction(curr_frame, buf, pitch, pixels_l, d_mask, rgb_params, adv_buf_rgb24);
     else
@@ -840,13 +848,13 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 
 template<class PARAMS_CONT>
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params)
 #else
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params)
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24)
 #else
 int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24)
@@ -885,7 +893,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
         {
             if (use_cuda)
             {
-#ifdef USE_CUDA
+#ifdef USE_GPU
                 // Память под данные статистической модели
                 switch (curr_color_type)
                 {
@@ -960,7 +968,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 
     if (use_cuda)
     {
-#ifdef USE_CUDA
+#ifdef USE_GPU
         // Конвертация кадра в выровненный по 4 байта формат
         switch (curr_color_type)
         {

@@ -11,7 +11,11 @@ namespace vl_feintrack
 {
 	////////////////////////////////////////////////////////////////////////////
 
-    typedef uint32_t ft_param_t;                 // Тип статистических характеристик модели заднего плана
+#if 1
+typedef float ft_param_t;                 // Тип статистических характеристик модели заднего плана
+#else
+typedef uint32_t ft_param_t;                 // Тип статистических характеристик модели заднего плана
+#endif
 	////////////////////////////////////////////////////////////////////////////
 
 	// Базовый класс для алгоритмов вычитания фона
@@ -25,13 +29,13 @@ namespace vl_feintrack
 
 		// Вычитание фона
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask) = 0;
 #else
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l) = 0;
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24) = 0;
 #else
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24) = 0;
@@ -203,13 +207,13 @@ namespace vl_feintrack
 
 		// Вычитание фона
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask);
 #else
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l);
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24);
 #else
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24);
@@ -237,7 +241,7 @@ namespace vl_feintrack
 		rgb_params_cont rgb_params;                   // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
 		gray_params_cont gray_params;                 // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
 
-#ifdef USE_CUDA
+#ifdef USE_GPU
         CCudaBuf<BGRXf, false> h_frame_bgrxf;         // Буфер кадра для копирования в видеопамять
         CCudaBuf<int32_t, true> d_bgr32;              // Видеопамять под кадр
 		CCudaBuf<float, true> d_params_b_mu;          // Видеопамять под параметры модели заднего плана
@@ -251,13 +255,13 @@ namespace vl_feintrack
 		// Вычитание фона
 		template<class PARAMS_CONT>
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params);
 #else
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params);
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24);
 #else
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24);
@@ -296,7 +300,7 @@ namespace vl_feintrack
 		{
 		}
 
-		static const size_t PROC_PER_PIXEL = 3;                   // Число процессов на каждый пиксель
+        static const size_t PROC_PER_PIXEL = 2;                   // Число процессов на каждый пиксель
 		CNormWeightProcess<NORM_COUNT> proc_list[PROC_PER_PIXEL]; // Параметры распределения на каждый процесс
 		size_t curr_proc;                                         // Текущий процесс
 		size_t created_processes;                                 // Количество уже созданных процессов
@@ -403,13 +407,13 @@ namespace vl_feintrack
 
 		// Вычитание фона
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask);
 #else
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l);
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, uchar* adv_buf_rgb24);
 #else
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, uchar* adv_buf_rgb24);
@@ -430,7 +434,7 @@ namespace vl_feintrack
 		rgb_params_cont rgb_params;                            // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
 		gray_params_cont gray_params;                          // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
 
-#ifdef USE_CUDA
+#ifdef USE_GPU
         CCudaBuf<BGRXf, false> h_frame_bgrxf;                  // Буфер кадра для копирования в видеопамять
         CCudaBuf<int32_t, true> d_bgr32;                       // Видеопамять под кадр
         CCudaBuf<int32_t, true> d_curr_processes;              // Видеопамять с индексами текущих процессов для каждого пикселя
@@ -446,13 +450,13 @@ namespace vl_feintrack
 		// Вычитание фона
 		template<class PARAMS_CONT>
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params);
 #else
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params);
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask, PARAMS_CONT& params, uchar* adv_buf_rgb24);
 #else
         int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, PARAMS_CONT& params, uchar* adv_buf_rgb24);

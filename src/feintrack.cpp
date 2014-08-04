@@ -107,7 +107,7 @@ void CFeinTrack::set_use_cuda(bool use_cuda_, int cuda_device_ind_)
     cuda_device_ind = cuda_device_ind_;
     if (use_cuda_)
     {
-#ifdef USE_CUDA
+#ifdef USE_GPU
         // ѕолучение числа устройств, потенциально поддерживающих CUDA
         int count = 0;
         bool device_was_founded = false;
@@ -463,13 +463,13 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
 
     // ¬ычитание фона
 #if !ADV_OUT
-#ifdef USE_CUDA
+#ifdef USE_GPU
     if (!back_substractor->background_substraction(curr_frame, buf, pitch, segmentator.get_mask(), segmentator.get_device_mask()))
 #else
     if (!back_substractor->background_substraction(curr_frame, buf, pitch, segmentator.get_mask()))
 #endif
 #else
-#ifdef USE_CUDA
+#ifdef USE_GPU
     if (!back_substractor->background_substraction(curr_frame, buf, pitch, segmentator.get_mask(), segmentator.get_device_mask(), adv_buf_rgb24))
 #else
     if (!back_substractor->background_substraction(curr_frame, buf, pitch, segmentator.get_mask(), adv_buf_rgb24))
@@ -493,7 +493,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     // ≈сли используетс€ cuda и требуетс€ распознавание, то копируем маску из видеопам€ти в системную
     if (use_recognition && use_cuda)
     {
-#ifdef USE_CUDA
+#ifdef USE_GPU
         segmentator.copy_gpu2cpu();
 #else
         assert(false);
@@ -504,7 +504,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     regions.clear();
     if (use_cuda)
     {
-#ifdef USE_CUDA
+#ifdef USE_GPU
         segmentator.cuda_segmentation(regions);
 #else
         assert(false);

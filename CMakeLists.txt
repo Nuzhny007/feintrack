@@ -52,11 +52,6 @@ if(USE_GPU)
 endif(USE_GPU)
 
 # ----------------------------------------------------------------------
-file(GLOB SrcGpuCpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_d.cu
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_d.h
-)
-
 set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 
@@ -86,17 +81,21 @@ set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_dll.h
 )
 
+file(GLOB SrcGpuCpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_d.cu
+)
+
 # ----------------------------------------------------------------------
 if(USE_GPU)
 
 # add GPU related source code to the executable list
-list(APPEND SrcCpp ${SrcGpuCpp})
+list(APPEND SOURCE ${SrcGpuCpp})
 
 # Compile CUDA stuff
 cuda_include_directories(${local_CUDA_CUT_INCLUDE_DIRS})
 cuda_include_directories(${CUDA_INCLUDE_DIRS} ${CUDA_CUT_INCLUDE_DIR} ${local_CUDA_CUT_INCLUDE_DIR})
 
-#link_directories(${local_CUDA_CUT_LIBRARY_DIRS})
+link_directories(${local_CUDA_CUT_LIBRARY_DIRS})
 
 #target_link_libraries(
 #   ${CUDA_LIBRARIES}
@@ -114,6 +113,11 @@ set(LIBS
     ${OpenCV_LIBS}
 #    ${QT_LIBRARIES}
 )
+
+if(USE_GPU)
+   list(APPEND LIBS ${CUDA_LIBRARIES} ${cutil_LIB})
+endif(USE_GPU)
+
 else(CMAKE_COMPILER_IS_GNUCXX)
 set(LIBS
     ${OpenCV_LIBS}

@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     ftp.set_use_morphology(true);
     ftp.set_selection_time(12);
     ftp.set_show_trajectory(true);
-    ftp.set_use_cuda(false, 0);
+    ftp.set_use_cuda(true, 0);
 #if 1
     ftp.set_bgrnd_type(vl_feintrack::norm_back);
 #else
