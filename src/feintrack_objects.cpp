@@ -165,7 +165,7 @@ bool CObjectRegion::size_bigger(const CObjectRegion& reg1, const CObjectRegion& 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-const float_t CTrackingObject::default_weight = 0.7;
+const float_t CTrackingObject::default_weight = 0.7f;
 ////////////////////////////////////////////////////////////////////////////
 CTrackingObject::CTrackingObject(int center_x_, int center_y_, unsigned int uid_)
     :
@@ -579,7 +579,7 @@ void CTrackingObject::get_traectory(CObjRect &obj_rect, uint32_t frame_width, ui
 {
     size_t i = (traectory_x.size() > CObjRect::MAX_TRAECTORY)? (traectory_x.size() - CObjRect::MAX_TRAECTORY): 1;
     obj_rect.traectory_size = 0;
-    float alpha = 0.7;
+    float_t alpha = 0.7f;
     for (size_t stop = traectory_x.size(); i < stop; ++i)
     {
         int vx = static_cast<int>(alpha * traectory_x[i].y + (1- alpha) * traectory_x[i - 1].y) + left_padding;

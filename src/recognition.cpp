@@ -7,7 +7,7 @@ namespace vl_feintrack
 	
 	CRecognition::CRecognition()
 	{
-#ifdef USE_HOG_RECOGNIZE
+#if USE_HOG_RECOGNIZE
 #if 0
 		hog.setSVMDetector(cv::HOGDescriptor::getDefaultPeopleDetector());
 #else
@@ -204,7 +204,7 @@ namespace vl_feintrack
 	
     object_types CRecognition::is_human(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask)
 	{
-#ifdef USE_HOG_RECOGNIZE
+#if USE_HOG_RECOGNIZE
         mask;
 
 		int w_2 = region.width() / 2;

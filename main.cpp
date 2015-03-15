@@ -1,7 +1,7 @@
 
 #include <opencv2/core/version.hpp>
 
-#if (CV_VERSION_EPOCH > 2)
+#if (CV_VERSION_MAJOR > 2)
 #include <opencv2/core.hpp>
 
 #include <opencv2/imgproc.hpp>
@@ -16,12 +16,11 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/highgui/highgui_c.h>
 
-#include <opencv2/contrib.hpp>
 #include <opencv2/ml.hpp>
 
 #include <opencv2/core/ocl.hpp>
 
-#else // (CV_VERSION_EPOCH > 2)
+#else // (CV_VERSION_MAJOR <= 2)
 
 #include <opencv2/core/core.hpp>
 

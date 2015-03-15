@@ -5,8 +5,8 @@
 #include "some_types.h"
 #include "feintrack_objects.h"
 
-#ifdef USE_HOG_RECOGNIZE
-#if (CV_VERSION_EPOCH > 2)
+#if USE_HOG_RECOGNIZE
+#if (CV_VERSION_MAJOR > 2)
 #include <opencv2/core.hpp>
 
 #include <opencv2/imgproc.hpp>
@@ -26,7 +26,7 @@
 
 #include <opencv2/core/ocl.hpp>
 
-#else // (CV_VERSION_EPOCH > 2)
+#else // (CV_VERSION_EPOCH <= 2)
 
 #include <opencv2/core/core.hpp>
 
@@ -78,7 +78,7 @@ namespace vl_feintrack
 		// Распознавание животного
         object_types is_animal(const CObjectRegion& region, uint32_t frame_width, const mask_type* mask);
 
-#ifdef USE_HOG_RECOGNIZE
+#if USE_HOG_RECOGNIZE
 		cv::HOGDescriptor hog; // Распознавание людей с помощью OpenCV'шного HOG
 #endif
 	};
