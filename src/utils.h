@@ -540,7 +540,8 @@ namespace vl_feintrack
 		}
 
         // нормализуем
-		std::transform(hist.begin(), hist.end(), hist.begin(), std::bind2nd(std::divides<float>(), total_sum));
+		const hist_cont::value_type norm_factor = static_cast<hist_cont::value_type>(total_sum);
+		std::for_each(hist.begin(), hist.end(), [norm_factor](hist_cont::value_type& v) { v /= norm_factor; });
 	}
 	//////////////////////////////////////////////////////////////////
 

@@ -108,6 +108,8 @@ set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_20)
 endif(USE_GPU)
 
 # ----------------------------------------------------------------------
+list(REMOVE_ITEM OpenCV_LIBS "opencv_adas")
+
 if (CMAKE_COMPILER_IS_GNUCXX)
 set(LIBS
     ${OpenCV_LIBS}

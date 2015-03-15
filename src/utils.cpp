@@ -159,7 +159,7 @@ namespace vl_feintrack
     bool is_intersect(float_t x1_1, float_t y1_1, float_t x2_1, float_t y2_1,
 		float_t x1_2, float_t y1_2, float_t x2_2, float_t y2_2)
 	{
-		const float_t eps = 0.00001; //Константа для сравнения на равентсво
+		const float_t eps = 0.00001f; //Константа для сравнения на равентсво
 
 		//Получение уравнения прямой, содержащей 1-й отрезок
 		float_t a1(0), b1(0); //Коэффициенты 1-й прямой

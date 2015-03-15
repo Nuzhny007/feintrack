@@ -5,18 +5,16 @@
 
 #define ADV_OUT 1             // Вывод отладочной информации в отдельный буфер
 
-//#define USE_HOG_RECOGNIZE   // Распознавание людей с помощью OpenCV'шного HOG
+#define USE_HOG_RECOGNIZE 0   // Распознавание людей с помощью OpenCV'шного HOG
+
+typedef int int32_t;
+typedef unsigned int uint32_t;
+typedef unsigned char uchar;
+typedef float float_t;
 
 ////////////////////////////////////////////////////////////////////////////
 namespace vl_feintrack
 {
-    ////////////////////////////////////////////////////////////////////////////
-
-    typedef int int32_t;
-    typedef unsigned int uint32_t;
-    typedef unsigned char uchar;
-    typedef float float_t;
-
     ////////////////////////////////////////////////////////////////////////////
 
     // Строка

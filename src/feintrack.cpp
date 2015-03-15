@@ -5,7 +5,7 @@ namespace vl_feintrack
 {
 ////////////////////////////////////////////////////////////////////////////
 
-const float_t CFeinTrack::density_threshold = 0.1;
+const float_t CFeinTrack::density_threshold = 0.1f;
 ////////////////////////////////////////////////////////////////////////////
 
 CFeinTrack::CFeinTrack()
@@ -31,8 +31,8 @@ CFeinTrack::CFeinTrack()
       top_padding(0),
       need_background_update(true),
       del_objects_count(0),
-      weight_threshold(0.1),
-      weight_alpha(0.5 / 25),
+      weight_threshold(0.1f),
+      weight_alpha(0.5f / 25),
       objects_count(0),
       left_objects_count(0),
       show_left_objects(true),
@@ -388,7 +388,7 @@ int CFeinTrack::get_fps() const
 void CFeinTrack::set_fps(int new_fps)
 {
     fps = new_fps;
-    weight_alpha = 0.5 / fps;
+    weight_alpha = 0.5f / fps;
 
     left_object_time0 = 1 * fps;
     left_object_time1 = left_object_time1_sec * fps;
