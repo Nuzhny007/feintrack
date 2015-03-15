@@ -20,4 +20,5 @@ AdaBoost*
 Обучение*
 .excludes
 *.json
+.idea
 
