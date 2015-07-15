@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 
 project (feintrack)
 
-FIND_PACKAGE(OpenCV REQUIRED)
+FIND_PACKAGE(OpenCV 3.0 REQUIRED)
 
 
 if (CMAKE_COMPILER_IS_GNUCXX)

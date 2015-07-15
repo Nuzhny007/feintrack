@@ -1,48 +1,5 @@
 
-#include <opencv2/core/version.hpp>
-
-#if (CV_VERSION_MAJOR <= 2)
-#include <opencv2/core.hpp>
-
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgproc/types_c.h>
-
-#include <opencv2/photo.hpp>
-#include <opencv2/video.hpp>
-#include <opencv2/features2d.hpp>
-#include <opencv2/objdetect.hpp>
-#include <opencv2/calib3d.hpp>
-
-#include <opencv2/highgui.hpp>
-#include <opencv2/highgui/highgui_c.h>
-
-#include <opencv2/ml.hpp>
-
-#include <opencv2/core/ocl.hpp>
-
-#else // (CV_VERSION_MAJOR > 2)
-
-#include <opencv2/core/core.hpp>
-
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/imgproc/imgproc_c.h>
-#include <opencv2/imgproc/types_c.h>
-
-//#include <opencv2/photo/photo.hpp>
-#include <opencv2/video/video.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/highgui/highgui_c.h>
-
-#include <opencv2/contrib/contrib.hpp>
-#include <opencv2/ml/ml.hpp>
-
-//#include <opencv2/ocl/ocl.hpp>
-
-#endif
+#include <opencv2/opencv.hpp>
 
 #include "src/utils.h"
 #include "src/feintrack_dll.h"
@@ -61,6 +18,10 @@ int main(int argc, char* argv[])
     if (input_file_name.empty())
     {
         capture.open(0);
+    }
+    else if (input_file_name.size() == 1)
+    {
+        capture.open(atoi(input_file_name.c_str()));
     }
     else
     {
