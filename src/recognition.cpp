@@ -103,7 +103,7 @@ namespace vl_feintrack
 		nnfloat out_vector[3] = { 0.0 };
 		CInputImage input_image('u');
 
-		// Создание входного вектора для нейросети
+		// РЎРѕР·РґР°РЅРёРµ РІС…РѕРґРЅРѕРіРѕ РІРµРєС‚РѕСЂР° РґР»СЏ РЅРµР№СЂРѕСЃРµС‚Рё
 		cvSetImageROI(&img, cvRect(region.get_left(), region.get_top(), region.width(), region.height()));
 		cvResize(&img, tmp_img);
 		cvResetImageROI(&img);
@@ -121,7 +121,7 @@ namespace vl_feintrack
 			input_image.data[x + IMG_HEIGHT * (IMG_WIDTH + 1)] = 1.;
 		input_image.data[(IMG_HEIGHT + 1) * (IMG_WIDTH + 1) - 1] = (nnfloat)region.width() / (nnfloat)region.height();
 
-		// Распознавание символа
+		// Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ СЃРёРјРІРѕР»Р°
         nn.Calculate(input_image.data, CInputImage::DATA_SIZE, out_vector, 3, nullptr);
 		probality_val = 0.5;
 		size_t ind = std::numeric_limits<size_t>::max();
@@ -160,14 +160,14 @@ namespace vl_feintrack
 		else
 			return unknown_object;
 #else
-		// Гистограмма по строкам
+		// Р“РёСЃС‚РѕРіСЂР°РјРјР° РїРѕ СЃС‚СЂРѕРєР°Рј
 		hist_cont horz_hist(region.width(), 0.);
-		// Постоение гистограмы
+		// РџРѕСЃС‚РѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјС‹
 		build_horz_hist(region, 0, region.height(), horz_hist);
 
-		// Гистограмма по столбцам
+		// Р“РёСЃС‚РѕРіСЂР°РјРјР° РїРѕ СЃС‚РѕР»Р±С†Р°Рј
 		hist_cont vert_hist(region.height(), 0.);
-		// Постоение гистограмы
+		// РџРѕСЃС‚РѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјС‹
 		build_vert_hist(region, vert_hist);
 
 		double area;
@@ -242,11 +242,11 @@ namespace vl_feintrack
         pitch;
         frame_height;
 
-		// Небольшие объекты, а также объекты, ширина которых больше высоты, на распознавание не подаются
+		// РќРµР±РѕР»СЊС€РёРµ РѕР±СЉРµРєС‚С‹, Р° С‚Р°РєР¶Рµ РѕР±СЉРµРєС‚С‹, С€РёСЂРёРЅР° РєРѕС‚РѕСЂС‹С… Р±РѕР»СЊС€Рµ РІС‹СЃРѕС‚С‹, РЅР° СЂР°СЃРїРѕР·РЅР°РІР°РЅРёРµ РЅРµ РїРѕРґР°СЋС‚СЃСЏ
 		if (3 * region.width() > 2 * region.height())
 			return unknown_object;
 
-		// Параметры человека
+		// РџР°СЂР°РјРµС‚СЂС‹ С‡РµР»РѕРІРµРєР°
 		const double head_k = 0.14;
 		const double body_k = 0.42;
 		const double legs_k = 0.44;
@@ -255,27 +255,27 @@ namespace vl_feintrack
 		int body_height = int(body_k * region.height());
 		int legs_height = int(legs_k * region.height());
 
-		// Гистограмма по строкам
+		// Р“РёСЃС‚РѕРіСЂР°РјРјР° РїРѕ СЃС‚СЂРѕРєР°Рј
 		hist_cont horz_hist(region.width(), 0.);
 
-		// Постоение гистограмы для области головы
+		// РџРѕСЃС‚РѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјС‹ РґР»СЏ РѕР±Р»Р°СЃС‚Рё РіРѕР»РѕРІС‹
 		build_horz_hist(region, 0, head_height, horz_hist, frame_width, mask);
 		double head_area, head_center, head_r_mu;
 		if (!is_head(head_height, horz_hist, head_area, head_center, head_r_mu))
 			return unknown_object;
 
 		fill(horz_hist.begin(), horz_hist.end(), 0);
-		// Построение гистограммы для верхней подобласти области ног
+		// РџРѕСЃС‚СЂРѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјРјС‹ РґР»СЏ РІРµСЂС…РЅРµР№ РїРѕРґРѕР±Р»Р°СЃС‚Рё РѕР±Р»Р°СЃС‚Рё РЅРѕРі
 		build_horz_hist(region, head_height + body_height + 1, head_height + body_height + 1 + legs_height / 2, horz_hist, frame_width, mask);
 		double legs_area1;
 		double legs_center1 = calc_center_mass(horz_hist, legs_area1);
 		double legs_r_mu1 = calc_mu(horz_hist, legs_center1, legs_area1);
-		// Построение гистограммы для нижней подобласти области ног
+		// РџРѕСЃС‚СЂРѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјРјС‹ РґР»СЏ РЅРёР¶РЅРµР№ РїРѕРґРѕР±Р»Р°СЃС‚Рё РѕР±Р»Р°СЃС‚Рё РЅРѕРі
 		build_horz_hist(region, head_height + body_height + 1 + legs_height / 2 + 1, region.height(), horz_hist, frame_width, mask);
 		double legs_area2;
 		double legs_center2 = calc_center_mass(horz_hist, legs_area2);
 		double legs_r_mu2 = calc_mu(horz_hist, legs_center2, legs_area2);
-		// Если момент 2-го порядка верхней части больше момента 2-го порядка нижней части - выходим
+		// Р•СЃР»Рё РјРѕРјРµРЅС‚ 2-РіРѕ РїРѕСЂСЏРґРєР° РІРµСЂС…РЅРµР№ С‡Р°СЃС‚Рё Р±РѕР»СЊС€Рµ РјРѕРјРµРЅС‚Р° 2-РіРѕ РїРѕСЂСЏРґРєР° РЅРёР¶РЅРµР№ С‡Р°СЃС‚Рё - РІС‹С…РѕРґРёРј
 		if (legs_r_mu1 > legs_r_mu2)
 			return unknown_object;
 
@@ -284,13 +284,13 @@ namespace vl_feintrack
 		double legs_center = calc_center_mass(horz_hist, legs_area);
 
 		fill(horz_hist.begin(), horz_hist.end(), 0);
-		// Построение гистограммы для области туловища
+		// РџРѕСЃС‚СЂРѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјРјС‹ РґР»СЏ РѕР±Р»Р°СЃС‚Рё С‚СѓР»РѕРІРёС‰Р°
 		build_horz_hist(region, head_height + 1, head_height + body_height, horz_hist, frame_width, mask);
 		double body_area;
 		if (!is_body(body_height, horz_hist, head_center, head_r_mu, legs_center, body_area))
 			return unknown_object;
 
-		// Если суммарная площадь объекта мала по отношению к общей площади региона, то результат распознавания принимается как отрицательный
+		// Р•СЃР»Рё СЃСѓРјРјР°СЂРЅР°СЏ РїР»РѕС‰Р°РґСЊ РѕР±СЉРµРєС‚Р° РјР°Р»Р° РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє РѕР±С‰РµР№ РїР»РѕС‰Р°РґРё СЂРµРіРёРѕРЅР°, С‚Рѕ СЂРµР·СѓР»СЊС‚Р°С‚ СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ РїСЂРёРЅРёРјР°РµС‚СЃСЏ РєР°Рє РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Р№
 		if (head_area + legs_area + body_area < (region.width() * region.height()) / 4)
 			return unknown_object;
 

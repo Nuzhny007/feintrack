@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 
 
 #if 1
-            // Обводка объектов
+            // РћР±РІРѕРґРєР° РѕР±СЉРµРєС‚РѕРІ
             vl_feintrack::CObjRect *rect_arr;
             size_t rect_count;
             GetObjects(feintrack, rect_arr, rect_count);
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
                 {
                     cv::rectangle(frame, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::Point(rect_arr[i].right, rect_arr[i].bottom), colors[rect_arr[i].type]);
 
-                    // Вывод траектории
+                    // Р’С‹РІРѕРґ С‚СЂР°РµРєС‚РѕСЂРёРё
                     cv::Point p1(rect_arr[i].traectory[0].x, rect_arr[i].traectory[0].y);
                     cv::Point p2;
                     for (size_t j = 1, stop = rect_arr[i].traectory_size - 1; j < stop; ++j)
@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
                 }
             }
 
-            // Обводка оставленных объектов
+            // РћР±РІРѕРґРєР° РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
             vl_feintrack::CLeftObjRect *left_rect_arr;
             size_t left_rect_count;
             vl_feintrack::GetLeftObjects(feintrack, left_rect_arr, left_rect_count);

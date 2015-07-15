@@ -11,11 +11,11 @@
 namespace vl_feintrack
 {
 	////////////////////////////////////////////////////////////////////////////
-	typedef std::vector<mask_type> mask_cont; // Тип контейнера для хранения результата вычитания фона
+	typedef std::vector<mask_type> mask_cont; // РўРёРї РєРѕРЅС‚РµР№РЅРµСЂР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 
 	////////////////////////////////////////////////////////////////////////////
 #ifdef USE_GPU
-	// Генерация типа по константе
+	// Р“РµРЅРµСЂР°С†РёСЏ С‚РёРїР° РїРѕ РєРѕРЅСЃС‚Р°РЅС‚Рµ
 	template<int v>
 	struct Int2Type
 	{
@@ -23,12 +23,12 @@ namespace vl_feintrack
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Обёртка над выделенной с помощью CUDA памятью
+	// РћР±С‘СЂС‚РєР° РЅР°Рґ РІС‹РґРµР»РµРЅРЅРѕР№ СЃ РїРѕРјРѕС‰СЊСЋ CUDA РїР°РјСЏС‚СЊСЋ
 	template <class T, bool DEVICE_MEM>
 	struct CCudaBuf
 	{
-		T* buf;                          // Выделенный буфер памяти
-		size_t buf_size;                 // Размер буфера в байтах
+		T* buf;                          // Р’С‹РґРµР»РµРЅРЅС‹Р№ Р±СѓС„РµСЂ РїР°РјСЏС‚Рё
+		size_t buf_size;                 // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ Р±Р°Р№С‚Р°С…
 
 
         typedef cudaError_t (/*stdcall*/ MALLOC_FUNCTION)(void**, size_t);
@@ -54,12 +54,12 @@ namespace vl_feintrack
 			return cudaFreeHost;
 		}
 
-		MALLOC_FUNCTION* malloc_func()   // Функции для выделения и
+		MALLOC_FUNCTION* malloc_func()   // Р¤СѓРЅРєС†РёРё РґР»СЏ РІС‹РґРµР»РµРЅРёСЏ Рё
 		{
 			return malloc_func(Int2Type<DEVICE_MEM>());
 		}
 
-		FREE_FUNCTION* free_func()       // освобождения памяти
+		FREE_FUNCTION* free_func()       // РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ РїР°РјСЏС‚Рё
 		{
 			return free_func(Int2Type<DEVICE_MEM>());
 		}
@@ -80,7 +80,7 @@ namespace vl_feintrack
 			free();
 		}
 
-		void free()                      // Очистить буфер
+		void free()                      // РћС‡РёСЃС‚РёС‚СЊ Р±СѓС„РµСЂ
 		{
 			if (buf)
 			{
@@ -90,10 +90,10 @@ namespace vl_feintrack
 			}
 		}
 
-		bool malloc(size_t elements)     // Выделить память для указанного числа элементов
+		bool malloc(size_t elements)     // Р’С‹РґРµР»РёС‚СЊ РїР°РјСЏС‚СЊ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ С‡РёСЃР»Р° СЌР»РµРјРµРЅС‚РѕРІ
 		{
 			size_t bytes = elements * sizeof(T);
-#if 0       // Память освобождаем всегда, так как она может каким-то чудом испортиться
+#if 0       // РџР°РјСЏС‚СЊ РѕСЃРІРѕР±РѕР¶РґР°РµРј РІСЃРµРіРґР°, С‚Р°Рє РєР°Рє РѕРЅР° РјРѕР¶РµС‚ РєР°РєРёРј-С‚Рѕ С‡СѓРґРѕРј РёСЃРїРѕСЂС‚РёС‚СЊСЃСЏ
 			if (bytes != buf_size)
 				free();
 #else

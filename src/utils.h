@@ -17,7 +17,7 @@ namespace vl_feintrack
 {
 	////////////////////////////////////////////////////////////////////////////
 
-    // Функция конвертации BGR -> яркость
+    // Р¤СѓРЅРєС†РёСЏ РєРѕРЅРІРµСЂС‚Р°С†РёРё BGR -> СЏСЂРєРѕСЃС‚СЊ
     template<class T> inline
     T RGB_2_Y(T R, T G, T B)
     {
@@ -30,7 +30,7 @@ namespace vl_feintrack
     }
     ////////////////////////////////////////////////////////////////////////
 	
-	// Циклический вектор
+	// Р¦РёРєР»РёС‡РµСЃРєРёР№ РІРµРєС‚РѕСЂ
 	template<class T, size_t SIZE>
 	class cyclic_array
 	{
@@ -87,7 +87,7 @@ namespace vl_feintrack
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Предикаты для сортировки точек по каждой из координат
+	// РџСЂРµРґРёРєР°С‚С‹ РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё С‚РѕС‡РµРє РїРѕ РєР°Р¶РґРѕР№ РёР· РєРѕРѕСЂРґРёРЅР°С‚
 	template<class POINT_TYPE>
 	bool point_x_pred(const POINT_TYPE& p1, const POINT_TYPE& p2)
 	{
@@ -100,7 +100,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Возвращает знак выражения
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°Рє РІС‹СЂР°Р¶РµРЅРёСЏ
 	template<class T> inline
 	T sign(T val)
 	{
@@ -108,7 +108,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Возведение в квадрат
+	// Р’РѕР·РІРµРґРµРЅРёРµ РІ РєРІР°РґСЂР°С‚
 	template<class T> inline
 	T sqr(T val)
 	{
@@ -116,7 +116,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////
 	
-	// Возвращает расстояние между точками
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ С‚РѕС‡РєР°РјРё
 	template<class T, class POINT_TYPE> inline
 	T distance(const POINT_TYPE& p1, const POINT_TYPE& p2)
 	{
@@ -124,7 +124,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Возвращает длину вектора
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ РґР»РёРЅСѓ РІРµРєС‚РѕСЂР°
 	template<class T> inline
 	T v_length(T x, T y)
 	{
@@ -132,13 +132,13 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Двумерный вектор
+	// Р”РІСѓРјРµСЂРЅС‹Р№ РІРµРєС‚РѕСЂ
 	template<class T>
 	struct vector2
 	{
-		T x;    // 1-я и
-		T y;    // 2-я координаты вектора
-		T len;  // Длина вектора
+		T x;    // 1-СЏ Рё
+		T y;    // 2-СЏ РєРѕРѕСЂРґРёРЅР°С‚С‹ РІРµРєС‚РѕСЂР°
+		T len;  // Р”Р»РёРЅР° РІРµРєС‚РѕСЂР°
 
 		vector2(T x_, T y_)
 			: x(x_), y(y_)
@@ -152,7 +152,7 @@ namespace vl_feintrack
 	};
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Возвращает скалярное произведение векторов
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРєР°Р»СЏСЂРЅРѕРµ РїСЂРѕРёР·РІРµРґРµРЅРёРµ РІРµРєС‚РѕСЂРѕРІ
 	template<class T, class VECTOR_TYPE> inline
 	T dot_product(const VECTOR_TYPE &v1, const VECTOR_TYPE &v2)
 	{
@@ -160,7 +160,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Преобразование двумерных декартовых координат в координаты окна и обратно
+	// РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РґРІСѓРјРµСЂРЅС‹С… РґРµРєР°СЂС‚РѕРІС‹С… РєРѕРѕСЂРґРёРЅР°С‚ РІ РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕРєРЅР° Рё РѕР±СЂР°С‚РЅРѕ
 	inline float_t wnd_to_x(int i, int wnd_width, float_t a, float_t b)
 	{
 		return a + (i * (b - a)) / wnd_width;
@@ -172,7 +172,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Проверка наложения друг на друга параллельных отрезков
+	// РџСЂРѕРІРµСЂРєР° РЅР°Р»РѕР¶РµРЅРёСЏ РґСЂСѓРі РЅР° РґСЂСѓРіР° РїР°СЂР°Р»Р»РµР»СЊРЅС‹С… РѕС‚СЂРµР·РєРѕРІ
 	template<class T> inline
 	bool segments_superposition(T a1, T a2, T b1, T b2)
 	{
@@ -181,7 +181,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Перевод из одной прямоугольной системы координат в другую
+	// РџРµСЂРµРІРѕРґ РёР· РѕРґРЅРѕР№ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРѕР№ СЃРёСЃС‚РµРјС‹ РєРѕРѕСЂРґРёРЅР°С‚ РІ РґСЂСѓРіСѓСЋ
 	template<class T> inline
 	T from_to(T val, T a_to, T b_to, T c_from, T d_from)
 	{
@@ -189,7 +189,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Ограничивает значение указанными рамками
+	// РћРіСЂР°РЅРёС‡РёРІР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СѓРєР°Р·Р°РЅРЅС‹РјРё СЂР°РјРєР°РјРё
 	template<class T> inline
 	T set_range(T &val, T min_val, T max_val)
 	{
@@ -212,7 +212,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Проверка значения на принадлежность отрезку
+	// РџСЂРѕРІРµСЂРєР° Р·РЅР°С‡РµРЅРёСЏ РЅР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ РѕС‚СЂРµР·РєСѓ
 	template<class T> inline
 	bool in_range(T curr_val, T min_val, T max_val)
 	{
@@ -220,12 +220,12 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Возвращает true, если отрезки, заданные координатами конечных точек в однородных декартовых координатах, пересекаются
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РѕС‚СЂРµР·РєРё, Р·Р°РґР°РЅРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё РєРѕРЅРµС‡РЅС‹С… С‚РѕС‡РµРє РІ РѕРґРЅРѕСЂРѕРґРЅС‹С… РґРµРєР°СЂС‚РѕРІС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…, РїРµСЂРµСЃРµРєР°СЋС‚СЃСЏ
 	bool is_intersect(float_t x1_1, float_t y1_1, float_t x2_1, float_t y2_1,
 		              float_t x1_2, float_t y1_2, float_t x2_2, float_t y2_2);
 	////////////////////////////////////////////////////////////////////////////
 
-	// Получение площади пересечения прямоугольников
+	// РџРѕР»СѓС‡РµРЅРёРµ РїР»РѕС‰Р°РґРё РїРµСЂРµСЃРµС‡РµРЅРёСЏ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРІ
 	template<class T, class SOME_RECT>
 	T get_intersect_area(const SOME_RECT &r1, const SOME_RECT &r2)
 	{
@@ -279,7 +279,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	//Получение уравнения линейной регресии методом наименьших квадратов
+	//РџРѕР»СѓС‡РµРЅРёРµ СѓСЂР°РІРЅРµРЅРёСЏ Р»РёРЅРµР№РЅРѕР№ СЂРµРіСЂРµСЃРёРё РјРµС‚РѕРґРѕРј РЅР°РёРјРµРЅСЊС€РёС… РєРІР°РґСЂР°С‚РѕРІ
 	template<class CONT>
 	void get_lin_regress_params(const CONT& in_data, size_t start_pos, size_t in_data_size, double &kx, double &bx, double &ky, double &by)
 	{
@@ -312,7 +312,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	//Получение уравнения линейной регресии адаптивным методом наименьших квадратов
+	//РџРѕР»СѓС‡РµРЅРёРµ СѓСЂР°РІРЅРµРЅРёСЏ Р»РёРЅРµР№РЅРѕР№ СЂРµРіСЂРµСЃРёРё Р°РґР°РїС‚РёРІРЅС‹Рј РјРµС‚РѕРґРѕРј РЅР°РёРјРµРЅСЊС€РёС… РєРІР°РґСЂР°С‚РѕРІ
 	template<class CONT>
 	void get_lin_regress_params_a(const CONT& in_data, size_t start_pos, size_t in_data_size, double &kx, double &bx, double &ky, double &by)
 	{
@@ -350,7 +350,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	//Аппроксимация кривой, заданной рядом точек, квадратичной функцией методом наименьших квадратов
+	//РђРїРїСЂРѕРєСЃРёРјР°С†РёСЏ РєСЂРёРІРѕР№, Р·Р°РґР°РЅРЅРѕР№ СЂСЏРґРѕРј С‚РѕС‡РµРє, РєРІР°РґСЂР°С‚РёС‡РЅРѕР№ С„СѓРЅРєС†РёРµР№ РјРµС‚РѕРґРѕРј РЅР°РёРјРµРЅСЊС€РёС… РєРІР°РґСЂР°С‚РѕРІ
 	template<class CONT>
 	void mnk_parabola(const CONT& in_data, size_t start_pos, size_t in_data_size,
 		double &c1_x, double &c2_x, double &c3_x, double &c1_y, double &c2_y, double &c3_y)
@@ -378,7 +378,7 @@ namespace vl_feintrack
 			b3_y += sqr_j * in_data[i].y;
 		}
 
-		//Система линейных неоднородных уравнений 3х3. Решаем методом Крамера
+		//РЎРёСЃС‚РµРјР° Р»РёРЅРµР№РЅС‹С… РЅРµРѕРґРЅРѕСЂРѕРґРЅС‹С… СѓСЂР°РІРЅРµРЅРёР№ 3С…3. Р РµС€Р°РµРј РјРµС‚РѕРґРѕРј РљСЂР°РјРµСЂР°
 		double a11(t_0), a12(t_1), a13(t_2), a21(t_1), a22(t_2), a23(t_3), a31(t_2), a32(t_3), a33(t_4);
 
 		double det_1 = 1. / (a11 * a22 * a33 + a21 * a32 * a13 + a12 * a23 * a31 - a31 * a22 * a13 - a11 * a23 * a32 - a12 * a21 * a33);
@@ -391,7 +391,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	// Вычисление высоты треугольника, опущенной из вершины b на сторону ac
+	// Р’С‹С‡РёСЃР»РµРЅРёРµ РІС‹СЃРѕС‚С‹ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°, РѕРїСѓС‰РµРЅРЅРѕР№ РёР· РІРµСЂС€РёРЅС‹ b РЅР° СЃС‚РѕСЂРѕРЅСѓ ac
 	template<class T, class POINT_TYPE> inline
 		T h_tr(const POINT_TYPE& a, const POINT_TYPE& b, const POINT_TYPE& c)
 	{
@@ -399,7 +399,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	// Алгоритм Дугласа-Пекера
+	// РђР»РіРѕСЂРёС‚Рј Р”СѓРіР»Р°СЃР°-РџРµРєРµСЂР°
 	template<class CONT, class ITERATOR>
 	void DouglasPeucker(const ITERATOR& in_begin, const ITERATOR& in_end, CONT& points_out, int epsilon)
 	{
@@ -439,7 +439,7 @@ namespace vl_feintrack
 	typedef std::vector<double> hist_cont;
 	////////////////////////////////////////////////////////////////////////////
 
-	// Построение гистограммы по строкам
+	// РџРѕСЃС‚СЂРѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјРјС‹ РїРѕ СЃС‚СЂРѕРєР°Рј
 	template<class SOME_RECT, class MASK_TYPE>
     void build_horz_hist(const SOME_RECT& region, int from_h, int to_h, hist_cont& hist, uint32_t frame_width, const MASK_TYPE* mask)
 	{
@@ -460,7 +460,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	// Построение гистограммы по столбцам	
+	// РџРѕСЃС‚СЂРѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјРјС‹ РїРѕ СЃС‚РѕР»Р±С†Р°Рј	
 	template<class SOME_RECT, class MASK_TYPE>
     void build_vert_hist(const SOME_RECT& region, hist_cont& hist, uint32_t frame_width, const MASK_TYPE* mask)
 	{
@@ -481,7 +481,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	// Вычисление смешанного центрального момента второго порядка
+	// Р’С‹С‡РёСЃР»РµРЅРёРµ СЃРјРµС€Р°РЅРЅРѕРіРѕ С†РµРЅС‚СЂР°Р»СЊРЅРѕРіРѕ РјРѕРјРµРЅС‚Р° РІС‚РѕСЂРѕРіРѕ РїРѕСЂСЏРґРєР°
 	template<class SOME_RECT, class MASK_TYPE>
     double calc_s_mu(const SOME_RECT& region, double center_mass_r, double center_mass_c, double area, uint32_t frame_width, const MASK_TYPE* mask)
 	{
@@ -504,7 +504,7 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	// Построение гистограммы яркости
+	// РџРѕСЃС‚СЂРѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјРјС‹ СЏСЂРєРѕСЃС‚Рё
 	template<class MASK_TYPE>
     void calculate_hist(const uchar* buf, int pitch, int pixel_size, int c_x, int c_y, int width, int height, hist_cont& hist, uint32_t frame_width, const MASK_TYPE* mask)
 	{
@@ -539,43 +539,43 @@ namespace vl_feintrack
 			buf += w1;
 		}
 
-        // нормализуем
+        // РЅРѕСЂРјР°Р»РёР·СѓРµРј
 		const hist_cont::value_type norm_factor = static_cast<hist_cont::value_type>(total_sum);
 		std::for_each(hist.begin(), hist.end(), [norm_factor](hist_cont::value_type& v) { v /= norm_factor; });
 	}
 	//////////////////////////////////////////////////////////////////
 
-	double bhattacharrya_dist(const hist_cont& source, const hist_cont& dest); // Расстояние между гистограмами
+	double bhattacharrya_dist(const hist_cont& source, const hist_cont& dest); // Р Р°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ РіРёСЃС‚РѕРіСЂР°РјР°РјРё
 
-	double calc_center_mass(const hist_cont& arr, double& area);               // Вычисление центра масс по гистограмме	
-	double calc_mu(const hist_cont& arr, double center_mass, double area);     // Вычисление центрального момента второго порядка
+	double calc_center_mass(const hist_cont& arr, double& area);               // Р’С‹С‡РёСЃР»РµРЅРёРµ С†РµРЅС‚СЂР° РјР°СЃСЃ РїРѕ РіРёСЃС‚РѕРіСЂР°РјРјРµ	
+	double calc_mu(const hist_cont& arr, double center_mass, double area);     // Р’С‹С‡РёСЃР»РµРЅРёРµ С†РµРЅС‚СЂР°Р»СЊРЅРѕРіРѕ РјРѕРјРµРЅС‚Р° РІС‚РѕСЂРѕРіРѕ РїРѕСЂСЏРґРєР°
 	////////////////////////////////////////////////////////////////////////////
 
-	// Получение значения контраста изображения
+	// РџРѕР»СѓС‡РµРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ РєРѕРЅС‚СЂР°СЃС‚Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
     float_t get_contrast_rgb(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, uint32_t pixel_size);
 	////////////////////////////////////////////////////////////////////////
 
-	// Копирование RGB24-буфера на RGB32-буфер
+	// РљРѕРїРёСЂРѕРІР°РЅРёРµ RGB24-Р±СѓС„РµСЂР° РЅР° RGB32-Р±СѓС„РµСЂ
     void copy_24to32(uchar* dest_buf, uint32_t dest_pitch, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	
 	////////////////////////////////////////////////////////////////////////
 	
-	// Копирование RGB24-буфера на RGB24-буфер c переворачиванием
+	// РљРѕРїРёСЂРѕРІР°РЅРёРµ RGB24-Р±СѓС„РµСЂР° РЅР° RGB24-Р±СѓС„РµСЂ c РїРµСЂРµРІРѕСЂР°С‡РёРІР°РЅРёРµРј
     void copy_24to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	////////////////////////////////////////////////////////////////////////
 	
-	// Копирование RGB32-буфера на RGB24-буфер
+	// РљРѕРїРёСЂРѕРІР°РЅРёРµ RGB32-Р±СѓС„РµСЂР° РЅР° RGB24-Р±СѓС„РµСЂ
     void copy_32to24(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch);
 	
-	// Копирование RGB32-буфера на RGB24-буфер c переворачиванием
+	// РљРѕРїРёСЂРѕРІР°РЅРёРµ RGB32-Р±СѓС„РµСЂР° РЅР° RGB24-Р±СѓС„РµСЂ c РїРµСЂРµРІРѕСЂР°С‡РёРІР°РЅРёРµРј
     void copy_32to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch);
 	////////////////////////////////////////////////////////////////////////
 	
-	// Копирование gray-буфера на float-буфер
+	// РљРѕРїРёСЂРѕРІР°РЅРёРµ gray-Р±СѓС„РµСЂР° РЅР° float-Р±СѓС„РµСЂ
     void copy_gray_to_float(float *dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	////////////////////////////////////////////////////////////////////////
 	
-	// Копирование буфера с resize'ом (метод Пешкова-Брезенхама)
+	// РљРѕРїРёСЂРѕРІР°РЅРёРµ Р±СѓС„РµСЂР° СЃ resize'РѕРј (РјРµС‚РѕРґ РџРµС€РєРѕРІР°-Р‘СЂРµР·РµРЅС…Р°РјР°)
     template <size_t SRC_pixel_size, size_t DEST_pixel_size>
     void StretchLine(uchar* src_buf, int src_width, uchar* dest_buf, int dest_width)
 	{
@@ -613,7 +613,7 @@ namespace vl_feintrack
 
 	////////////////////////////////////////////////////////////////////////
 	
-	// Копирование части изображения в отдельный буфер
+	// РљРѕРїРёСЂРѕРІР°РЅРёРµ С‡Р°СЃС‚Рё РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ РѕС‚РґРµР»СЊРЅС‹Р№ Р±СѓС„РµСЂ
     template<int pixel_size>
 	void copy_buf_from_image(uchar* dest_buf, int dest_left, int dest_right, int dest_top, int dest_bottom, const uchar* src_buf, int src_pitch)
 	{
@@ -642,7 +642,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////////
 
     template<uchar R, uchar G, uchar B, int pixel_size> inline
-    void paint_point(uchar* buf, uint32_t pitch, int x, int y)                  // Рисование на RGB24 кадре точки
+    void paint_point(uchar* buf, uint32_t pitch, int x, int y)                  // Р РёСЃРѕРІР°РЅРёРµ РЅР° RGB24 РєР°РґСЂРµ С‚РѕС‡РєРё
 	{
         buf += pixel_size * x + y * pitch;
 
@@ -653,7 +653,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
     template<uchar R, uchar G, uchar B, int pixel_size>
-    void paint_h_line(uchar* buf, uint32_t pitch, int x1, int x2, int y)        // Рисование на RGB буфере горизонтальной,
+    void paint_h_line(uchar* buf, uint32_t pitch, int x1, int x2, int y)        // Р РёСЃРѕРІР°РЅРёРµ РЅР° RGB Р±СѓС„РµСЂРµ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№,
 	{
         buf += pixel_size * x1 + y * pitch;
         for (; x1 < x2; ++x1, buf += pixel_size)
@@ -666,7 +666,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
     template<uchar R, uchar G, uchar B, int pixel_size>
-    void paint_v_line(uchar* buf, uint32_t pitch, int x, int y1, int y2)        // вертикальной и
+    void paint_v_line(uchar* buf, uint32_t pitch, int x, int y1, int y2)        // РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Рё
 	{
         buf += pixel_size * x + y1 * pitch;
 		for (; y1 < y2; ++y1, buf += pitch)
@@ -679,7 +679,7 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////
 	
     template<uchar R, uchar G, uchar B, int pixel_size>
-    void paint_line(uchar* buf, uint32_t pitch, int x1, int x2, int y1, int y2) // произвольной линии
+    void paint_line(uchar* buf, uint32_t pitch, int x1, int x2, int y1, int y2) // РїСЂРѕРёР·РІРѕР»СЊРЅРѕР№ Р»РёРЅРёРё
 	{
 		int dx = abs(x2 - x1);
 		int dy = abs(y2 - y1);

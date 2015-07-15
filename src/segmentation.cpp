@@ -72,25 +72,25 @@ namespace vl_feintrack
 
 	void CSegmentation::add_to_region(regions_container& regions, int x, int y)
 	{
-		// Указатель на регион, уже содержащий добавляемую точку
+		// РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРµРіРёРѕРЅ, СѓР¶Рµ СЃРѕРґРµСЂР¶Р°С‰РёР№ РґРѕР±Р°РІР»СЏРµРјСѓСЋ С‚РѕС‡РєСѓ
 		regions_container::iterator iter_tmp(regions.end());
 
-		// Ищем существующий регион, подходящий для добавления точки
+		// РС‰РµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЂРµРіРёРѕРЅ, РїРѕРґС…РѕРґСЏС‰РёР№ РґР»СЏ РґРѕР±Р°РІР»РµРЅРёСЏ С‚РѕС‡РєРё
 		for (regions_container::iterator iter = regions.begin(); iter != regions.end();)
 		{
-			// Нашли такой регион
+			// РќР°С€Р»Рё С‚Р°РєРѕР№ СЂРµРіРёРѕРЅ
 			if (iter->in_region(x, y))
 			{
 				iter->add_point(x, y);
 
-				// Если этот регион первый найденный, то запоминаем указатель на него
+				// Р•СЃР»Рё СЌС‚РѕС‚ СЂРµРіРёРѕРЅ РїРµСЂРІС‹Р№ РЅР°Р№РґРµРЅРЅС‹Р№, С‚Рѕ Р·Р°РїРѕРјРёРЅР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅРµРіРѕ
 				if (iter_tmp == regions.end())
 				{
 					iter_tmp = iter;
 					++iter;
 					continue;
 				}
-				// Иначе расширяем первый найденный регион по размерам последующих, а последующие удаляем
+				// РРЅР°С‡Рµ СЂР°СЃС€РёСЂСЏРµРј РїРµСЂРІС‹Р№ РЅР°Р№РґРµРЅРЅС‹Р№ СЂРµРіРёРѕРЅ РїРѕ СЂР°Р·РјРµСЂР°Рј РїРѕСЃР»РµРґСѓСЋС‰РёС…, Р° РїРѕСЃР»РµРґСѓСЋС‰РёРµ СѓРґР°Р»СЏРµРј
 				else
 				{
 					iter_tmp->regions_merging(*iter);
@@ -101,7 +101,7 @@ namespace vl_feintrack
 			++iter;
 		}
 
-		// Регион не найден - создаём новый
+		// Р РµРіРёРѕРЅ РЅРµ РЅР°Р№РґРµРЅ - СЃРѕР·РґР°С‘Рј РЅРѕРІС‹Р№
 		if (iter_tmp == regions.end())
 			regions.push_back(CObjectRegion(x, x, y, y));
 	}
@@ -112,7 +112,7 @@ namespace vl_feintrack
 		if (use_cuda)
         {
 #ifdef USE_GPU
-			// Нет смысла производить морфолоию, она происходит на уровне сегментации
+			// РќРµС‚ СЃРјС‹СЃР»Р° РїСЂРѕРёР·РІРѕРґРёС‚СЊ РјРѕСЂС„РѕР»РѕРёСЋ, РѕРЅР° РїСЂРѕРёСЃС…РѕРґРёС‚ РЅР° СѓСЂРѕРІРЅРµ СЃРµРіРјРµРЅС‚Р°С†РёРё
 			//morphology(d_mask.buf, d_mask_temp.buf, frame_width, frame_height, (unsigned int)pixels_l.size());
 #else
         assert(false);
@@ -123,9 +123,9 @@ namespace vl_feintrack
 			if (morphology_buf.size() != pixels_l.size())
 				morphology_buf.resize(pixels_l.size());
 
-			// Структурный элемент - прямоугольник 3х3
+			// РЎС‚СЂСѓРєС‚СѓСЂРЅС‹Р№ СЌР»РµРјРµРЅС‚ - РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє 3С…3
 
-			// Эрозия
+			// Р­СЂРѕР·РёСЏ
 			mask_type *pl1 = &pixels_l[0] + frame_width;
 			mask_type *pl2 = &morphology_buf[0] + frame_width;
 			std::fill(&morphology_buf[0], pl2, 0);
@@ -148,7 +148,7 @@ namespace vl_feintrack
 			}
 			std::fill(pl2, pl2 + frame_width, 0);
 
-			// Наращивание
+			// РќР°СЂР°С‰РёРІР°РЅРёРµ
 			pl1 = &pixels_l[0] + frame_width;
 			pl2 = &morphology_buf[0] + frame_width;
             for (uint32_t y = 1; y < frame_height - 1; ++y, ++pl1, ++pl2)
@@ -181,7 +181,7 @@ namespace vl_feintrack
 #ifdef USE_GPU
     void CSegmentation::copy_gpu2cpu()
     {
-		// Возвращаем маску
+		// Р’РѕР·РІСЂР°С‰Р°РµРј РјР°СЃРєСѓ
 		cudaMemcpy(&pixels_l[0], d_mask.buf, d_mask.buf_size, cudaMemcpyDeviceToHost);
 	}
 #endif
@@ -193,7 +193,7 @@ namespace vl_feintrack
 		if (use_cuda)
         {
 #ifdef USE_GPU
-			// Возвращаем маску
+			// Р’РѕР·РІСЂР°С‰Р°РµРј РјР°СЃРєСѓ
 			cudaMemcpy(&pixels_l[0], d_mask.buf, d_mask.buf_size, cudaMemcpyDeviceToHost);
 #else
         assert(false);
@@ -227,7 +227,7 @@ namespace vl_feintrack
 #ifdef USE_GPU
 	void CSegmentation::cuda_segmentation(regions_container& regions)
 	{
-		// Предварительная блочная сегментация
+		// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅР°СЏ Р±Р»РѕС‡РЅР°СЏ СЃРµРіРјРµРЅС‚Р°С†РёСЏ
 		unsigned int el_count = (frame_width * frame_height) / (SEGM_BLOCK_SIZE * SEGM_BLOCK_SIZE);
 		unsigned int reg_bytes = el_count * sizeof(reg_label);
 		segmentation(d_mask.buf, d_reg.buf, frame_width, frame_height);
@@ -241,38 +241,38 @@ namespace vl_feintrack
 		int max_right = (int)frame_width - 1;
 		int max_bottom = (int)frame_height - 1;
 
-		// Окончательная сегментация
+		// РћРєРѕРЅС‡Р°С‚РµР»СЊРЅР°СЏ СЃРµРіРјРµРЅС‚Р°С†РёСЏ
 		reg_label *pl = h_reg.buf;
         for (uint32_t y = 0, stop_y = frame_height / SEGM_BLOCK_SIZE; y < stop_y; ++y)
 		{
             for (uint32_t x = 0, stop_x = frame_width / SEGM_BLOCK_SIZE; x < stop_x; ++x, ++pl)
 			{
-				// Добавляем точку объекта к регионам выделения
+				// Р”РѕР±Р°РІР»СЏРµРј С‚РѕС‡РєСѓ РѕР±СЉРµРєС‚Р° Рє СЂРµРіРёРѕРЅР°Рј РІС‹РґРµР»РµРЅРёСЏ
 				//if (*pl > (SEGM_BLOCK_SIZE * SEGM_BLOCK_SIZE) / 2)
 				if (*pl > SEGM_BLOCK_SIZE / 2)
 				{
 					int px = x * SEGM_BLOCK_SIZE;
 					int py = y * SEGM_BLOCK_SIZE;
 
-					// Указатель на регион, уже содержащий добавляемую точку
+					// РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРµРіРёРѕРЅ, СѓР¶Рµ СЃРѕРґРµСЂР¶Р°С‰РёР№ РґРѕР±Р°РІР»СЏРµРјСѓСЋ С‚РѕС‡РєСѓ
 					regions_container::iterator iter_tmp(regions.end());
 
-					// Ищем существующий регион, подходящий для добавления точки
+					// РС‰РµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЂРµРіРёРѕРЅ, РїРѕРґС…РѕРґСЏС‰РёР№ РґР»СЏ РґРѕР±Р°РІР»РµРЅРёСЏ С‚РѕС‡РєРё
 					for (regions_container::iterator iter = regions.begin(); iter != regions.end();)
 					{
-						// Нашли такой регион
+						// РќР°С€Р»Рё С‚Р°РєРѕР№ СЂРµРіРёРѕРЅ
 						if (iter->near_region(px, py))
 						{
 							iter->add_rect(std::min(px + SEGM_BLOCK_SIZE, max_right), std::min(py + SEGM_BLOCK_SIZE, max_bottom), *pl);
 
-							// Если этот регион первый найденный, то запоминаем указатель на него
+							// Р•СЃР»Рё СЌС‚РѕС‚ СЂРµРіРёРѕРЅ РїРµСЂРІС‹Р№ РЅР°Р№РґРµРЅРЅС‹Р№, С‚Рѕ Р·Р°РїРѕРјРёРЅР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅРµРіРѕ
 							if (iter_tmp == regions.end())
 							{
 								iter_tmp = iter;
 								++iter;
 								continue;
 							}
-							// Иначе расширяем первый найденный регион по размерам последующих, а последующие удаляем
+							// РРЅР°С‡Рµ СЂР°СЃС€РёСЂСЏРµРј РїРµСЂРІС‹Р№ РЅР°Р№РґРµРЅРЅС‹Р№ СЂРµРіРёРѕРЅ РїРѕ СЂР°Р·РјРµСЂР°Рј РїРѕСЃР»РµРґСѓСЋС‰РёС…, Р° РїРѕСЃР»РµРґСѓСЋС‰РёРµ СѓРґР°Р»СЏРµРј
 							else
 							{
 								iter_tmp->regions_merging(*iter);
@@ -283,7 +283,7 @@ namespace vl_feintrack
 						++iter;
 					}
 
-					// Регион не найден - создаём новый
+					// Р РµРіРёРѕРЅ РЅРµ РЅР°Р№РґРµРЅ - СЃРѕР·РґР°С‘Рј РЅРѕРІС‹Р№
 					if (iter_tmp == regions.end())
 					{
 						int rx = (px + SEGM_BLOCK_SIZE > max_right)? max_right: (px + SEGM_BLOCK_SIZE);
@@ -310,11 +310,11 @@ namespace vl_feintrack
 
 	void CSegmentation::iterative_segmentation(regions_container& regions)
 	{
-		// Временный список регионов без учёта эквивалентности
+		// Р’СЂРµРјРµРЅРЅС‹Р№ СЃРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ Р±РµР· СѓС‡С‘С‚Р° СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚Рё
 		tmp_regions.clear();
 		eq_regions.clear();
 
-		// Первоначальная разметка областей
+		// РџРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅР°СЏ СЂР°Р·РјРµС‚РєР° РѕР±Р»Р°СЃС‚РµР№
 		mask_type label = 0;
 		mask_cont labs;
 		labs.reserve(4);
@@ -379,7 +379,7 @@ namespace vl_feintrack
 
 		std::sort(eq_regions.begin(), eq_regions.end(), pairs_comp);
 
-		// Окончательное добавление регионов с учётом их возможной эквивалентности
+		// РћРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕРµ РґРѕР±Р°РІР»РµРЅРёРµ СЂРµРіРёРѕРЅРѕРІ СЃ СѓС‡С‘С‚РѕРј РёС… РІРѕР·РјРѕР¶РЅРѕР№ СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚Рё
 		for (size_t i = 0; i < tmp_regions.size(); ++i)
 		{
 			if (tmp_regions[i].first)
@@ -414,7 +414,7 @@ namespace vl_feintrack
 
 	void CSegmentation::recursive_segmentation(regions_container& regions)
 	{
-		// Рекурсивная сегментация объектов переднего плана на основе восьмисвязности
+		// Р РµРєСѓСЂСЃРёРІРЅР°СЏ СЃРµРіРјРµРЅС‚Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ РїРµСЂРµРґРЅРµРіРѕ РїР»Р°РЅР° РЅР° РѕСЃРЅРѕРІРµ РІРѕСЃСЊРјРёСЃРІСЏР·РЅРѕСЃС‚Рё
 		mask_type label = 0;
         for (uint32_t y = 0, oi = 0; y < frame_height; ++y)
 		{
@@ -440,28 +440,28 @@ namespace vl_feintrack
         uint32_t y_ = y - 1;
 		if (y > 0)
 		{
-			// левая-верхняя
+			// Р»РµРІР°СЏ-РІРµСЂС…РЅСЏСЏ
 			if ((x > 0) && pixels_l[x_ + y_ * frame_width])
 				search_components(label, x_, y_, reg);
-			// центральная-верхняя
+			// С†РµРЅС‚СЂР°Р»СЊРЅР°СЏ-РІРµСЂС…РЅСЏСЏ
 			x_ = x;
 			if (pixels_l[x_ + y_ * frame_width])
 				search_components(label, x_, y_, reg);
-			//правая-верхняя
+			//РїСЂР°РІР°СЏ-РІРµСЂС…РЅСЏСЏ
 			x_ = x + 1;
 			if ((x < frame_width - 1) && pixels_l[x_ + y_ * frame_width])
 				search_components(label, x, y_, reg);
 		}
 
 		y_ = y;
-		// левая-центральная
+		// Р»РµРІР°СЏ-С†РµРЅС‚СЂР°Р»СЊРЅР°СЏ
 		x_ = x - 1;
 		if ((x > 0) && pixels_l[x_ + y_ * frame_width])
 			search_components(label, x_, y_, reg);
-		// центральная-центральная
+		// С†РµРЅС‚СЂР°Р»СЊРЅР°СЏ-С†РµРЅС‚СЂР°Р»СЊРЅР°СЏ
 		x_ = x;
 		pixels_l[x_ + y_ * frame_width] = label;
-		// правая-центральная
+		// РїСЂР°РІР°СЏ-С†РµРЅС‚СЂР°Р»СЊРЅР°СЏ
 		x_ = x + 1;
 		if ((x < frame_width - 1) && pixels_l[x_ + y_ * frame_width])
 			search_components(label, x_, y_, reg);
@@ -469,15 +469,15 @@ namespace vl_feintrack
 		if (y < frame_height - 1)
 		{
 			y_ = y + 1;
-			// левая-нижняя
+			// Р»РµРІР°СЏ-РЅРёР¶РЅСЏСЏ
 			x_ = x - 1;
 			if ((x > 0) && pixels_l[x_ + y_ * frame_width])
 				search_components(label, x_, y_, reg);
-			// центральная-нижняя
+			// С†РµРЅС‚СЂР°Р»СЊРЅР°СЏ-РЅРёР¶РЅСЏСЏ
 			x_ = x;
 			if (pixels_l[x_ + y_ * frame_width])
 				search_components(label, x_, y_, reg);
-			// правая-нижняя
+			// РїСЂР°РІР°СЏ-РЅРёР¶РЅСЏСЏ
 			x_ = x + 1;
 			if ((x < frame_width - 1) && pixels_l[x_ + y_ * frame_width])
 				search_components(label, x_, y_, reg);
@@ -492,7 +492,7 @@ namespace vl_feintrack
 		{
             for (uint32_t x = 0; x < frame_width; ++x, ++pl)
 			{
-				// Добавляем точку объекта к регионам выделения
+				// Р”РѕР±Р°РІР»СЏРµРј С‚РѕС‡РєСѓ РѕР±СЉРµРєС‚Р° Рє СЂРµРіРёРѕРЅР°Рј РІС‹РґРµР»РµРЅРёСЏ
 				if (*pl)
 					add_to_region(regions, x, y);
 			}

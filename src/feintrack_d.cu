@@ -193,15 +193,15 @@ __global__ void back_substraction_mixture_(int32_t* bgr32,
 
 	for (size_t proc_ind = 0; proc_ind < cr_processes; ++proc_ind)
 	{
-		// Ищем процесс, который лучше соответствует текущему значению пикселя
+		// РС‰РµРј РїСЂРѕС†РµСЃСЃ, РєРѕС‚РѕСЂС‹Р№ Р»СѓС‡С€Рµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РµРєСѓС‰РµРјСѓ Р·РЅР°С‡РµРЅРёСЋ РїРёРєСЃРµР»СЏ
 		if (eps_b * proc_list[proc_ind].sigma[0] > fabsf(proc_list[proc_ind].mu[0] - b) &&
 			eps_g * proc_list[proc_ind].sigma[1] > fabsf(proc_list[proc_ind].mu[1] - g) &&
 			eps_r * proc_list[proc_ind].sigma[2] > fabsf(proc_list[proc_ind].mu[2] - r))
 		{
-			// Процесс найден - уточняем его параметры
+			// РџСЂРѕС†РµСЃСЃ РЅР°Р№РґРµРЅ - СѓС‚РѕС‡РЅСЏРµРј РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹
 			curr_proc = proc_ind;
 
-			// Оценки мат. ожидания и дисперсии обновляются с помощью низкочастотного фильтра рекурсивного сглаживания
+			// РћС†РµРЅРєРё РјР°С‚. РѕР¶РёРґР°РЅРёСЏ Рё РґРёСЃРїРµСЂСЃРёРё РѕР±РЅРѕРІР»СЏСЋС‚СЃСЏ СЃ РїРѕРјРѕС‰СЊСЋ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
 			proc_list[proc_ind].mu[0] = (1.f - pup.alpha1) * proc_list[proc_ind].mu[0] + pup.alpha1 * b;
 			proc_list[proc_ind].mu[1] = (1.f - pup.alpha1) * proc_list[proc_ind].mu[1] + pup.alpha1 * g;
 			proc_list[proc_ind].mu[2] = (1.f - pup.alpha1) * proc_list[proc_ind].mu[2] + pup.alpha1 * r;
@@ -218,9 +218,9 @@ __global__ void back_substraction_mixture_(int32_t* bgr32,
 			break;
 		}
 	}
-	if (!find_process) // Процесс не найден
+	if (!find_process) // РџСЂРѕС†РµСЃСЃ РЅРµ РЅР°Р№РґРµРЅ
 	{
-		// Создаём новый процесс или,
+		// РЎРѕР·РґР°С‘Рј РЅРѕРІС‹Р№ РїСЂРѕС†РµСЃСЃ РёР»Рё,
 		if (cr_processes < 3)
 		{
 			++cr_processes;
@@ -236,7 +236,7 @@ __global__ void back_substraction_mixture_(int32_t* bgr32,
 
 			find_process = true;
 		}
-		// если количество процессов равно 3, ищем процесс с наименьшим весом
+		// РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС†РµСЃСЃРѕРІ СЂР°РІРЅРѕ 3, РёС‰РµРј РїСЂРѕС†РµСЃСЃ СЃ РЅР°РёРјРµРЅСЊС€РёРј РІРµСЃРѕРј
 		else
 		{
 			float min_weight = proc_list[0].weight;
@@ -261,7 +261,7 @@ __global__ void back_substraction_mixture_(int32_t* bgr32,
 		}
 	}
 
-	// Обновление весов процессов
+	// РћР±РЅРѕРІР»РµРЅРёРµ РІРµСЃРѕРІ РїСЂРѕС†РµСЃСЃРѕРІ
 	if (find_process)
 	{
 		for (size_t proc_ind = 0; proc_ind < cr_processes; ++proc_ind)
@@ -313,13 +313,13 @@ __global__ void back_substraction_mixture_gray_(float* p_val,
 
 	for (size_t proc_ind = 0; proc_ind < cr_processes; ++proc_ind)
 	{
-		// Ищем процесс, который лучше соответствует текущему значению пикселя
+		// РС‰РµРј РїСЂРѕС†РµСЃСЃ, РєРѕС‚РѕСЂС‹Р№ Р»СѓС‡С€Рµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РµРєСѓС‰РµРјСѓ Р·РЅР°С‡РµРЅРёСЋ РїРёРєСЃРµР»СЏ
 		if (eps * proc_list[proc_ind].sigma[0] > fabsf(proc_list[proc_ind].mu[0] - p))
 		{
-			// Процесс найден - уточняем его параметры
+			// РџСЂРѕС†РµСЃСЃ РЅР°Р№РґРµРЅ - СѓС‚РѕС‡РЅСЏРµРј РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹
 			curr_proc = proc_ind;
 
-			// Оценки мат. ожидания и дисперсии обновляются с помощью низкочастотного фильтра рекурсивного сглаживания
+			// РћС†РµРЅРєРё РјР°С‚. РѕР¶РёРґР°РЅРёСЏ Рё РґРёСЃРїРµСЂСЃРёРё РѕР±РЅРѕРІР»СЏСЋС‚СЃСЏ СЃ РїРѕРјРѕС‰СЊСЋ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
 			proc_list[proc_ind].mu[0] = (1.f - pup.alpha1) * proc_list[proc_ind].mu[0] + pup.alpha1 * p;
 			proc_list[proc_ind].sigma[0] = sqrtf((1.f - pup.alpha2) * sqr_(proc_list[proc_ind].sigma[0]) + pup.alpha2 * sqr_(p - proc_list[proc_ind].mu[0]));
 			proc_list[proc_ind].sigma[0] = fmaxf(fminf(pup.min_sigma_val, proc_list[proc_ind].sigma[0]), pup.max_sigma_val);
@@ -328,9 +328,9 @@ __global__ void back_substraction_mixture_gray_(float* p_val,
 			break;
 		}
 	}
-	if (!find_process) // Процесс не найден
+	if (!find_process) // РџСЂРѕС†РµСЃСЃ РЅРµ РЅР°Р№РґРµРЅ
 	{
-		// Создаём новый процесс или,
+		// РЎРѕР·РґР°С‘Рј РЅРѕРІС‹Р№ РїСЂРѕС†РµСЃСЃ РёР»Рё,
 		if (cr_processes < 3)
 		{
 			++cr_processes;
@@ -341,7 +341,7 @@ __global__ void back_substraction_mixture_gray_(float* p_val,
 
 			find_process = true;
 		}
-		// если количество процессов равно 3, ищем процесс с наименьшим весом
+		// РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС†РµСЃСЃРѕРІ СЂР°РІРЅРѕ 3, РёС‰РµРј РїСЂРѕС†РµСЃСЃ СЃ РЅР°РёРјРµРЅСЊС€РёРј РІРµСЃРѕРј
 		else
 		{
 			float min_weight = proc_list[0].weight;
@@ -361,7 +361,7 @@ __global__ void back_substraction_mixture_gray_(float* p_val,
 		}
 	}
 
-	// Обновление весов процессов
+	// РћР±РЅРѕРІР»РµРЅРёРµ РІРµСЃРѕРІ РїСЂРѕС†РµСЃСЃРѕРІ
 	if (find_process)
 	{
 		for (size_t proc_ind = 0; proc_ind < cr_processes; ++proc_ind)
@@ -570,7 +570,7 @@ void update_statistic_gray(float *p_val, float *params_mu, float *params_sigma, 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-// Структурный элемент - прямоугольник 3х3
+// РЎС‚СЂСѓРєС‚СѓСЂРЅС‹Р№ СЌР»РµРјРµРЅС‚ - РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє 3С…3
 __global__ void morphology_(mask_type *mask, mask_type *mask_temp, int frame_width, int frame_height, unsigned int pixels)
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -581,13 +581,13 @@ __global__ void morphology_(mask_type *mask, mask_type *mask_temp, int frame_wid
 	}
 	else
 	{
-		// Эрозия
+		// Р­СЂРѕР·РёСЏ
 		mask_temp[i] = mask[i - frame_width - 1] & mask[i - frame_width] & mask[i - frame_width + 1] &
 			mask[i - 1] & mask[i] & mask[i + 1] &
 			mask[i + frame_width - 1] & mask[i + frame_width] & mask[i + frame_width + 1];
 
 		__syncthreads();
-		// Наращивание
+		// РќР°СЂР°С‰РёРІР°РЅРёРµ
 		if (mask_temp[i])
 		{
 			mask[i - frame_width - 1] = 1;

@@ -3,9 +3,9 @@
 #include <string>
 #include <deque>
 
-#define ADV_OUT 1             // Вывод отладочной информации в отдельный буфер
+#define ADV_OUT 1             // Р’С‹РІРѕРґ РѕС‚Р»Р°РґРѕС‡РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё РІ РѕС‚РґРµР»СЊРЅС‹Р№ Р±СѓС„РµСЂ
 
-#define USE_HOG_RECOGNIZE 0   // Распознавание людей с помощью OpenCV'шного HOG
+#define USE_HOG_RECOGNIZE 0   // Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ Р»СЋРґРµР№ СЃ РїРѕРјРѕС‰СЊСЋ OpenCV'С€РЅРѕРіРѕ HOG
 
 typedef int int32_t;
 typedef unsigned int uint32_t;
@@ -17,11 +17,11 @@ namespace vl_feintrack
 {
     ////////////////////////////////////////////////////////////////////////////
 
-    // Строка
+    // РЎС‚СЂРѕРєР°
     typedef std::string cstring;
     ////////////////////////////////////////////////////////////////////////////
 
-	// Точка
+	// РўРѕС‡РєР°
 	template<class T>
 	struct POINT_
 	{
@@ -35,7 +35,7 @@ namespace vl_feintrack
 	typedef POINT_<float> POINTF;
 	////////////////////////////////////////////////////////////////////////////
 
-	// Простой прямоугольник
+	// РџСЂРѕСЃС‚РѕР№ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє
 	template <typename T>
 	struct TRECT_
 	{
@@ -50,25 +50,25 @@ namespace vl_feintrack
 			struct_size = sizeof(*this);
 		}
 
-        unsigned int struct_size; // Размер структуры
+        unsigned int struct_size; // Р Р°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹
 
-		T left;          // Левая,
-		T right;         // правая,
-		T top;           // верхняя и
-		T bottom;        // нижняя координаты прямоугольника
+		T left;          // Р›РµРІР°СЏ,
+		T right;         // РїСЂР°РІР°СЏ,
+		T top;           // РІРµСЂС…РЅСЏСЏ Рё
+		T bottom;        // РЅРёР¶РЅСЏСЏ РєРѕРѕСЂРґРёРЅР°С‚С‹ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°
 
-		T get_left() const { return left; }     // Функции, возвращающие границы прямоугольника
+		T get_left() const { return left; }     // Р¤СѓРЅРєС†РёРё, РІРѕР·РІСЂР°С‰Р°СЋС‰РёРµ РіСЂР°РЅРёС†С‹ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°
 		T get_right() const { return right; }   //
 		T get_top() const { return top; }       //
 		T get_bottom() const { return bottom; } //
 
-		T width() const { return right - left + 1; }      // Возвращает ширину
-		T height() const { return bottom - top + 1; }     // и высоту прямоугольника
+		T width() const { return right - left + 1; }      // Р’РѕР·РІСЂР°С‰Р°РµС‚ С€РёСЂРёРЅСѓ
+		T height() const { return bottom - top + 1; }     // Рё РІС‹СЃРѕС‚Сѓ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°
 
-		int center_x() const { return (right + left) / 2; } // Возвращает центр прямоугольника по х
-		int center_y() const { return (bottom + top) / 2; } // и по y
+		int center_x() const { return (right + left) / 2; } // Р’РѕР·РІСЂР°С‰Р°РµС‚ С†РµРЅС‚СЂ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° РїРѕ С…
+		int center_y() const { return (bottom + top) / 2; } // Рё РїРѕ y
 
-		bool operator==(const TRECT_ &rect)                  // Проверка на равенство двух прямоугольников
+		bool operator==(const TRECT_ &rect)                  // РџСЂРѕРІРµСЂРєР° РЅР° СЂР°РІРµРЅСЃС‚РІРѕ РґРІСѓС… РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРІ
 		{
 			return (left == rect.left) && (right == rect.right) && (top == rect.top) && (bottom == rect.bottom);
 		}
@@ -78,17 +78,17 @@ namespace vl_feintrack
 	typedef TRECT_<double> RECTF_;
 	////////////////////////////////////////////////////////////////////////////
 
-	enum object_types                        // Типы объекта
+	enum object_types                        // РўРёРїС‹ РѕР±СЉРµРєС‚Р°
 	{
-		unknown_object,                      // объект неизвестного типа
-		human,                               // человек
-		vehicle,                             // автомобиль
-		animal,                              // животное
-		humans                               // группа людей
+		unknown_object,                      // РѕР±СЉРµРєС‚ РЅРµРёР·РІРµСЃС‚РЅРѕРіРѕ С‚РёРїР°
+		human,                               // С‡РµР»РѕРІРµРє
+		vehicle,                             // Р°РІС‚РѕРјРѕР±РёР»СЊ
+		animal,                              // Р¶РёРІРѕС‚РЅРѕРµ
+		humans                               // РіСЂСѓРїРїР° Р»СЋРґРµР№
 	};
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Прямоугольник с координатами и идентификатором объекта
+	// РџСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РѕР±СЉРµРєС‚Р°
 	struct CObjRect: public RECT_
 	{
         CObjRect(int left_, int right_, int top_, int bottom_, unsigned int uid_, int new_center_x_, int new_center_y_)
@@ -106,29 +106,29 @@ namespace vl_feintrack
 			struct_size = sizeof(*this);
 		}
 
-		object_types type;                       // Тип объекта
+		object_types type;                       // РўРёРї РѕР±СЉРµРєС‚Р°
 
-        unsigned int uid;                        // Уникальный идентификатор объекта
+        unsigned int uid;                        // РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЉРµРєС‚Р°
 
-		int new_center_x;                        // Предположительное новое положение центра объекта
+		int new_center_x;                        // РџСЂРµРґРїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕРµ РЅРѕРІРѕРµ РїРѕР»РѕР¶РµРЅРёРµ С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р°
 		int new_center_y;                        //
 
-        std::string zone_name;                   // Имя зоны, в которой обнаружен объект (если объект обнаружен одновременно в 2-х зонах, то записывается имя только одной зоны)
+        std::string zone_name;                   // РРјСЏ Р·РѕРЅС‹, РІ РєРѕС‚РѕСЂРѕР№ РѕР±РЅР°СЂСѓР¶РµРЅ РѕР±СЉРµРєС‚ (РµСЃР»Рё РѕР±СЉРµРєС‚ РѕР±РЅР°СЂСѓР¶РµРЅ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РІ 2-С… Р·РѕРЅР°С…, С‚Рѕ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РёРјСЏ С‚РѕР»СЊРєРѕ РѕРґРЅРѕР№ Р·РѕРЅС‹)
 
-        static const size_t MAX_TRAECTORY = 200; // Максимальный размер отображаемой траектории
-		POINT_<int> traectory[MAX_TRAECTORY];    // Траектория движения объекта
-		size_t traectory_size;                   // Текущий размер траектории
+        static const size_t MAX_TRAECTORY = 200; // РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕР№ С‚СЂР°РµРєС‚РѕСЂРёРё
+		POINT_<int> traectory[MAX_TRAECTORY];    // РўСЂР°РµРєС‚РѕСЂРёСЏ РґРІРёР¶РµРЅРёСЏ РѕР±СЉРµРєС‚Р°
+		size_t traectory_size;                   // РўРµРєСѓС‰РёР№ СЂР°Р·РјРµСЂ С‚СЂР°РµРєС‚РѕСЂРёРё
 	};
 	////////////////////////////////////////////////////////////////////////////
 	
-	// Прямоугольник с координатами оставленного предмета
+	// РџСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё РѕСЃС‚Р°РІР»РµРЅРЅРѕРіРѕ РїСЂРµРґРјРµС‚Р°
 	struct CLeftObjRect: public RECT_
 	{
-		enum types        // Типы объекта
+		enum types        // РўРёРїС‹ РѕР±СЉРµРєС‚Р°
 		{
 			first, second
 		};
-		types type;       // Тип объекта
+		types type;       // РўРёРї РѕР±СЉРµРєС‚Р°
 
 		CLeftObjRect(const RECT_ &rect, types type_)
 			: RECT_(rect), type(type_)
@@ -138,16 +138,16 @@ namespace vl_feintrack
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Поддерживаемые цветовые пространства
+	// РџРѕРґРґРµСЂР¶РёРІР°РµРјС‹Рµ С†РІРµС‚РѕРІС‹Рµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР°
 	enum color_type
 	{
-		unknown_color, // Неизвестный цвет
+		unknown_color, // РќРµРёР·РІРµСЃС‚РЅС‹Р№ С†РІРµС‚
 		buf_rgb24,     // 
 		buf_gray,      // 
 		buf_rgb32      // 
 	};
 
-	// Получение размера пикселя в байтах для различных типов цветовых пространств
+	// РџРѕР»СѓС‡РµРЅРёРµ СЂР°Р·РјРµСЂР° РїРёРєСЃРµР»СЏ РІ Р±Р°Р№С‚Р°С… РґР»СЏ СЂР°Р·Р»РёС‡РЅС‹С… С‚РёРїРѕРІ С†РІРµС‚РѕРІС‹С… РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІ
 	template<class T> inline
         T get_pixel_size(color_type cl_type)
 	{
@@ -162,47 +162,47 @@ namespace vl_feintrack
     }
 	////////////////////////////////////////////////////////////////////////////
 
-    void* AddFeintrack(); // Создание
-    void DelFeintrack(void* feintrack);                                           // и удаление FeinTracker'a
+    void* AddFeintrack(); // РЎРѕР·РґР°РЅРёРµ
+    void DelFeintrack(void* feintrack);                                           // Рё СѓРґР°Р»РµРЅРёРµ FeinTracker'a
 
-	// Подаёт новый кадр на обработку
+	// РџРѕРґР°С‘С‚ РЅРѕРІС‹Р№ РєР°РґСЂ РЅР° РѕР±СЂР°Р±РѕС‚РєСѓ
 #if !ADV_OUT
     int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int height, color_type buf_type);
 #else
     int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int height, color_type buf_type, uchar* adv_buf_rgb24);
 #endif
 
-	// Получение конфигурации Feintrack'а
+	// РџРѕР»СѓС‡РµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё Feintrack'Р°
     bool GetFeintrackConfigStruct(void* feintrack, void* config_struct);
-	// Задание конфигурации Feintrack'а
+	// Р—Р°РґР°РЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё Feintrack'Р°
     void SetFeintrackConfigStruct(void* feintrack, const void* config_struct);
-	// Изменение конфигурации Feintrack'а: задание нового uid и fps (т.к. они могут измениться при перезапуске Видеолокатора)
+	// РР·РјРµРЅРµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё Feintrack'Р°: Р·Р°РґР°РЅРёРµ РЅРѕРІРѕРіРѕ uid Рё fps (С‚.Рє. РѕРЅРё РјРѕРіСѓС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ РїСЂРё РїРµСЂРµР·Р°РїСѓСЃРєРµ Р’РёРґРµРѕР»РѕРєР°С‚РѕСЂР°)
     void UpdateFeintrackConfigStruct(void* feintrack, int channel_fps, const char* channel_name, void* config_struct);
 
-	// Используется ли детектирование объектов на Feintrack'e
+	// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р»Рё РґРµС‚РµРєС‚РёСЂРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ РЅР° Feintrack'e
     bool GetUseFeintrack(void* feintrack);
-	// Использовать детектирование объектов в Feintrack'e
+	// РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґРµС‚РµРєС‚РёСЂРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ РІ Feintrack'e
     void SetUseFeintrack(void* feintrack, bool new_val);
 
-	// Получение списка объектов, обнаруженных на пoследнем кадре
+	// РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ, РѕР±РЅР°СЂСѓР¶РµРЅРЅС‹С… РЅР° РїoСЃР»РµРґРЅРµРј РєР°РґСЂРµ
     void GetObjects(void* feintrack, vl_feintrack::CObjRect* &rect_arr, size_t& rect_count);
 
-	// Получение списка идентификаторов удалённых на последнем кадре объектов
+	// РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СѓРґР°Р»С‘РЅРЅС‹С… РЅР° РїРѕСЃР»РµРґРЅРµРј РєР°РґСЂРµ РѕР±СЉРµРєС‚РѕРІ
     void GetDelObjects(void* feintrack, unsigned int* &uids_arr, size_t& uids_count);
 
-	// Получение списка оставленных предметов
+	// РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
     void GetLeftObjects(void* feintrack, vl_feintrack::CLeftObjRect* &rect_arr, size_t& rect_count);
 
-	// Разрешение/запрещение обновления фона в feintrack'e
+	// Р Р°Р·СЂРµС€РµРЅРёРµ/Р·Р°РїСЂРµС‰РµРЅРёРµ РѕР±РЅРѕРІР»РµРЅРёСЏ С„РѕРЅР° РІ feintrack'e
     void EnableBackUpdate(void* feintrack, bool enable_val);
 
-	// Активация профиля настроек finetrack'a
+	// РђРєС‚РёРІР°С†РёСЏ РїСЂРѕС„РёР»СЏ РЅР°СЃС‚СЂРѕРµРє finetrack'a
     bool ActivateProfile(void* feintrack, const char* profile_name);
 
-	// Задание координат единственного объекта, который будет отображаться на кадре
+	// Р—Р°РґР°РЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РЅР° РєР°РґСЂРµ
     void SetOneObject(void* feintrack, unsigned int obj_uid, int left, int right, int top, int bottom);
 
-	// Получение набора точек, принадлежащих объекту
+	// РџРѕР»СѓС‡РµРЅРёРµ РЅР°Р±РѕСЂР° С‚РѕС‡РµРє, РїСЂРёРЅР°РґР»РµР¶Р°С‰РёС… РѕР±СЉРµРєС‚Сѓ
     void GetObjectPoints(void* feintrack, size_t obj_ind, POINTF* points, size_t& max_points);
 	////////////////////////////////////////////////////////////////////////////
 } // end namespace vl_feintrack
