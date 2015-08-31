@@ -60,10 +60,10 @@ namespace vl_feintrack
 		if (!ftp)
 			return;
 
-		// Êîíôèãóðàöèÿ finetrack'a
+		// ÐšÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ñ finetrack'a
 		apply_ft_profile(*ftp);
 
-		// Êîíôèãóðàöèÿ finedome
+		// ÐšÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ñ finedome
 		ftp->get_channel_name(channel_name);
 	}
 	////////////////////////////////////////////////////////////////////////////
@@ -85,10 +85,10 @@ namespace vl_feintrack
 		if (!ftp)
 			return;
 
-		// Êîíôèãóðàöèÿ finetrack'a
+		// ÐšÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ñ finetrack'a
 		fill_ft_profile(*ftp);
 
-		// Êîíôèãóðàöèÿ finedome
+		// ÐšÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ñ finedome
 		ftp->set_channel_name(channel_name.c_str());
 	}
 	////////////////////////////////////////////////////////////////////////////

@@ -108,19 +108,19 @@ void CFeinTrack::set_use_cuda(bool use_cuda_, int cuda_device_ind_)
     if (use_cuda_)
     {
 #ifdef USE_GPU
-        // Получение числа устройств, потенциально поддерживающих CUDA
+        // РџРѕР»СѓС‡РµРЅРёРµ С‡РёСЃР»Р° СѓСЃС‚СЂРѕР№СЃС‚РІ, РїРѕС‚РµРЅС†РёР°Р»СЊРЅРѕ РїРѕРґРґРµСЂР¶РёРІР°СЋС‰РёС… CUDA
         int count = 0;
         bool device_was_founded = false;
         if ((cudaGetDeviceCount(&count) == cudaSuccess) && count)
         {
-            // Проход по всем устройствам в поиске подходящего
+            // РџСЂРѕС…РѕРґ РїРѕ РІСЃРµРј СѓСЃС‚СЂРѕР№СЃС‚РІР°Рј РІ РїРѕРёСЃРєРµ РїРѕРґС…РѕРґСЏС‰РµРіРѕ
             cudaDeviceProp prop;
-            int cuda_device_counter = -1;     // Подсчёт числа устройств, поддерживающих CUDA
-            int correct_cuda_device_ind = -1; // Индекс любого устройства, поддерживающего CUDA
+            int cuda_device_counter = -1;     // РџРѕРґСЃС‡С‘С‚ С‡РёСЃР»Р° СѓСЃС‚СЂРѕР№СЃС‚РІ, РїРѕРґРґРµСЂР¶РёРІР°СЋС‰РёС… CUDA
+            int correct_cuda_device_ind = -1; // РРЅРґРµРєСЃ Р»СЋР±РѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°, РїРѕРґРґРµСЂР¶РёРІР°СЋС‰РµРіРѕ CUDA
             for (int i = 0; i < count; ++i)
             {
-                // Проверка версии устройства. Сейчас поддерживаются все версии
-                // 9999 - левое устройство, само число получено опытным путём
+                // РџСЂРѕРІРµСЂРєР° РІРµСЂСЃРёРё СѓСЃС‚СЂРѕР№СЃС‚РІР°. РЎРµР№С‡Р°СЃ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚СЃСЏ РІСЃРµ РІРµСЂСЃРёРё
+                // 9999 - Р»РµРІРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ, СЃР°РјРѕ С‡РёСЃР»Рѕ РїРѕР»СѓС‡РµРЅРѕ РѕРїС‹С‚РЅС‹Рј РїСѓС‚С‘Рј
                 if (cudaGetDeviceProperties(&prop, 0) == cudaSuccess &&
                         prop.major != 9999 &&
                         prop.minor != 9999)
@@ -144,7 +144,7 @@ void CFeinTrack::set_use_cuda(bool use_cuda_, int cuda_device_ind_)
                     ++cuda_device_counter;
                 }
             }
-            // Выбранное устройство не найдено - назначаем первое попавшееся
+            // Р’С‹Р±СЂР°РЅРЅРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РЅРµ РЅР°Р№РґРµРЅРѕ - РЅР°Р·РЅР°С‡Р°РµРј РїРµСЂРІРѕРµ РїРѕРїР°РІС€РµРµСЃСЏ
             if (!device_was_founded && correct_cuda_device_ind != -1)
             {
                 cudaSetDevice(correct_cuda_device_ind);
@@ -159,7 +159,7 @@ void CFeinTrack::set_use_cuda(bool use_cuda_, int cuda_device_ind_)
                 device_was_founded = true;
             }
         }
-        // Подходящее устройство не найдено
+        // РџРѕРґС…РѕРґСЏС‰РµРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РЅРµ РЅР°Р№РґРµРЅРѕ
         if (!device_was_founded)
         {
             use_cuda = false;
@@ -406,13 +406,13 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
 int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type, uchar* adv_buf_rgb24)
 #endif
 {
-    // Если объекты отображать не нужно, то анализ не проводим
+    // Р•СЃР»Рё РѕР±СЉРµРєС‚С‹ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊ РЅРµ РЅСѓР¶РЅРѕ, С‚Рѕ Р°РЅР°Р»РёР· РЅРµ РїСЂРѕРІРѕРґРёРј
     if (!show_objects)
         return 0;
 
     pixel_size = get_pixel_size<int>(buf_type);
 
-    // Коррекция размеров кадра, связанная с размером области анализа
+    // РљРѕСЂСЂРµРєС†РёСЏ СЂР°Р·РјРµСЂРѕРІ РєР°РґСЂР°, СЃРІСЏР·Р°РЅРЅР°СЏ СЃ СЂР°Р·РјРµСЂРѕРј РѕР±Р»Р°СЃС‚Рё Р°РЅР°Р»РёР·Р°
     if (!use_cuda)
     {
         left_padding = (analyze_area.left * width) / 100;
@@ -433,7 +433,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
         top_padding = 0;
     }
 
-    // Проверка на смену разрешения, была ли инициализация и т.п.
+    // РџСЂРѕРІРµСЂРєР° РЅР° СЃРјРµРЅСѓ СЂР°Р·СЂРµС€РµРЅРёСЏ, Р±С‹Р»Р° Р»Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Рё С‚.Рї.
     bool tmp_use_cuda = use_cuda;
     if (back_substractor->init(width, height, buf_type, use_cuda))
     {
@@ -457,11 +457,11 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
 
         objects_history.clear();
 
-        // Пропуск первого кадра при смене разрешения
+        // РџСЂРѕРїСѓСЃРє РїРµСЂРІРѕРіРѕ РєР°РґСЂР° РїСЂРё СЃРјРµРЅРµ СЂР°Р·СЂРµС€РµРЅРёСЏ
         return 0;
     }
 
-    // Вычитание фона
+    // Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
 #if !ADV_OUT
 #ifdef USE_GPU
     if (!back_substractor->background_substraction(curr_frame, buf, pitch, segmentator.get_mask(), segmentator.get_device_mask()))
@@ -480,7 +480,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
         return 0;
     }
 
-    // Операция математической морфологии "открытие" для фильтрации шума типа качающихся деревьев
+    // РћРїРµСЂР°С†РёСЏ РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕР№ РјРѕСЂС„РѕР»РѕРіРёРё "РѕС‚РєСЂС‹С‚РёРµ" РґР»СЏ С„РёР»СЊС‚СЂР°С†РёРё С€СѓРјР° С‚РёРїР° РєР°С‡Р°СЋС‰РёС…СЃСЏ РґРµСЂРµРІСЊРµРІ
     if (use_morphology)
     {
         segmentator.morphology_open(use_cuda);
@@ -490,7 +490,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     //segmentator.draw_mask(use_cuda, adv_buf_rgb24);
 #endif
 
-    // Если используется cuda и требуется распознавание, то копируем маску из видеопамяти в системную
+    // Р•СЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ cuda Рё С‚СЂРµР±СѓРµС‚СЃСЏ СЂР°СЃРїРѕР·РЅР°РІР°РЅРёРµ, С‚Рѕ РєРѕРїРёСЂСѓРµРј РјР°СЃРєСѓ РёР· РІРёРґРµРѕРїР°РјСЏС‚Рё РІ СЃРёСЃС‚РµРјРЅСѓСЋ
     if (use_recognition && use_cuda)
     {
 #ifdef USE_GPU
@@ -500,7 +500,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
 #endif
     }
 
-    // Cегментация объектов переднего плана
+    // CРµРіРјРµРЅС‚Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ РїРµСЂРµРґРЅРµРіРѕ РїР»Р°РЅР°
     regions.clear();
     if (use_cuda)
     {
@@ -522,17 +522,17 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
         }
     }
 
-    // Предварительный анализ и обработка регионов
+    // РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Р№ Р°РЅР°Р»РёР· Рё РѕР±СЂР°Р±РѕС‚РєР° СЂРµРіРёРѕРЅРѕРІ
     regions_preprocessing(buf, pitch);
 
-    // Создание и анализ поведения объектов на основании найденных на текущем кадре регионов
+    // РЎРѕР·РґР°РЅРёРµ Рё Р°РЅР°Р»РёР· РїРѕРІРµРґРµРЅРёСЏ РѕР±СЉРµРєС‚РѕРІ РЅР° РѕСЃРЅРѕРІР°РЅРёРё РЅР°Р№РґРµРЅРЅС‹С… РЅР° С‚РµРєСѓС‰РµРј РєР°РґСЂРµ СЂРµРіРёРѕРЅРѕРІ
 #if !ADV_OUT
     tracking_objects(buf, pitch);
 #else
     tracking_objects(buf, pitch, adv_buf_rgb24);
 #endif
 
-    // Анализ оставленных предметов
+    // РђРЅР°Р»РёР· РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
     analyze_lefted_objects();
 
     if (++curr_frame == fps)
@@ -546,7 +546,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
 
 void CFeinTrack::add_uid_to_del_objects(unsigned int uid)
 {
-    // Добавление в список удалённых объектов
+    // Р”РѕР±Р°РІР»РµРЅРёРµ РІ СЃРїРёСЃРѕРє СѓРґР°Р»С‘РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
     if (++del_objects_count > del_objects.size())
         del_objects.push_back(uid);
     else
@@ -558,7 +558,7 @@ void CFeinTrack::del_object(std::unique_ptr<CTrackingObject>& object, bool del_a
 {
     if (del_adv_data)
     {
-        // Удаление из списка возможно оставленных предметов
+        // РЈРґР°Р»РµРЅРёРµ РёР· СЃРїРёСЃРєР° РІРѕР·РјРѕР¶РЅРѕ РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
         del_from_shady_left_objects(object->uid);
     }
     add_uid_to_del_objects(object->uid);
@@ -568,7 +568,7 @@ void CFeinTrack::del_object(std::unique_ptr<CTrackingObject>& object, bool del_a
 
 void CFeinTrack::regions_preprocessing(const uchar* buf, uint32_t pitch)
 {
-    // Очень маленькие регионы и регионы с маленькой плотностью сразу удаляем
+    // РћС‡РµРЅСЊ РјР°Р»РµРЅСЊРєРёРµ СЂРµРіРёРѕРЅС‹ Рё СЂРµРіРёРѕРЅС‹ СЃ РјР°Р»РµРЅСЊРєРѕР№ РїР»РѕС‚РЅРѕСЃС‚СЊСЋ СЃСЂР°Р·Сѓ СѓРґР°Р»СЏРµРј
     bool need_update = (curr_frame % fps == fps - 1);
     for (regions_container::iterator it_r = regions.begin(); it_r != regions.end();)
     {
@@ -594,7 +594,7 @@ void CFeinTrack::regions_preprocessing(const uchar* buf, uint32_t pitch)
         }
         else
         {
-            // Отсечение тени в случае необходимости
+            // РћС‚СЃРµС‡РµРЅРёРµ С‚РµРЅРё РІ СЃР»СѓС‡Р°Рµ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё
             if (cut_shadows)
             {
                 cut_shadow(*it_r);
@@ -611,12 +611,12 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch)
 void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_buf_rgb24)
 #endif
 {
-    // Обнуляем количество найденных объектов
+    // РћР±РЅСѓР»СЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РЅР°Р№РґРµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
     objects_count = 0;
-    // Обнуляем количество удалённых объектов
+    // РћР±РЅСѓР»СЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СѓРґР°Р»С‘РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
     del_objects_count = 0;
 
-    // Для объектов, найденных на предыдущих кадрах, ищем подходящие регионы
+    // Р”Р»СЏ РѕР±СЉРµРєС‚РѕРІ, РЅР°Р№РґРµРЅРЅС‹С… РЅР° РїСЂРµРґС‹РґСѓС‰РёС… РєР°РґСЂР°С…, РёС‰РµРј РїРѕРґС…РѕРґСЏС‰РёРµ СЂРµРіРёРѕРЅС‹
     for (objects_container::iterator iter_obj = objects_history.begin(); iter_obj != objects_history.end();)
     {
 #if 1
@@ -630,50 +630,50 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
 #endif
 #endif
 
-        // Ищем подходящий для объекта регион с учётом возможного нахождения координат объекта
+        // РС‰РµРј РїРѕРґС…РѕРґСЏС‰РёР№ РґР»СЏ РѕР±СЉРµРєС‚Р° СЂРµРіРёРѕРЅ СЃ СѓС‡С‘С‚РѕРј РІРѕР·РјРѕР¶РЅРѕРіРѕ РЅР°С…РѕР¶РґРµРЅРёСЏ РєРѕРѕСЂРґРёРЅР°С‚ РѕР±СЉРµРєС‚Р°
 #if 1
         regions_container::iterator find_region(find_region_by_center((*iter_obj)->get_new_center_x(), (*iter_obj)->get_new_center_y(), (*iter_obj)->width(), (*iter_obj)->height()));
 #else
         regions_container::iterator find_region(find_region_by_hist(buf, pitch, *iter_obj));
 #endif
 
-        // Если регион не найден,
+        // Р•СЃР»Рё СЂРµРіРёРѕРЅ РЅРµ РЅР°Р№РґРµРЅ,
         if (find_region == regions.end() &&
                 (*iter_obj)->get_new_center_x() != (*iter_obj)->get_last_center_x() &&
                 (*iter_obj)->get_new_center_y() != (*iter_obj)->get_last_center_y())
         {
-            // то повторяем поиск с координатами центра, полученными на предыдущем шаге
+            // С‚Рѕ РїРѕРІС‚РѕСЂСЏРµРј РїРѕРёСЃРє СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё С†РµРЅС‚СЂР°, РїРѕР»СѓС‡РµРЅРЅС‹РјРё РЅР° РїСЂРµРґС‹РґСѓС‰РµРј С€Р°РіРµ
 #if 1
             find_region = find_region_by_center((*iter_obj)->get_last_center_x(), (*iter_obj)->get_last_center_y(), (*iter_obj)->width(), (*iter_obj)->height());
 #else
             regions_container::iterator find_region(find_region_by_hist(buf, pitch, *iter_obj));
 #endif
         }
-        // Если, наконец, подходящий регион нашёлся, то:
+        // Р•СЃР»Рё, РЅР°РєРѕРЅРµС†, РїРѕРґС…РѕРґСЏС‰РёР№ СЂРµРіРёРѕРЅ РЅР°С€С‘Р»СЃСЏ, С‚Рѕ:
         if (find_region != regions.end())
         {
 
             bool is_merge(false);
 #if 0
-            //У данного объекта не было пересечений с другими
+            //РЈ РґР°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р° РЅРµ Р±С‹Р»Рѕ РїРµСЂРµСЃРµС‡РµРЅРёР№ СЃ РґСЂСѓРіРёРјРё
             if (!(*iter_obj)->have_merge_object())
             {
-                //Ищем объект, с которым возможно пересечение
+                //РС‰РµРј РѕР±СЉРµРєС‚, СЃ РєРѕС‚РѕСЂС‹Рј РІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµСЃРµС‡РµРЅРёРµ
                 objects_container::iterator merge_obj = get_object_by_region(*find_region, iter_obj);
                 if (merge_obj != objects_history.end())
                 {
                     if (!(*merge_obj)->have_merge_object())
                     {
-                        //Если размер нового региона больше размеров претендующих на него объектов, то происходит слияине
+                        //Р•СЃР»Рё СЂР°Р·РјРµСЂ РЅРѕРІРѕРіРѕ СЂРµРіРёРѕРЅР° Р±РѕР»СЊС€Рµ СЂР°Р·РјРµСЂРѕРІ РїСЂРµС‚РµРЅРґСѓСЋС‰РёС… РЅР° РЅРµРіРѕ РѕР±СЉРµРєС‚РѕРІ, С‚Рѕ РїСЂРѕРёСЃС…РѕРґРёС‚ СЃР»РёСЏРёРЅРµ
                         if ((find_region->width() > (*iter_obj)->width()) &&
                                 (find_region->height() > (*iter_obj)->height()))
                         {
                             if ((find_region->width() > (*merge_obj)->width()) &&
                                     (find_region->height() > (*merge_obj)->height()))
                             {
-                                //Производим слияние
+                                //РџСЂРѕРёР·РІРѕРґРёРј СЃР»РёСЏРЅРёРµ
                                 (*iter_obj)->add_merge_obj(**merge_obj);
-                                //Удаляем объект, с которым было произведено слияние (это корректно, т.к. используется list)
+                                //РЈРґР°Р»СЏРµРј РѕР±СЉРµРєС‚, СЃ РєРѕС‚РѕСЂС‹Рј Р±С‹Р»Рѕ РїСЂРѕРёР·РІРµРґРµРЅРѕ СЃР»РёСЏРЅРёРµ (СЌС‚Рѕ РєРѕСЂСЂРµРєС‚РЅРѕ, С‚.Рє. РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ list)
                                 del_object(*merge_obj, false);
                                 objects_history.erase(merge_obj);
 
@@ -683,9 +683,9 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                     }
                 }
             }
-            else //Данный объект содержит в себе 2 объекта меньшего размера
+            else //Р”Р°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ СЃРѕРґРµСЂР¶РёС‚ РІ СЃРµР±Рµ 2 РѕР±СЉРµРєС‚Р° РјРµРЅСЊС€РµРіРѕ СЂР°Р·РјРµСЂР°
             {
-                //Ищем регионы, которые могли бы претендовать на эти объекты
+                //РС‰РµРј СЂРµРіРёРѕРЅС‹, РєРѕС‚РѕСЂС‹Рµ РјРѕРіР»Рё Р±С‹ РїСЂРµС‚РµРЅРґРѕРІР°С‚СЊ РЅР° СЌС‚Рё РѕР±СЉРµРєС‚С‹
                 CTrackingObject *merge_object1 = (*iter_obj)->get_merge_object(1);
                 CTrackingObject *merge_object2 = (*iter_obj)->get_merge_object(2);
                 regions_container::iterator region1(find_region_by_center(merge_object1->get_new_center_x(), merge_object1->get_new_center_y(), merge_object1->width(), merge_object1->height()));
@@ -695,92 +695,92 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                     if (region2 != regions.end() &&
                             region1 != region2)
                     {
-                        //Подходящие регионы найдены и их размеры подходящие
-                        //Добавляем эти объекты в список, а существующий удаляем
+                        //РџРѕРґС…РѕРґСЏС‰РёРµ СЂРµРіРёРѕРЅС‹ РЅР°Р№РґРµРЅС‹ Рё РёС… СЂР°Р·РјРµСЂС‹ РїРѕРґС…РѕРґСЏС‰РёРµ
+                        //Р”РѕР±Р°РІР»СЏРµРј СЌС‚Рё РѕР±СЉРµРєС‚С‹ РІ СЃРїРёСЃРѕРє, Р° СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СѓРґР°Р»СЏРµРј
 
-                        //1. вычисляем новый вес объекта
+                        //1. РІС‹С‡РёСЃР»СЏРµРј РЅРѕРІС‹Р№ РІРµСЃ РѕР±СЉРµРєС‚Р°
                         merge_object1->weight = (1 - weight_alpha) * merge_object1->weight + weight_alpha;
-                        //2. увеличиваем время жизни объекта
+                        //2. СѓРІРµР»РёС‡РёРІР°РµРј РІСЂРµРјСЏ Р¶РёР·РЅРё РѕР±СЉРµРєС‚Р°
                         merge_object1->life_time++;
-                        //3. запоминаем координаты объекта
+                        //3. Р·Р°РїРѕРјРёРЅР°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕР±СЉРµРєС‚Р°
                         merge_object1->set_rect(region1->get_left(), region1->get_right(), region1->get_top(), region1->get_bottom());
-                        //4. обнуляем количество кадров, на которых объект не был найден
+                        //4. РѕР±РЅСѓР»СЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РєР°РґСЂРѕРІ, РЅР° РєРѕС‚РѕСЂС‹С… РѕР±СЉРµРєС‚ РЅРµ Р±С‹Р» РЅР°Р№РґРµРЅ
                         merge_object1->frames_left = 0;
-                        //Задаём новые значения центра объекта
+                        //Р—Р°РґР°С‘Рј РЅРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р°
                         merge_object1->set_last_center(region1->get_center_x(), region1->get_center_y());
 
-                        //1. вычисляем новый вес объекта
+                        //1. РІС‹С‡РёСЃР»СЏРµРј РЅРѕРІС‹Р№ РІРµСЃ РѕР±СЉРµРєС‚Р°
                         merge_object2->weight = (1 - weight_alpha) * merge_object2->weight + weight_alpha;
-                        //2. увеличиваем время жизни объекта
+                        //2. СѓРІРµР»РёС‡РёРІР°РµРј РІСЂРµРјСЏ Р¶РёР·РЅРё РѕР±СЉРµРєС‚Р°
                         merge_object2->life_time++;
-                        //3. запоминаем координаты объекта
+                        //3. Р·Р°РїРѕРјРёРЅР°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕР±СЉРµРєС‚Р°
                         merge_object2->set_rect(region2->get_left(), region2->get_right(), region2->get_top(), region2->get_bottom());
-                        //4. обнуляем количество кадров, на которых объект не был найден
+                        //4. РѕР±РЅСѓР»СЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РєР°РґСЂРѕРІ, РЅР° РєРѕС‚РѕСЂС‹С… РѕР±СЉРµРєС‚ РЅРµ Р±С‹Р» РЅР°Р№РґРµРЅ
                         merge_object2->frames_left = 0;
-                        //Задаём новые значения центра объекта
+                        //Р—Р°РґР°С‘Рј РЅРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р°
                         merge_object2->set_last_center(region2->get_center_x(), region2->get_center_y());
 
-                        //Отправляем объекты на вывод
+                        //РћС‚РїСЂР°РІР»СЏРµРј РѕР±СЉРµРєС‚С‹ РЅР° РІС‹РІРѕРґ
                         mstring zone_name;
                         if (is_in_zone(*region1, &zone_name))
                             add_object_to_out_rects(*region1, *merge_object1, CObjRect::unknown, zone_name);
                         if (is_in_zone(*region2, &zone_name))
                             add_object_to_out_rects(*region2, *merge_object2, CObjRect::unknown, zone_name);
 
-                        //Объекты добавляем в общий список
+                        //РћР±СЉРµРєС‚С‹ РґРѕР±Р°РІР»СЏРµРј РІ РѕР±С‰РёР№ СЃРїРёСЃРѕРє
                         objects_history.push_front(merge_object2);
                         objects_history.push_front(merge_object1);
 
-                        //"Родительский" объект удаляется
+                        //"Р РѕРґРёС‚РµР»СЊСЃРєРёР№" РѕР±СЉРµРєС‚ СѓРґР°Р»СЏРµС‚СЃСЏ
                         (*iter_obj)->set_merge_objects_to_null();
                         del_object(*iter_obj, false);
                         iter_obj = objects_history.erase(iter_obj);
 
-                        //А также удаляются регионы, соответствующие разделённым объектам
+                        //Рђ С‚Р°РєР¶Рµ СѓРґР°Р»СЏСЋС‚СЃСЏ СЂРµРіРёРѕРЅС‹, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ СЂР°Р·РґРµР»С‘РЅРЅС‹Рј РѕР±СЉРµРєС‚Р°Рј
                         regions.erase(region1);
                         regions.erase(region2);
                         continue;
                     }
                 }
-                //Разделения не произошло - увеличиваем время, в течение которого объекты существуют "совместно"
+                //Р Р°Р·РґРµР»РµРЅРёСЏ РЅРµ РїСЂРѕРёР·РѕС€Р»Рѕ - СѓРІРµР»РёС‡РёРІР°РµРј РІСЂРµРјСЏ, РІ С‚РµС‡РµРЅРёРµ РєРѕС‚РѕСЂРѕРіРѕ РѕР±СЉРµРєС‚С‹ СЃСѓС‰РµСЃС‚РІСѓСЋС‚ "СЃРѕРІРјРµСЃС‚РЅРѕ"
                 (*iter_obj)->inc_merge_frames();
             }
 #endif
 
-            // Изменяем параметры объекта:
-            // 1. вычисляем новый вес объекта
+            // РР·РјРµРЅСЏРµРј РїР°СЂР°РјРµС‚СЂС‹ РѕР±СЉРµРєС‚Р°:
+            // 1. РІС‹С‡РёСЃР»СЏРµРј РЅРѕРІС‹Р№ РІРµСЃ РѕР±СЉРµРєС‚Р°
             (*iter_obj)->weight = (1 - weight_alpha) * (*iter_obj)->weight + weight_alpha;
-            // 2. увеличиваем время жизни объекта
+            // 2. СѓРІРµР»РёС‡РёРІР°РµРј РІСЂРµРјСЏ Р¶РёР·РЅРё РѕР±СЉРµРєС‚Р°
             (*iter_obj)->life_time++;
-            // 3. запоминаем координаты объекта
+            // 3. Р·Р°РїРѕРјРёРЅР°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕР±СЉРµРєС‚Р°
             (*iter_obj)->set_rect(find_region->get_left(), find_region->get_right(), find_region->get_top(), find_region->get_bottom());
-            // 4. обнуляем количество кадров, на которых объект не был найден
+            // 4. РѕР±РЅСѓР»СЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РєР°РґСЂРѕРІ, РЅР° РєРѕС‚РѕСЂС‹С… РѕР±СЉРµРєС‚ РЅРµ Р±С‹Р» РЅР°Р№РґРµРЅ
             (*iter_obj)->frames_left = 0;
 
-            // Объект выводится, если он существует достаточно долго
+            // РћР±СЉРµРєС‚ РІС‹РІРѕРґРёС‚СЃСЏ, РµСЃР»Рё РѕРЅ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґРѕР»РіРѕ
             if ((*iter_obj)->life_time > selection_time)
             {
-                // Объект считается принадлежащим к спискам возможно являющихся оставленными предметами
+                // РћР±СЉРµРєС‚ СЃС‡РёС‚Р°РµС‚СЃСЏ РїСЂРёРЅР°РґР»РµР¶Р°С‰РёРј Рє СЃРїРёСЃРєР°Рј РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё РїСЂРµРґРјРµС‚Р°РјРё
                 if ((*iter_obj)->get_left_frames() == left_object_time0)
                 {
                     add_to_shady_left_objects(**iter_obj);
                 }
 
-                // Если объект двигается
+                // Р•СЃР»Рё РѕР±СЉРµРєС‚ РґРІРёРіР°РµС‚СЃСЏ
                 if (((*iter_obj)->get_left_frames() < left_object_time1) || is_merge)
                 {
-                    // Попадает ли объект в зоны детекции
+                    // РџРѕРїР°РґР°РµС‚ Р»Рё РѕР±СЉРµРєС‚ РІ Р·РѕРЅС‹ РґРµС‚РµРєС†РёРё
                     mstring zone_name;
                     if (is_in_zone(*find_region, &zone_name))
                     {
                         if (!is_merge)
                         {
-                            // Проверяем на пересечение с линиями и обновляем координаты центра объекта и скорость его смещения
+                            // РџСЂРѕРІРµСЂСЏРµРј РЅР° РїРµСЂРµСЃРµС‡РµРЅРёРµ СЃ Р»РёРЅРёСЏРјРё Рё РѕР±РЅРѕРІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р° Рё СЃРєРѕСЂРѕСЃС‚СЊ РµРіРѕ СЃРјРµС‰РµРЅРёСЏ
                             with_line_intersect(**iter_obj, find_region->get_center_x(), find_region->get_center_y());
 
-                            // Задаём новые значения центра объекта
+                            // Р—Р°РґР°С‘Рј РЅРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р°
                             (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                            // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
+                            // РЈРґР°Р»СЏРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР· СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё
                             if (!(*iter_obj)->get_left_frames())
                             {
                                 del_uid_from_shady_left_objects((*iter_obj)->uid);
@@ -794,21 +794,21 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                         object_types type_now = unknown_object;
                         if (use_recognition)
                         {
-                            // Распознавание
+                            // Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ
                             type_now = recognizer.recognize_object(*find_region, buf, pitch, frame_width, frame_height, &segmentator.get_mask()[0]);
                             (*iter_obj)->set_new_type(type_now);
                         }
 
-                        // Отправляем объект на вывод
+                        // РћС‚РїСЂР°РІР»СЏРµРј РѕР±СЉРµРєС‚ РЅР° РІС‹РІРѕРґ
                         add_object_to_out_rects(*find_region, **iter_obj, type_now, zone_name);
                     }
-                    else // Объект не попал в зоны детекции
+                    else // РћР±СЉРµРєС‚ РЅРµ РїРѕРїР°Р» РІ Р·РѕРЅС‹ РґРµС‚РµРєС†РёРё
                     {
                         if (!is_merge)
                         {
-                            // Задаём новые значения центра объекта
+                            // Р—Р°РґР°С‘Рј РЅРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р°
                             (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                            // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
+                            // РЈРґР°Р»СЏРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР· СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё
                             if (!(*iter_obj)->get_left_frames())
                             {
                                 del_uid_from_shady_left_objects((*iter_obj)->uid);
@@ -820,39 +820,39 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                         }
                     }
                 }
-                else // Объект не двигается - становится оставленным предметом
+                else // РћР±СЉРµРєС‚ РЅРµ РґРІРёРіР°РµС‚СЃСЏ - СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹Рј РїСЂРµРґРјРµС‚РѕРј
                 {
-                    // Попадает ли оставленный предмет в зоны детекции
+                    // РџРѕРїР°РґР°РµС‚ Р»Рё РѕСЃС‚Р°РІР»РµРЅРЅС‹Р№ РїСЂРµРґРјРµС‚ РІ Р·РѕРЅС‹ РґРµС‚РµРєС†РёРё
                     if (is_in_zone(*find_region, nullptr))
                     {
-                        // Cоздаём оставленный предмет
+                        // CРѕР·РґР°С‘Рј РѕСЃС‚Р°РІР»РµРЅРЅС‹Р№ РїСЂРµРґРјРµС‚
                         lefted_objects.push_back(CLeftObjView(left_object_time3 - left_object_time1, find_region->get_left(), find_region->get_right(), find_region->get_top(), find_region->get_bottom()));
                     }
 
                     if (need_background_update)
                     {
-                        // Расширяем регион, чтобы скомпенсировать возможное движение
+                        // Р Р°СЃС€РёСЂСЏРµРј СЂРµРіРёРѕРЅ, С‡С‚РѕР±С‹ СЃРєРѕРјРїРµРЅСЃРёСЂРѕРІР°С‚СЊ РІРѕР·РјРѕР¶РЅРѕРµ РґРІРёР¶РµРЅРёРµ
                         find_region->resize_to_max_granz(frame_width - 1, frame_height - 1);
-                        // И обнуляем статистику внутри него
+                        // Р РѕР±РЅСѓР»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РІРЅСѓС‚СЂРё РЅРµРіРѕ
                         back_substractor->reset_statistic_in_region(buf, pitch, *find_region);
                     }
 
-                    // Удаляем найденный регион, чтобы избежать совпадений с другими объектами
+                    // РЈРґР°Р»СЏРµРј РЅР°Р№РґРµРЅРЅС‹Р№ СЂРµРіРёРѕРЅ, С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ СЃРѕРІРїР°РґРµРЅРёР№ СЃ РґСЂСѓРіРёРјРё РѕР±СЉРµРєС‚Р°РјРё
                     regions.erase(find_region);
 
-                    // Удаляем из списка объектов
+                    // РЈРґР°Р»СЏРµРј РёР· СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ
                     del_object(*iter_obj, true);
                     iter_obj = objects_history.erase(iter_obj);
                     continue;
                 }
             }
-            else // Объект существует недостаточно долго
+            else // РћР±СЉРµРєС‚ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґРѕР»РіРѕ
             {
                 if (!is_merge)
                 {
-                    // Задаём новые значения центра объекта
+                    // Р—Р°РґР°С‘Рј РЅРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р°
                     (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                    // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
+                    // РЈРґР°Р»СЏРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР· СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё
                     if (!(*iter_obj)->get_left_frames())
                     {
                         del_uid_from_shady_left_objects((*iter_obj)->uid);
@@ -864,23 +864,23 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                 }
             }
 
-            // Удаляем найденный регион, чтобы избежать совпадений с другими объектами
+            // РЈРґР°Р»СЏРµРј РЅР°Р№РґРµРЅРЅС‹Р№ СЂРµРіРёРѕРЅ, С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ СЃРѕРІРїР°РґРµРЅРёР№ СЃ РґСЂСѓРіРёРјРё РѕР±СЉРµРєС‚Р°РјРё
             regions.erase(find_region);
         }
-        else // Если подходящий регион не найден, то:
+        else // Р•СЃР»Рё РїРѕРґС…РѕРґСЏС‰РёР№ СЂРµРіРёРѕРЅ РЅРµ РЅР°Р№РґРµРЅ, С‚Рѕ:
         {
-            // 1. пересчитываем вес объекта
+            // 1. РїРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РІРµСЃ РѕР±СЉРµРєС‚Р°
             (*iter_obj)->weight = (1 - weight_alpha) * (*iter_obj)->weight;
-            // 2. если вес меньше допустимого, то объект удаляется
+            // 2. РµСЃР»Рё РІРµСЃ РјРµРЅСЊС€Рµ РґРѕРїСѓСЃС‚РёРјРѕРіРѕ, С‚Рѕ РѕР±СЉРµРєС‚ СѓРґР°Р»СЏРµС‚СЃСЏ
             if ((*iter_obj)->weight < weight_threshold)
             {
                 del_object(*iter_obj, true);
                 iter_obj = objects_history.erase(iter_obj);
                 continue;
             }
-            // 3. пересчитываем его центр в соответствии с последней скоростью объекта
+            // 3. РїРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РµРіРѕ С†РµРЅС‚СЂ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ РїРѕСЃР»РµРґРЅРµР№ СЃРєРѕСЂРѕСЃС‚СЊСЋ РѕР±СЉРµРєС‚Р°
             (*iter_obj)->recalc_center();
-            // 4. Если объект вышел за границы кадра - удаляем
+            // 4. Р•СЃР»Рё РѕР±СЉРµРєС‚ РІС‹С€РµР» Р·Р° РіСЂР°РЅРёС†С‹ РєР°РґСЂР° - СѓРґР°Р»СЏРµРј
             if (!in_range<int>((*iter_obj)->get_last_center_x(), 0, frame_width) ||
                     !in_range<int>((*iter_obj)->get_last_center_y(), 0, frame_height))
             {
@@ -888,15 +888,15 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                 iter_obj = objects_history.erase(iter_obj);
                 continue;
             }
-            // 5. Увеличиваем число кадров, на которых объект не был найден
+            // 5. РЈРІРµР»РёС‡РёРІР°РµРј С‡РёСЃР»Рѕ РєР°РґСЂРѕРІ, РЅР° РєРѕС‚РѕСЂС‹С… РѕР±СЉРµРєС‚ РЅРµ Р±С‹Р» РЅР°Р№РґРµРЅ
             (*iter_obj)->frames_left++;
 
-#if 1           // Закомментировано, так как выводится очень много левых объектов, можно включать для тестирования
-            //6. Отправляем объект на вывод
+#if 1           // Р—Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅРѕ, С‚Р°Рє РєР°Рє РІС‹РІРѕРґРёС‚СЃСЏ РѕС‡РµРЅСЊ РјРЅРѕРіРѕ Р»РµРІС‹С… РѕР±СЉРµРєС‚РѕРІ, РјРѕР¶РЅРѕ РІРєР»СЋС‡Р°С‚СЊ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
+            //6. РћС‚РїСЂР°РІР»СЏРµРј РѕР±СЉРµРєС‚ РЅР° РІС‹РІРѕРґ
             if ((*iter_obj)->life_time > selection_time &&
                     (*iter_obj)->frames_left < selection_time / 4)
             {
-                //Попадает ли оставленный предмет в зоны детекции
+                //РџРѕРїР°РґР°РµС‚ Р»Рё РѕСЃС‚Р°РІР»РµРЅРЅС‹Р№ РїСЂРµРґРјРµС‚ РІ Р·РѕРЅС‹ РґРµС‚РµРєС†РёРё
                 mstring zone_name;
                 if (is_in_zone(**iter_obj, &zone_name))
                 {
@@ -909,20 +909,20 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
         ++iter_obj;
     }
 
-    // Для оставшихся регионов (у которых нет подходящего объекта) создаём новые объекты, но пока не обводим
+    // Р”Р»СЏ РѕСЃС‚Р°РІС€РёС…СЃСЏ СЂРµРіРёРѕРЅРѕРІ (Сѓ РєРѕС‚РѕСЂС‹С… РЅРµС‚ РїРѕРґС…РѕРґСЏС‰РµРіРѕ РѕР±СЉРµРєС‚Р°) СЃРѕР·РґР°С‘Рј РЅРѕРІС‹Рµ РѕР±СЉРµРєС‚С‹, РЅРѕ РїРѕРєР° РЅРµ РѕР±РІРѕРґРёРј
     for (regions_container::iterator iter_reg = regions.begin(); iter_reg != regions.end(); ++iter_reg)
     {
         objects_history.push_back(std::unique_ptr<CTrackingObject>(new CTrackingObject(iter_reg->get_center_x(), iter_reg->get_center_y(), get_free_uid())));
 
         (*objects_history.rbegin())->set_rect(iter_reg->get_left(), iter_reg->get_right(), iter_reg->get_top(), iter_reg->get_bottom());
     }
-    //Oчищаем список регионов
+    //OС‡РёС‰Р°РµРј СЃРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ
     regions.clear();
 
-    // Сортируем объекты по времени жизни
+    // РЎРѕСЂС‚РёСЂСѓРµРј РѕР±СЉРµРєС‚С‹ РїРѕ РІСЂРµРјРµРЅРё Р¶РёР·РЅРё
     objects_history.sort(CTrackingObject::life_bigger);
 
-    // Удаляем объекты, не обнаруживающиеся в течение некоторого времени
+    // РЈРґР°Р»СЏРµРј РѕР±СЉРµРєС‚С‹, РЅРµ РѕР±РЅР°СЂСѓР¶РёРІР°СЋС‰РёРµСЃСЏ РІ С‚РµС‡РµРЅРёРµ РЅРµРєРѕС‚РѕСЂРѕРіРѕ РІСЂРµРјРµРЅРё
     analyze_shady_left_objects();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -930,7 +930,7 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
 void CFeinTrack::add_to_shady_left_objects(CTrackingObject &obj)
 {
     CShadyLeftObj new_obj(obj.uid, obj.get_left_frames(), obj.get_left(), obj.get_right(), obj.get_top(), obj.get_bottom());
-    // Если существует объект с центром в некоторой окрестности, то его удаляем а время складываем
+    // Р•СЃР»Рё СЃСѓС‰РµСЃС‚РІСѓРµС‚ РѕР±СЉРµРєС‚ СЃ С†РµРЅС‚СЂРѕРј РІ РЅРµРєРѕС‚РѕСЂРѕР№ РѕРєСЂРµСЃС‚РЅРѕСЃС‚Рё, С‚Рѕ РµРіРѕ СѓРґР°Р»СЏРµРј Р° РІСЂРµРјСЏ СЃРєР»Р°РґС‹РІР°РµРј
     for (std::list<CShadyLeftObj>::iterator iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
     {
         if ((abs(iter->rect.center_x() - obj.get_last_center_x()) < 2 * obj.get_left_epsilon()) &&
@@ -1020,7 +1020,7 @@ objects_container::iterator CFeinTrack::get_object_by_region(const CObjectRegion
     int motion_delta_x = 2 * (*from_obj)->width();
     int motion_delta_y = 2 * (*from_obj)->height();
 
-    // Ищем объект, центр которого наиболее приближен к центру региона
+    // РС‰РµРј РѕР±СЉРµРєС‚, С†РµРЅС‚СЂ РєРѕС‚РѕСЂРѕРіРѕ РЅР°РёР±РѕР»РµРµ РїСЂРёР±Р»РёР¶РµРЅ Рє С†РµРЅС‚СЂСѓ СЂРµРіРёРѕРЅР°
     for (objects_container::iterator iter = ++from_obj; iter != objects_history.end(); ++iter)
     {
         tmp_x = abs((*iter)->get_new_center_x() - c_x);
@@ -1058,16 +1058,16 @@ regions_container::iterator CFeinTrack::find_region_by_hist(const uchar* buf, in
     int min_y(std::numeric_limits<int>::max() / 2 - 1);
 
     hist_cont standart_hist(256, 0);
-    // расчитываем гистограмму проверяемого объекта;
+    // СЂР°СЃС‡РёС‚С‹РІР°РµРј РіРёСЃС‚РѕРіСЂР°РјРјСѓ РїСЂРѕРІРµСЂСЏРµРјРѕРіРѕ РѕР±СЉРµРєС‚Р°;
     calculate_hist(buf, pitch, pixel_size, left, top, width, height, standart_hist, frame_width, &segmentator.get_mask()[0]);
 
-    // был ли найден ближайший регион
+    // Р±С‹Р» Р»Рё РЅР°Р№РґРµРЅ Р±Р»РёР¶Р°Р№С€РёР№ СЂРµРіРёРѕРЅ
     bool isFound = false;
 
     width *= 2;
     height *= 2;
 
-    // Ищем регион, центр которого наиболее приближен к центру рассматриваемого объекта
+    // РС‰РµРј СЂРµРіРёРѕРЅ, С†РµРЅС‚СЂ РєРѕС‚РѕСЂРѕРіРѕ РЅР°РёР±РѕР»РµРµ РїСЂРёР±Р»РёР¶РµРЅ Рє С†РµРЅС‚СЂСѓ СЂР°СЃСЃРјР°С‚СЂРёРІР°РµРјРѕРіРѕ РѕР±СЉРµРєС‚Р°
     for (regions_container::iterator iter_reg = regions.begin(); iter_reg != regions.end(); ++iter_reg)
     {
         int tmp_x = abs(iter_reg->get_center_x() - c_x);
@@ -1088,7 +1088,7 @@ regions_container::iterator CFeinTrack::find_region_by_hist(const uchar* buf, in
         hist_cont suggestion_hist(256, 0);
         calculate_hist(buf, pitch, pixel_size, find_region->get_left(), find_region->get_top(),
                        find_region->width(), find_region->height(), suggestion_hist, frame_width, &segmentator.get_mask()[0]);
-        // если расстояние оказалось слишком велико
+        // РµСЃР»Рё СЂР°СЃСЃС‚РѕСЏРЅРёРµ РѕРєР°Р·Р°Р»РѕСЃСЊ СЃР»РёС€РєРѕРј РІРµР»РёРєРѕ
         double distance = bhattacharrya_dist(standart_hist, suggestion_hist);
         if (distance < 0.6)
             find_region = regions.end();
@@ -1114,7 +1114,7 @@ regions_container::iterator CFeinTrack::find_region_by_center(int c_x, int c_y, 
     int maxIntersectionArea = 1;
 #endif
 
-    // Ищем регион, центр которого наиболее приближен к центру рассматриваемого объекта
+    // РС‰РµРј СЂРµРіРёРѕРЅ, С†РµРЅС‚СЂ РєРѕС‚РѕСЂРѕРіРѕ РЅР°РёР±РѕР»РµРµ РїСЂРёР±Р»РёР¶РµРЅ Рє С†РµРЅС‚СЂСѓ СЂР°СЃСЃРјР°С‚СЂРёРІР°РµРјРѕРіРѕ РѕР±СЉРµРєС‚Р°
     for (regions_container::iterator iter_reg = regions.begin(); iter_reg != regions.end(); ++iter_reg)
     {
 #if 0
@@ -1144,15 +1144,15 @@ regions_container::iterator CFeinTrack::find_region_by_center(int c_x, int c_y, 
 
 unsigned int CFeinTrack::get_free_uid() const
 {
-    // Получаем простым перебором
+    // РџРѕР»СѓС‡Р°РµРј РїСЂРѕСЃС‚С‹Рј РїРµСЂРµР±РѕСЂРѕРј
     unsigned int ret_val = 1;
     for (; ret_val < std::numeric_limits<unsigned int>::max(); ++ret_val)
     {
-        // Поиск среди удалённых объектов
+        // РџРѕРёСЃРє СЃСЂРµРґРё СѓРґР°Р»С‘РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
         if (std::find(del_objects.begin(), del_objects.begin() + del_objects_count, ret_val) != del_objects.begin() + del_objects_count)
             continue;
 
-        // Поиск среди существующих
+        // РџРѕРёСЃРє СЃСЂРµРґРё СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС…
         bool find_uid = false;
         for (objects_container::const_iterator iter = objects_history.begin(); iter != objects_history.end(); ++iter)
         {
@@ -1171,8 +1171,8 @@ unsigned int CFeinTrack::get_free_uid() const
 
 void CFeinTrack::add_left_object_to_out_rects(const CLeftObjView &left_obj, CLeftObjRect::types type)
 {
-    // Здесь сделана попытка избежать лишних выделений памяти: массив left_obj_rects никогда не уменьшается
-    // Он может только увеличивать свой размер, если на последующих кадрах выделенных объектов больше, чем на предыдущих
+    // Р—РґРµСЃСЊ СЃРґРµР»Р°РЅР° РїРѕРїС‹С‚РєР° РёР·Р±РµР¶Р°С‚СЊ Р»РёС€РЅРёС… РІС‹РґРµР»РµРЅРёР№ РїР°РјСЏС‚Рё: РјР°СЃСЃРёРІ left_obj_rects РЅРёРєРѕРіРґР° РЅРµ СѓРјРµРЅСЊС€Р°РµС‚СЃСЏ
+    // РћРЅ РјРѕР¶РµС‚ С‚РѕР»СЊРєРѕ СѓРІРµР»РёС‡РёРІР°С‚СЊ СЃРІРѕР№ СЂР°Р·РјРµСЂ, РµСЃР»Рё РЅР° РїРѕСЃР»РµРґСѓСЋС‰РёС… РєР°РґСЂР°С… РІС‹РґРµР»РµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ Р±РѕР»СЊС€Рµ, С‡РµРј РЅР° РїСЂРµРґС‹РґСѓС‰РёС…
     if (++left_objects_count > left_obj_rects.size())
     {
         left_obj_rects.push_back(CLeftObjRect(left_obj.rect, type));
@@ -1202,7 +1202,7 @@ void CFeinTrack::analyze_lefted_objects()
 {
     left_objects_count = 0;
 
-    // Если объекты пересекаются, то более старый удаляем
+    // Р•СЃР»Рё РѕР±СЉРµРєС‚С‹ РїРµСЂРµСЃРµРєР°СЋС‚СЃСЏ, С‚Рѕ Р±РѕР»РµРµ СЃС‚Р°СЂС‹Р№ СѓРґР°Р»СЏРµРј
     lefted_objects.sort(CLeftObjView::bigger);
     for (std::list<CLeftObjView>::iterator iter1 = lefted_objects.begin(); iter1 != lefted_objects.end(); ++iter1)
     {
@@ -1222,20 +1222,20 @@ void CFeinTrack::analyze_lefted_objects()
         }
     }
 
-    // Заполняем массив для обводки
+    // Р—Р°РїРѕР»РЅСЏРµРј РјР°СЃСЃРёРІ РґР»СЏ РѕР±РІРѕРґРєРё
     for (std::list<CLeftObjView>::iterator iter = lefted_objects.begin(); iter != lefted_objects.end();)
     {
-        // Удаляем оставленные предметы, жизнь которых больше определённого времени (left_object_life_time)
+        // РЈРґР°Р»СЏРµРј РѕСЃС‚Р°РІР»РµРЅРЅС‹Рµ РїСЂРµРґРјРµС‚С‹, Р¶РёР·РЅСЊ РєРѕС‚РѕСЂС‹С… Р±РѕР»СЊС€Рµ РѕРїСЂРµРґРµР»С‘РЅРЅРѕРіРѕ РІСЂРµРјРµРЅРё (left_object_life_time)
         if (iter->life_time < 1)
         {
             iter = lefted_objects.erase(iter);
         }
         else
         {
-            // Уменьшаем время жизни объекта
+            // РЈРјРµРЅСЊС€Р°РµРј РІСЂРµРјСЏ Р¶РёР·РЅРё РѕР±СЉРµРєС‚Р°
             iter->life_time--;
 
-            // Добавляем в массив оставленных объектов
+            // Р”РѕР±Р°РІР»СЏРµРј РІ РјР°СЃСЃРёРІ РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
             add_left_object_to_out_rects(*iter, ((left_object_time3 - iter->life_time < left_object_time2)? CLeftObjRect::first: CLeftObjRect::second));
             ++iter;
         }
@@ -1256,7 +1256,7 @@ bool CFeinTrack::with_line_intersect(const CTrackingObject &obj, int new_center_
 
     for (size_t i = 0; i < correct_lines.size(); ++i)
     {
-        // Проверка пересечения последнего шага траектории движения объекта и пользовательской линии
+        // РџСЂРѕРІРµСЂРєР° РїРµСЂРµСЃРµС‡РµРЅРёСЏ РїРѕСЃР»РµРґРЅРµРіРѕ С€Р°РіР° С‚СЂР°РµРєС‚РѕСЂРёРё РґРІРёР¶РµРЅРёСЏ РѕР±СЉРµРєС‚Р° Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕР№ Р»РёРЅРёРё
 
         lx1 = wnd_to_x(correct_lines[i].x1, frame_width, -r, r);
         lx2 = wnd_to_x(correct_lines[i].x2, frame_width, -r, r);
@@ -1271,8 +1271,8 @@ bool CFeinTrack::with_line_intersect(const CTrackingObject &obj, int new_center_
         if (is_intersect(lx1, ly1, lx2, ly2, objx1, objy1, objx2, objy2))
         {
 #if 0
-            // Необходимо узнать с какой стороны произошло пересечение
-            // Для этого выберается точка, заведомо лежащая на стороне 1
+            // РќРµРѕР±С…РѕРґРёРјРѕ СѓР·РЅР°С‚СЊ СЃ РєР°РєРѕР№ СЃС‚РѕСЂРѕРЅС‹ РїСЂРѕРёР·РѕС€Р»Рѕ РїРµСЂРµСЃРµС‡РµРЅРёРµ
+            // Р”Р»СЏ СЌС‚РѕРіРѕ РІС‹Р±РµСЂР°РµС‚СЃСЏ С‚РѕС‡РєР°, Р·Р°РІРµРґРѕРјРѕ Р»РµР¶Р°С‰Р°СЏ РЅР° СЃС‚РѕСЂРѕРЅРµ 1
             float_t x(0), y(0);
             if ((correct_lines[i].x1 <= correct_lines[i].x2) && (correct_lines[i].y1 > correct_lines[i].y2))
             {
@@ -1506,7 +1506,7 @@ void CFeinTrack::set_show_objects(bool new_val)
 {
     show_objects = new_val;
 
-    // Если отображение объектов не нужно, то полностью отключаем анализ и удаляем статистику
+    // Р•СЃР»Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ РЅРµ РЅСѓР¶РЅРѕ, С‚Рѕ РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‚РєР»СЋС‡Р°РµРј Р°РЅР°Р»РёР· Рё СѓРґР°Р»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ
     if (!show_objects)
     {
         frame_width = 0;
@@ -1534,29 +1534,29 @@ void CFeinTrack::set_show_objects(bool new_val)
 
 bool CFeinTrack::cut_shadow(CObjectRegion& region)
 {
-    // Гистограмма по строкам
+    // Р“РёСЃС‚РѕРіСЂР°РјРјР° РїРѕ СЃС‚СЂРѕРєР°Рј
     hist_cont horz_hist(region.width(), 0.);
 
-    // Постоение гистограмы для верхней половины региона
+    // РџРѕСЃС‚РѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјС‹ РґР»СЏ РІРµСЂС…РЅРµР№ РїРѕР»РѕРІРёРЅС‹ СЂРµРіРёРѕРЅР°
     build_horz_hist(region, 0, region.height() / 2, horz_hist, frame_width, &segmentator.get_mask()[0]);
 
     double area1;
     double center1 = calc_center_mass(horz_hist, area1);
 
-    // Постоение гистограмы для нижней половины региона
+    // РџРѕСЃС‚РѕРµРЅРёРµ РіРёСЃС‚РѕРіСЂР°РјС‹ РґР»СЏ РЅРёР¶РЅРµР№ РїРѕР»РѕРІРёРЅС‹ СЂРµРіРёРѕРЅР°
     fill(horz_hist.begin(), horz_hist.end(), 0);
     build_horz_hist(region, region.height() / 2, region.height(), horz_hist, frame_width, &segmentator.get_mask()[0]);
 
     double area2;
     double center2 = calc_center_mass(horz_hist, area2);
 
-    // Проверка взаимного расположения центра масс
+    // РџСЂРѕРІРµСЂРєР° РІР·Р°РёРјРЅРѕРіРѕ СЂР°СЃРїРѕР»РѕР¶РµРЅРёСЏ С†РµРЅС‚СЂР° РјР°СЃСЃ
     if (center1 > center2)
     {
         if (in_range<double>(center1, (2 * region.width()) / 3, region.width()) &&
                 in_range<double>(center2, region.width() / 3, (2 * region.width()) / 3))
         {
-            // Отсекаем тень слева
+            // РћС‚СЃРµРєР°РµРј С‚РµРЅСЊ СЃР»РµРІР°
             region.set_left(region.get_left() + region.width() / 2);
             return true;
         }
@@ -1566,7 +1566,7 @@ bool CFeinTrack::cut_shadow(CObjectRegion& region)
         if (in_range<double>(center1, 0, region.width() / 3) &&
                 in_range<double>(center2, region.width() / 3, (2 * region.width()) / 3))
         {
-            // Отсекаем тень справа
+            // РћС‚СЃРµРєР°РµРј С‚РµРЅСЊ СЃРїСЂР°РІР°
             region.set_right(region.get_left() + region.width() / 2);
             return true;
         }
@@ -1632,8 +1632,8 @@ void CFeinTrack::add_object_to_out_rects(const T &rect, const CTrackingObject &o
         obj_bottom += top_padding;
     }
 
-    // Здесь сделана попытка избежать лишних выделений памяти: массив obj_rects никогда не уменьшается
-    // Он может только увеличивать свой размер, если на последующих кадрах выделенных объектов больше, чем на предыдущих
+    // Р—РґРµСЃСЊ СЃРґРµР»Р°РЅР° РїРѕРїС‹С‚РєР° РёР·Р±РµР¶Р°С‚СЊ Р»РёС€РЅРёС… РІС‹РґРµР»РµРЅРёР№ РїР°РјСЏС‚Рё: РјР°СЃСЃРёРІ obj_rects РЅРёРєРѕРіРґР° РЅРµ СѓРјРµРЅСЊС€Р°РµС‚СЃСЏ
+    // РћРЅ РјРѕР¶РµС‚ С‚РѕР»СЊРєРѕ СѓРІРµР»РёС‡РёРІР°С‚СЊ СЃРІРѕР№ СЂР°Р·РјРµСЂ, РµСЃР»Рё РЅР° РїРѕСЃР»РµРґСѓСЋС‰РёС… РєР°РґСЂР°С… РІС‹РґРµР»РµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ Р±РѕР»СЊС€Рµ, С‡РµРј РЅР° РїСЂРµРґС‹РґСѓС‰РёС…
     if (++objects_count > obj_rects.size())
     {
         obj_rects.push_back(CObjRect(obj_left, obj_right, obj_top, obj_bottom, object.uid, object.get_new_center_x(), object.get_new_center_y()));

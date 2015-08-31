@@ -5,7 +5,7 @@
 typedef int32_t mask_type;
 ////////////////////////////////////////////////////////////////////////////////
 
-// Выровненная структура, соответствующая цвету пикселя
+// Р’С‹СЂРѕРІРЅРµРЅРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ С†РІРµС‚Сѓ РїРёРєСЃРµР»СЏ
 #ifdef USE_GPU
 typedef struct __align__(4)
 {
@@ -26,41 +26,41 @@ typedef struct
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Параметры обновления статистической модели
+// РџР°СЂР°РјРµС‚СЂС‹ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ РјРѕРґРµР»Рё
 typedef struct
 {
-	// Параметры обучения низкочастотного фильтра рекурсивного сглаживания
-	float alpha1;           // Для выборочного среднего
-	float alpha2;           // Для среднеквадратичного отклонения
-	float min_sigma_val;    // Минимальное и
-	float max_sigma_val;    // максимальное значение для среднеквадратичного отклонения (используется при вычитании фона)
+	// РџР°СЂР°РјРµС‚СЂС‹ РѕР±СѓС‡РµРЅРёСЏ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
+	float alpha1;           // Р”Р»СЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ
+	float alpha2;           // Р”Р»СЏ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ
+	float min_sigma_val;    // РњРёРЅРёРјР°Р»СЊРЅРѕРµ Рё
+	float max_sigma_val;    // РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё РІС‹С‡РёС‚Р°РЅРёРё С„РѕРЅР°)
 } PixelUpdateParams;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Параметры обновления процессов для смеси гауссианов
+// РџР°СЂР°РјРµС‚СЂС‹ РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕС†РµСЃСЃРѕРІ РґР»СЏ СЃРјРµСЃРё РіР°СѓСЃСЃРёР°РЅРѕРІ
 typedef struct
 {
-	float alpha3;           // Параметр обучения низкочастотного фильтра рекурсивного сглаживания для веса процесса
-	float weight_threshold; // Порог для веса процесса
+	float alpha3;           // РџР°СЂР°РјРµС‚СЂ РѕР±СѓС‡РµРЅРёСЏ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ РґР»СЏ РІРµСЃР° РїСЂРѕС†РµСЃСЃР°
+	float weight_threshold; // РџРѕСЂРѕРі РґР»СЏ РІРµСЃР° РїСЂРѕС†РµСЃСЃР°
 } MixturePixelUpdateParams;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Параметры обновления статистической модели
+// РџР°СЂР°РјРµС‚СЂС‹ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ РјРѕРґРµР»Рё
 typedef struct
 {
-	float mu[3];            // Выборочное среднее для каналов
-	float sigma[3];         // Среднеквадратичное отклонение для каналов
+	float mu[3];            // Р’С‹Р±РѕСЂРѕС‡РЅРѕРµ СЃСЂРµРґРЅРµРµ РґР»СЏ РєР°РЅР°Р»РѕРІ
+	float sigma[3];         // РЎСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ РґР»СЏ РєР°РЅР°Р»РѕРІ
 
-	float weight;           // Вес процесса
+	float weight;           // Р’РµСЃ РїСЂРѕС†РµСЃСЃР°
 
-	float reserved;         // Зарезервировано для выравнивания по 32 байта
+	float reserved;         // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ РґР»СЏ РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ РїРѕ 32 Р±Р°Р№С‚Р°
 
 } BgrndProcess;
 ////////////////////////////////////////////////////////////////////////////////
 
-// Вычитание фона без обновления заднего плана
+// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР° Р±РµР· РѕР±РЅРѕРІР»РµРЅРёСЏ Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
 void back_substraction(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma,
 					   mask_type *mask, int frame_width, int frame_height, float eps_b, float eps_g, float eps_r);
 
@@ -68,27 +68,27 @@ void back_substraction_gray(float *p_val, float *params_mu, float *params_sigma,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Вычитание фона с обновлением заднего плана
+// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР° СЃ РѕР±РЅРѕРІР»РµРЅРёРµРј Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
 void back_substraction_upd(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma,
 						   mask_type *mask, int frame_width, int frame_height, float eps_b, float eps_g, float eps_r, PixelUpdateParams pup);
 
 void back_substraction_gray_upd(float *p_val, float *params_mu, float *params_sigma, mask_type *mask, int frame_width, int frame_height, float eps, PixelUpdateParams pup);
 ////////////////////////////////////////////////////////////////////////////////
 
-// Вычитание фона с помощью смеси гауссианов
+// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР° СЃ РїРѕРјРѕС‰СЊСЋ СЃРјРµСЃРё РіР°СѓСЃСЃРёР°РЅРѕРІ
 void back_substraction_mixture(int32_t* bgr32, BgrndProcess* process1, BgrndProcess* process2, BgrndProcess* process3,
                                int32_t* curr_processes, int32_t* created_processes, mask_type* mask,
 							   int frame_width, int frame_height, float eps_b, float eps_g, float eps_r,
 							   PixelUpdateParams pup, MixturePixelUpdateParams mup);
 
-// Вычитание фона с помощью смеси гауссианов
+// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР° СЃ РїРѕРјРѕС‰СЊСЋ СЃРјРµСЃРё РіР°СѓСЃСЃРёР°РЅРѕРІ
 void back_substraction_mixture_gray(float* p_val, BgrndProcess* process1, BgrndProcess* process2, BgrndProcess* process3,
                                     int32_t* curr_processes, int32_t* created_processes, mask_type* mask,
 									int frame_width, int frame_height, float eps,
 									PixelUpdateParams pup, MixturePixelUpdateParams mup);
 ////////////////////////////////////////////////////////////////////////////////
 
-// Сброс статистики в указанной области
+// РЎР±СЂРѕСЃ СЃС‚Р°С‚РёСЃС‚РёРєРё РІ СѓРєР°Р·Р°РЅРЅРѕР№ РѕР±Р»Р°СЃС‚Рё
 void reset_statistic(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
 					 int left, int right, int top, int bottom, float max_sigma_val);
 
@@ -96,7 +96,7 @@ void reset_statistic_gray(float *p_val, float *params_mu, float *params_sigma, i
 					 int left, int right, int top, int bottom, float max_sigma_val);
 ////////////////////////////////////////////////////////////////////////////////
 
-// Обновление статистики в указанной области
+// РћР±РЅРѕРІР»РµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РІ СѓРєР°Р·Р°РЅРЅРѕР№ РѕР±Р»Р°СЃС‚Рё
 void update_statistic(int32_t *bgr32, float *params_b_mu, float *params_b_sigma, float *params_g_mu, float *params_g_sigma, float *params_r_mu, float *params_r_sigma, int frame_width,
 					  int left, int right, int top, int bottom, PixelUpdateParams pup);
 
@@ -104,11 +104,11 @@ void update_statistic_gray(float *p_val, float *params_mu, float *params_sigma, 
 					  int left, int right, int top, int bottom, PixelUpdateParams pup);
 ////////////////////////////////////////////////////////////////////////////////
 
-// Операция математической морфологии "открытие" для результатов вычитания фона
+// РћРїРµСЂР°С†РёСЏ РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕР№ РјРѕСЂС„РѕР»РѕРіРёРё "РѕС‚РєСЂС‹С‚РёРµ" РґР»СЏ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 void morphology(mask_type *mask, mask_type *mask_temp, int frame_width, int frame_height, unsigned int pixels);
 ////////////////////////////////////////////////////////////////////////////////
 
-// Предварительная поблочная сегментация объектов переднего плана
+// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅР°СЏ РїРѕР±Р»РѕС‡РЅР°СЏ СЃРµРіРјРµРЅС‚Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ РїРµСЂРµРґРЅРµРіРѕ РїР»Р°РЅР°
 const int SEGM_BLOCK_SIZE = 4;
 typedef int reg_label;
 void segmentation(mask_type *mask, reg_label *regions, int frame_width, int frame_height);

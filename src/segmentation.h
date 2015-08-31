@@ -8,62 +8,62 @@
 namespace vl_feintrack
 {
 	////////////////////////////////////////////////////////////////////////////
-	// Сегментация объектов переднего плана в регионы
+	// РЎРµРіРјРµРЅС‚Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ РїРµСЂРµРґРЅРµРіРѕ РїР»Р°РЅР° РІ СЂРµРіРёРѕРЅС‹
 	class CSegmentation
 	{
 	public:
 		CSegmentation();
 		~CSegmentation();
 
-        void init(uint32_t frame_width_, uint32_t frame_height_, bool& use_cuda_); // Инициализация внутренних структур
+        void init(uint32_t frame_width_, uint32_t frame_height_, bool& use_cuda_); // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РІРЅСѓС‚СЂРµРЅРЅРёС… СЃС‚СЂСѓРєС‚СѓСЂ
 
 #if ADV_OUT
-		void draw_mask(bool use_cuda, uchar* adv_buf_rgb24);           // Вывод на дополнительный буфер результатов вычитания фона
+		void draw_mask(bool use_cuda, uchar* adv_buf_rgb24);           // Р’С‹РІРѕРґ РЅР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ Р±СѓС„РµСЂ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 #endif
 
-		void morphology_open(bool use_cuda); // Операция математической морфологии "открытие" для результатов вычитания фона
+		void morphology_open(bool use_cuda); // РћРїРµСЂР°С†РёСЏ РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕР№ РјРѕСЂС„РѕР»РѕРіРёРё "РѕС‚РєСЂС‹С‚РёРµ" РґР»СЏ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 
-		void square_segmentation(regions_container& regions);                   // Сегментация объектов как прямоугольных регионов
-		void iterative_segmentation(regions_container& regions);                // Итеративная сегментация бинарного изображения на основе 8-ми связности
-		void recursive_segmentation(regions_container& regions);                // Рекурсивная сегментация бинарного изображения на основе 8-ми связности
+		void square_segmentation(regions_container& regions);                   // РЎРµРіРјРµРЅС‚Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ РєР°Рє РїСЂСЏРјРѕСѓРіРѕР»СЊРЅС‹С… СЂРµРіРёРѕРЅРѕРІ
+		void iterative_segmentation(regions_container& regions);                // РС‚РµСЂР°С‚РёРІРЅР°СЏ СЃРµРіРјРµРЅС‚Р°С†РёСЏ Р±РёРЅР°СЂРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РЅР° РѕСЃРЅРѕРІРµ 8-РјРё СЃРІСЏР·РЅРѕСЃС‚Рё
+		void recursive_segmentation(regions_container& regions);                // Р РµРєСѓСЂСЃРёРІРЅР°СЏ СЃРµРіРјРµРЅС‚Р°С†РёСЏ Р±РёРЅР°СЂРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РЅР° РѕСЃРЅРѕРІРµ 8-РјРё СЃРІСЏР·РЅРѕСЃС‚Рё
 
 #ifdef USE_GPU
-        void cuda_segmentation(regions_container& regions);                     // Сегментация объектов с использованием CUDA
-		void copy_gpu2cpu();                          // Копирование маски из видео в системную память
+        void cuda_segmentation(regions_container& regions);                     // РЎРµРіРјРµРЅС‚Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј CUDA
+		void copy_gpu2cpu();                          // РљРѕРїРёСЂРѕРІР°РЅРёРµ РјР°СЃРєРё РёР· РІРёРґРµРѕ РІ СЃРёСЃС‚РµРјРЅСѓСЋ РїР°РјСЏС‚СЊ
 #endif
 
-		void set_show_objects(bool show_objects);     // Показывать/не показывать объекты
+		void set_show_objects(bool show_objects);     // РџРѕРєР°Р·С‹РІР°С‚СЊ/РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РѕР±СЉРµРєС‚С‹
 
-        mask_cont& get_mask();                        // Возвращает маску кадра
+        mask_cont& get_mask();                        // Р’РѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃРєСѓ РєР°РґСЂР°
 #ifdef USE_GPU
-		CCudaBuf<mask_type, true>& get_device_mask(); // Получение маски из видеопамяти
+		CCudaBuf<mask_type, true>& get_device_mask(); // РџРѕР»СѓС‡РµРЅРёРµ РјР°СЃРєРё РёР· РІРёРґРµРѕРїР°РјСЏС‚Рё
 #endif
 
 	private:
 
 		typedef std::vector<std::pair<mask_type, mask_type> > eq_regions_cont;
-		eq_regions_cont eq_regions;              // Список эквивалентности регионов для итеративной сегментации
-		static bool pairs_comp(const eq_regions_cont::value_type &p1, const eq_regions_cont::value_type &p2); // Cравнение эквивалентных регионов
+		eq_regions_cont eq_regions;              // РЎРїРёСЃРѕРє СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚Рё СЂРµРіРёРѕРЅРѕРІ РґР»СЏ РёС‚РµСЂР°С‚РёРІРЅРѕР№ СЃРµРіРјРµРЅС‚Р°С†РёРё
+		static bool pairs_comp(const eq_regions_cont::value_type &p1, const eq_regions_cont::value_type &p2); // CСЂР°РІРЅРµРЅРёРµ СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹С… СЂРµРіРёРѕРЅРѕРІ
 		typedef std::vector<std::pair<mask_type, CObjectRegion> > tmp_regions_cont;
-		tmp_regions_cont tmp_regions;            // Временный список регионов для итеративной сегментации
-        void search_components(mask_type label, uint32_t x, uint32_t y, CObjectRegion& reg); // Рекурсивный поиск связных компонет при сегментации регионов
+		tmp_regions_cont tmp_regions;            // Р’СЂРµРјРµРЅРЅС‹Р№ СЃРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ РґР»СЏ РёС‚РµСЂР°С‚РёРІРЅРѕР№ СЃРµРіРјРµРЅС‚Р°С†РёРё
+        void search_components(mask_type label, uint32_t x, uint32_t y, CObjectRegion& reg); // Р РµРєСѓСЂСЃРёРІРЅС‹Р№ РїРѕРёСЃРє СЃРІСЏР·РЅС‹С… РєРѕРјРїРѕРЅРµС‚ РїСЂРё СЃРµРіРјРµРЅС‚Р°С†РёРё СЂРµРіРёРѕРЅРѕРІ
 
-		mask_cont pixels_l;                           // Массив размером frame_width * frame_height, в котором хранится результат вычитания фона
+		mask_cont pixels_l;                           // РњР°СЃСЃРёРІ СЂР°Р·РјРµСЂРѕРј frame_width * frame_height, РІ РєРѕС‚РѕСЂРѕРј С…СЂР°РЅРёС‚СЃСЏ СЂРµР·СѓР»СЊС‚Р°С‚ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 
 #ifdef USE_GPU
-        CCudaBuf<mask_type, true> d_mask;             // Видеопамять под маску
-		CCudaBuf<mask_type, true> d_mask_temp;        // Видеопамять для операции математической морфологии
-		CCudaBuf<reg_label, true> d_reg;              // Видеопамять для предварительной сегментации
+        CCudaBuf<mask_type, true> d_mask;             // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РјР°СЃРєСѓ
+		CCudaBuf<mask_type, true> d_mask_temp;        // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РґР»СЏ РѕРїРµСЂР°С†РёРё РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕР№ РјРѕСЂС„РѕР»РѕРіРёРё
+		CCudaBuf<reg_label, true> d_reg;              // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РґР»СЏ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕР№ СЃРµРіРјРµРЅС‚Р°С†РёРё
 
-		CCudaBuf<reg_label, false> h_reg;             // Оперативная память для предварительной сегментации
+		CCudaBuf<reg_label, false> h_reg;             // РћРїРµСЂР°С‚РёРІРЅР°СЏ РїР°РјСЏС‚СЊ РґР»СЏ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕР№ СЃРµРіРјРµРЅС‚Р°С†РёРё
 #endif
 
-		mask_cont morphology_buf;                     // Массив размером frame_width * frame_height для хранения промежуточного результата операции математической морфологии "открытие"
+		mask_cont morphology_buf;                     // РњР°СЃСЃРёРІ СЂР°Р·РјРµСЂРѕРј frame_width * frame_height РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅРѕРіРѕ СЂРµР·СѓР»СЊС‚Р°С‚Р° РѕРїРµСЂР°С†РёРё РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕР№ РјРѕСЂС„РѕР»РѕРіРёРё "РѕС‚РєСЂС‹С‚РёРµ"
 
-        uint32_t frame_width;                         // Ширина
-        uint32_t frame_height;                        // и высота одного кадра в пикселях
+        uint32_t frame_width;                         // РЁРёСЂРёРЅР°
+        uint32_t frame_height;                        // Рё РІС‹СЃРѕС‚Р° РѕРґРЅРѕРіРѕ РєР°РґСЂР° РІ РїРёРєСЃРµР»СЏС…
 
-		void add_to_region(regions_container& regions, int x, int y); // Поиск подходящего региона
+		void add_to_region(regions_container& regions, int x, int y); // РџРѕРёСЃРє РїРѕРґС…РѕРґСЏС‰РµРіРѕ СЂРµРіРёРѕРЅР°
 	};
 	////////////////////////////////////////////////////////////////////////////
 } //end namespace vl_feintrack

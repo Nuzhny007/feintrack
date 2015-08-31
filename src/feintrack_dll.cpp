@@ -48,7 +48,7 @@ int FeintrackFrameAnalyze(void* feintrack, const uchar* buf, int width, int heig
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Получение списка объектов, обнаруженных на пoследнем кадре
+// РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ, РѕР±РЅР°СЂСѓР¶РµРЅРЅС‹С… РЅР° РїoСЃР»РµРґРЅРµРј РєР°РґСЂРµ
 void GetObjects(void* feintrack, vl_feintrack::CObjRect* &rect_arr, size_t& rect_count)
 {
     if (!feintrack)
@@ -62,7 +62,7 @@ void GetObjects(void* feintrack, vl_feintrack::CObjRect* &rect_arr, size_t& rect
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Получение списка идентификаторов удалённых на последнем кадре объектов
+// РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СѓРґР°Р»С‘РЅРЅС‹С… РЅР° РїРѕСЃР»РµРґРЅРµРј РєР°РґСЂРµ РѕР±СЉРµРєС‚РѕРІ
 void GetDelObjects(void* feintrack, unsigned int* &uids_arr, size_t& uids_count)
 {
     if (!feintrack)
@@ -76,7 +76,7 @@ void GetDelObjects(void* feintrack, unsigned int* &uids_arr, size_t& uids_count)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Получение списка оставленных предметов
+// РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
 void GetLeftObjects(void* feintrack, vl_feintrack::CLeftObjRect* &rect_arr, size_t& rect_count)
 {
     if (!feintrack)
@@ -90,7 +90,7 @@ void GetLeftObjects(void* feintrack, vl_feintrack::CLeftObjRect* &rect_arr, size
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Получение конфигурации Feintrack'а
+// РџРѕР»СѓС‡РµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё Feintrack'Р°
 bool GetFeintrackConfigStruct(void* feintrack, void* config_struct)
 {
     if (!feintrack)
@@ -102,7 +102,7 @@ bool GetFeintrackConfigStruct(void* feintrack, void* config_struct)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Задание конфигурации Feintrack'а
+// Р—Р°РґР°РЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё Feintrack'Р°
 void SetFeintrackConfigStruct(void* feintrack, const void* config_struct)
 {
     if (!feintrack)
@@ -112,7 +112,7 @@ void SetFeintrackConfigStruct(void* feintrack, const void* config_struct)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Изменение конфигурации Feintrack'а: задание нового uid и fps (т.к. они могут измениться при перезапуске Видеолокатора)
+// РР·РјРµРЅРµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё Feintrack'Р°: Р·Р°РґР°РЅРёРµ РЅРѕРІРѕРіРѕ uid Рё fps (С‚.Рє. РѕРЅРё РјРѕРіСѓС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ РїСЂРё РїРµСЂРµР·Р°РїСѓСЃРєРµ Р’РёРґРµРѕР»РѕРєР°С‚РѕСЂР°)
 void UpdateFeintrackConfigStruct(void* feintrack, int channel_fps, const char* channel_name, void* config_struct)
 {
     if (feintrack)
@@ -123,7 +123,7 @@ void UpdateFeintrackConfigStruct(void* feintrack, int channel_fps, const char* c
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Используется ли детектирование объектов на Feintrack'e
+// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р»Рё РґРµС‚РµРєС‚РёСЂРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ РЅР° Feintrack'e
 bool GetUseFeintrack(void* feintrack)
 {
     if (!feintrack)
@@ -134,7 +134,7 @@ bool GetUseFeintrack(void* feintrack)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Использовать детектирование объектов в Feintrack'e
+// РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґРµС‚РµРєС‚РёСЂРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ РІ Feintrack'e
 void SetUseFeintrack(void* feintrack, bool new_val)
 {
     if (!feintrack)
@@ -144,7 +144,7 @@ void SetUseFeintrack(void* feintrack, bool new_val)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Разрешение/запрещение обновления фона в feintrack'e
+// Р Р°Р·СЂРµС€РµРЅРёРµ/Р·Р°РїСЂРµС‰РµРЅРёРµ РѕР±РЅРѕРІР»РµРЅРёСЏ С„РѕРЅР° РІ feintrack'e
 void EnableBackUpdate(void* feintrack, bool enable_val)
 {
     if (!feintrack)
@@ -154,7 +154,7 @@ void EnableBackUpdate(void* feintrack, bool enable_val)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Активация профиля настроек finetrack'a
+// РђРєС‚РёРІР°С†РёСЏ РїСЂРѕС„РёР»СЏ РЅР°СЃС‚СЂРѕРµРє finetrack'a
 bool ActivateProfile(void* feintrack, const char* profile_name)
 {
     if (!feintrack)
@@ -164,7 +164,7 @@ bool ActivateProfile(void* feintrack, const char* profile_name)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Задание координат единственного объекта, который будет отображаться на кадре
+// Р—Р°РґР°РЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РЅР° РєР°РґСЂРµ
 void SetOneObject(void* feintrack, unsigned int obj_uid, int left, int right, int top, int bottom)
 {
     if (!feintrack)
@@ -174,7 +174,7 @@ void SetOneObject(void* feintrack, unsigned int obj_uid, int left, int right, in
 }
 ////////////////////////////////////////////////////////////////////////////
 
-// Получение набора точек, принадлежащих объекту
+// РџРѕР»СѓС‡РµРЅРёРµ РЅР°Р±РѕСЂР° С‚РѕС‡РµРє, РїСЂРёРЅР°РґР»РµР¶Р°С‰РёС… РѕР±СЉРµРєС‚Сѓ
 void GetObjectPoints(void* feintrack, size_t obj_ind, POINTF* points, size_t& max_points)
 {
     if (!feintrack)

@@ -12,22 +12,22 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////////
 
 #if 1
-typedef float ft_param_t;                 // Тип статистических характеристик модели заднего плана
+typedef float ft_param_t;                 // РўРёРї СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёС… С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
 #else
-typedef uint32_t ft_param_t;                 // Тип статистических характеристик модели заднего плана
+typedef uint32_t ft_param_t;                 // РўРёРї СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёС… С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
 #endif
 	////////////////////////////////////////////////////////////////////////////
 
-	// Базовый класс для алгоритмов вычитания фона
+	// Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РґР»СЏ Р°Р»РіРѕСЂРёС‚РјРѕРІ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 	class CBackSubstraction
 	{
 	public:
 		CBackSubstraction();
 		virtual ~CBackSubstraction();
 
-        virtual bool init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_); // Возвращает true, если инициализация была проведена, иначе - false
+        virtual bool init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_); // Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±С‹Р»Р° РїСЂРѕРІРµРґРµРЅР°, РёРЅР°С‡Рµ - false
 
-		// Вычитание фона
+		// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
 #if !ADV_OUT
 #ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask) = 0;
@@ -42,77 +42,77 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 #endif
 #endif
 
-		// Обновляет статистику в регионе
+		// РћР±РЅРѕРІР»СЏРµС‚ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РІ СЂРµРіРёРѕРЅРµ
         virtual void update_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region) = 0;
 
-		// Делает значения выборочного среднего в регионе равными текущим значениям пикселей
+		// Р”РµР»Р°РµС‚ Р·РЅР°С‡РµРЅРёСЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ РІ СЂРµРіРёРѕРЅРµ СЂР°РІРЅС‹РјРё С‚РµРєСѓС‰РёРј Р·РЅР°С‡РµРЅРёСЏРј РїРёРєСЃРµР»РµР№
         virtual void reset_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region) = 0;
 
-		bool get_detect_patches_of_sunlight() const;                           // Используется ли детектор бликов
-		void set_detect_patches_of_sunlight(bool detect_patches_of_sunlight_); // Включение/выключение детектора бликов
+		bool get_detect_patches_of_sunlight() const;                           // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р»Рё РґРµС‚РµРєС‚РѕСЂ Р±Р»РёРєРѕРІ
+		void set_detect_patches_of_sunlight(bool detect_patches_of_sunlight_); // Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ РґРµС‚РµРєС‚РѕСЂР° Р±Р»РёРєРѕРІ
 
-		virtual void set_sensitivity(int sens_level);         // Задаёт уровень чувствительности для вычитания фона (от 1 до 100)
-		virtual int get_sensitivity() const;                  // Получение уровня чувствительности для вычитания фона (от 1 до 100)
+		virtual void set_sensitivity(int sens_level);         // Р—Р°РґР°С‘С‚ СѓСЂРѕРІРµРЅСЊ С‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚Рё РґР»СЏ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР° (РѕС‚ 1 РґРѕ 100)
+		virtual int get_sensitivity() const;                  // РџРѕР»СѓС‡РµРЅРёРµ СѓСЂРѕРІРЅСЏ С‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚Рё РґР»СЏ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР° (РѕС‚ 1 РґРѕ 100)
 
-		virtual void set_fps(int new_fps);                    // Задание fps
+		virtual void set_fps(int new_fps);                    // Р—Р°РґР°РЅРёРµ fps
 
-		virtual void enable_back_update(bool enable_val);     // Разрешение/запрещение обновления фона
+		virtual void enable_back_update(bool enable_val);     // Р Р°Р·СЂРµС€РµРЅРёРµ/Р·Р°РїСЂРµС‰РµРЅРёРµ РѕР±РЅРѕРІР»РµРЅРёСЏ С„РѕРЅР°
 
-		virtual void set_show_objects(bool show_objects);     // Показывать/не показывать объекты
+		virtual void set_show_objects(bool show_objects);     // РџРѕРєР°Р·С‹РІР°С‚СЊ/РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РѕР±СЉРµРєС‚С‹
 
-		virtual void set_use_cuda(bool use_cuda_);            // Задание использования CUDA
+		virtual void set_use_cuda(bool use_cuda_);            // Р—Р°РґР°РЅРёРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ CUDA
 
 	protected:
-		// Параметры обучения низкочастотного фильтра рекурсивного сглаживания
-        static const ft_param_t alpha1;               // Для выборочного среднего
-        static const ft_param_t alpha2;               // Для среднеквадратичного отклонения
+		// РџР°СЂР°РјРµС‚СЂС‹ РѕР±СѓС‡РµРЅРёСЏ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
+        static const ft_param_t alpha1;               // Р”Р»СЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ
+        static const ft_param_t alpha2;               // Р”Р»СЏ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ
 
-        static const ft_param_t min_sigma_val;        // Минимальное и
-        static const ft_param_t max_sigma_val;        // максимальное значение для среднеквадратичного отклонения (используется при вычитании фона)
+        static const ft_param_t min_sigma_val;        // РњРёРЅРёРјР°Р»СЊРЅРѕРµ Рё
+        static const ft_param_t max_sigma_val;        // РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё РІС‹С‡РёС‚Р°РЅРёРё С„РѕРЅР°)
 
-        uint32_t frame_width;                         // Ширина
-        uint32_t frame_height;                        // и высота одного кадра в пикселях
-		color_type curr_color_type;                   // Текущий тип цветового пространства анализируемого кадра
+        uint32_t frame_width;                         // РЁРёСЂРёРЅР°
+        uint32_t frame_height;                        // Рё РІС‹СЃРѕС‚Р° РѕРґРЅРѕРіРѕ РєР°РґСЂР° РІ РїРёРєСЃРµР»СЏС…
+		color_type curr_color_type;                   // РўРµРєСѓС‰РёР№ С‚РёРї С†РІРµС‚РѕРІРѕРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° Р°РЅР°Р»РёР·РёСЂСѓРµРјРѕРіРѕ РєР°РґСЂР°
 
-        ft_param_t epsilon;                           // Порог, по которому определяется принадлежность пикселя переднему или заднему плану (расстояние Махаланобиса)
+        ft_param_t epsilon;                           // РџРѕСЂРѕРі, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ РїРёРєСЃРµР»СЏ РїРµСЂРµРґРЅРµРјСѓ РёР»Рё Р·Р°РґРЅРµРјСѓ РїР»Р°РЅСѓ (СЂР°СЃСЃС‚РѕСЏРЅРёРµ РњР°С…Р°Р»Р°РЅРѕР±РёСЃР°)
 
-        int pixel_size;                               // Размер одного пикселя в байтах
+        int pixel_size;                               // Р Р°Р·РјРµСЂ РѕРґРЅРѕРіРѕ РїРёРєСЃРµР»СЏ РІ Р±Р°Р№С‚Р°С…
 
-		bool use_cuda;                                // Использовать CUDA для вычитания фона и морфологии
+		bool use_cuda;                                // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ CUDA РґР»СЏ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР° Рё РјРѕСЂС„РѕР»РѕРіРёРё
 
-		bool init_filter;                             // Собрана ли первоначальная статистика
+		bool init_filter;                             // РЎРѕР±СЂР°РЅР° Р»Рё РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР°
 
-		int fps;                                      // Количество кадров в секунду, поступающих на фильтр. Обновление статистики производится раз в секунду. Время будет измеряться по кадрам.
+		int fps;                                      // РљРѕР»РёС‡РµСЃС‚РІРѕ РєР°РґСЂРѕРІ РІ СЃРµРєСѓРЅРґСѓ, РїРѕСЃС‚СѓРїР°СЋС‰РёС… РЅР° С„РёР»СЊС‚СЂ. РћР±РЅРѕРІР»РµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ СЂР°Р· РІ СЃРµРєСѓРЅРґСѓ. Р’СЂРµРјСЏ Р±СѓРґРµС‚ РёР·РјРµСЂСЏС‚СЊСЃСЏ РїРѕ РєР°РґСЂР°Рј.
 
-		bool need_background_update;                  // Обновлять ли модель заднего плана
+		bool need_background_update;                  // РћР±РЅРѕРІР»СЏС‚СЊ Р»Рё РјРѕРґРµР»СЊ Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
 
-        bool is_patch_of_sunlight(const ft_param_t* float_src, const size_t pixel_size); // Является ли данный пиксель частью блика
+        bool is_patch_of_sunlight(const ft_param_t* float_src, const size_t pixel_size); // РЇРІР»СЏРµС‚СЃСЏ Р»Рё РґР°РЅРЅС‹Р№ РїРёРєСЃРµР»СЊ С‡Р°СЃС‚СЊСЋ Р±Р»РёРєР°
 
 	private:
-        static const ft_param_t min_sens;             // Минимальное и
-        static const ft_param_t max_sens;             // максимальное значение порога при вычитании фона (epsilon)
+        static const ft_param_t min_sens;             // РњРёРЅРёРјР°Р»СЊРЅРѕРµ Рё
+        static const ft_param_t max_sens;             // РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РїРѕСЂРѕРіР° РїСЂРё РІС‹С‡РёС‚Р°РЅРёРё С„РѕРЅР° (epsilon)
 
-		bool detect_patches_of_sunlight;              // Использовать детектор бликов
-        static const ft_param_t sunlight_threshold;   // Порог значение пикселя для определения блика
+		bool detect_patches_of_sunlight;              // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґРµС‚РµРєС‚РѕСЂ Р±Р»РёРєРѕРІ
+        static const ft_param_t sunlight_threshold;   // РџРѕСЂРѕРі Р·РЅР°С‡РµРЅРёРµ РїРёРєСЃРµР»СЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ Р±Р»РёРєР°
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Параметры нормального распределения
+	// РџР°СЂР°РјРµС‚СЂС‹ РЅРѕСЂРјР°Р»СЊРЅРѕРіРѕ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ
 	struct CNormParams
 	{
 		CNormParams()
 			: mu(0), sigma(0)
 		{
 		}
-        ft_param_t mu;       // Выборочное среднее
-        ft_param_t sigma;    // Среднеквадратичное отклонение
+        ft_param_t mu;       // Р’С‹Р±РѕСЂРѕС‡РЅРѕРµ СЃСЂРµРґРЅРµРµ
+        ft_param_t sigma;    // РЎСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ
 
-		// Пересчитывает значение выборочного среднего с помощью экспоненциального сглаживания
+		// РџРµСЂРµСЃС‡РёС‚С‹РІР°РµС‚ Р·РЅР°С‡РµРЅРёРµ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ СЃ РїРѕРјРѕС‰СЊСЋ СЌРєСЃРїРѕРЅРµРЅС†РёР°Р»СЊРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
         void recalc_mu(ft_param_t new_val, ft_param_t alpha)
 		{
             mu = ((100 - alpha) * mu + alpha * new_val) / 100;
 		}
-		// Пересчитывает значение среднеквадратичного отклонения с помощью экспоненциального сглаживания
+		// РџРµСЂРµСЃС‡РёС‚С‹РІР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ СЃ РїРѕРјРѕС‰СЊСЋ СЌРєСЃРїРѕРЅРµРЅС†РёР°Р»СЊРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
         void recalc_sigma(ft_param_t new_val, ft_param_t alpha)
 		{
             sigma = static_cast<ft_param_t>(sqrt(
@@ -123,14 +123,14 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Параметры нормального распределения для пикселя (на каждый компонент цвета своя случайная величина)
+	// РџР°СЂР°РјРµС‚СЂС‹ РЅРѕСЂРјР°Р»СЊРЅРѕРіРѕ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РґР»СЏ РїРёРєСЃРµР»СЏ (РЅР° РєР°Р¶РґС‹Р№ РєРѕРјРїРѕРЅРµРЅС‚ С†РІРµС‚Р° СЃРІРѕСЏ СЃР»СѓС‡Р°Р№РЅР°СЏ РІРµР»РёС‡РёРЅР°)
 	template<size_t NORM_COUNT>
 	struct CNormParamsPixel
 	{
-		CNormParams p[NORM_COUNT];  // Параметры нормального распределения для каждого цвета пикселя
+		CNormParams p[NORM_COUNT];  // РџР°СЂР°РјРµС‚СЂС‹ РЅРѕСЂРјР°Р»СЊРЅРѕРіРѕ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РґР»СЏ РєР°Р¶РґРѕРіРѕ С†РІРµС‚Р° РїРёРєСЃРµР»СЏ
         static const size_t PIXEL_VALUES = NORM_COUNT; ///< Count a significant values on pixel
 
-		// Пересчитывает значение выборочного среднего для всех компонент
+		// РџРµСЂРµСЃС‡РёС‚С‹РІР°РµС‚ Р·РЅР°С‡РµРЅРёРµ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ РґР»СЏ РІСЃРµС… РєРѕРјРїРѕРЅРµРЅС‚
         void recalc_mu(ft_param_t* new_val, ft_param_t alpha)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
@@ -139,7 +139,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 			}
 		}
 
-		// Пересчитывает значение среднеквадратичного отклонения для всех компонент
+		// РџРµСЂРµСЃС‡РёС‚С‹РІР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ РґР»СЏ РІСЃРµС… РєРѕРјРїРѕРЅРµРЅС‚
         void recalc_sigma(ft_param_t* new_val, ft_param_t alpha, ft_param_t min_sigma_val, ft_param_t max_sigma_val)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
@@ -149,7 +149,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 			}
 		}
 
-		// Создание статистической модели заднего плана на очередном кадре
+		// РЎРѕР·РґР°РЅРёРµ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР° РЅР° РѕС‡РµСЂРµРґРЅРѕРј РєР°РґСЂРµ
         void create_statistic(ft_param_t* new_val, ft_param_t curr_frame)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
@@ -158,7 +158,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 				p[i].sigma += sqr(new_val[i] - p[i].mu / curr_frame);
 			}
 		}
-		// Завершение создания модели заднего плана
+		// Р—Р°РІРµСЂС€РµРЅРёРµ СЃРѕР·РґР°РЅРёСЏ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
         void end_create_statistic(ft_param_t* new_val, ft_param_t curr_frame, ft_param_t min_sigma_val, ft_param_t max_sigma_val)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
@@ -171,7 +171,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 			}
 		}
 
-		// Проверка на принадлежность пикселя заднему плану
+		// РџСЂРѕРІРµСЂРєР° РЅР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ РїРёРєСЃРµР»СЏ Р·Р°РґРЅРµРјСѓ РїР»Р°РЅСѓ
         bool is_back(ft_param_t *new_val, ft_param_t *eps) const
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
@@ -184,7 +184,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 			return true;
 		}
 
-		// Задание значений модели
+		// Р—Р°РґР°РЅРёРµ Р·РЅР°С‡РµРЅРёР№ РјРѕРґРµР»Рё
         void set_mu_sigma(ft_param_t* new_val, ft_param_t new_sigma)
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
@@ -196,16 +196,16 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Вычитание фона на основе моделирования каждого пикселя случайным нормально распределённым вектором
+	// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР° РЅР° РѕСЃРЅРѕРІРµ РјРѕРґРµР»РёСЂРѕРІР°РЅРёСЏ РєР°Р¶РґРѕРіРѕ РїРёРєСЃРµР»СЏ СЃР»СѓС‡Р°Р№РЅС‹Рј РЅРѕСЂРјР°Р»СЊРЅРѕ СЂР°СЃРїСЂРµРґРµР»С‘РЅРЅС‹Рј РІРµРєС‚РѕСЂРѕРј
 	class CNormBackSubstraction: public CBackSubstraction
 	{
 	public:
 		CNormBackSubstraction();
 		~CNormBackSubstraction();
 
-        bool init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_); // Возвращает true, если инициализация была проведена, иначе - false
+        bool init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_); // Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±С‹Р»Р° РїСЂРѕРІРµРґРµРЅР°, РёРЅР°С‡Рµ - false
 
-		// Вычитание фона
+		// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
 #if !ADV_OUT
 #ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask);
@@ -220,11 +220,11 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 #endif
 #endif
 
-        void update_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region); // Обновляет статистику в регионе
-        void reset_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region);  // Делает значения выборочного среднего в регионе равными текущим значениям пикселей
+        void update_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region); // РћР±РЅРѕРІР»СЏРµС‚ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РІ СЂРµРіРёРѕРЅРµ
+        void reset_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region);  // Р”РµР»Р°РµС‚ Р·РЅР°С‡РµРЅРёСЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ РІ СЂРµРіРёРѕРЅРµ СЂР°РІРЅС‹РјРё С‚РµРєСѓС‰РёРј Р·РЅР°С‡РµРЅРёСЏРј РїРёРєСЃРµР»РµР№
 
-		void set_fps(int new_fps);                    // Задание fps
-		void set_show_objects(bool show_objects);     // Показывать/не показывать объекты
+		void set_fps(int new_fps);                    // Р—Р°РґР°РЅРёРµ fps
+		void set_show_objects(bool show_objects);     // РџРѕРєР°Р·С‹РІР°С‚СЊ/РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РѕР±СЉРµРєС‚С‹
 
 	private:
 		typedef CNormParamsPixel<3> rgb_param_type;            //
@@ -232,27 +232,27 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 		typedef std::vector<rgb_param_type> rgb_params_cont;   // 
 		typedef std::vector<gray_param_type> gray_params_cont; // 
 
-		int contrast_time;                            // Время для проверки контраста кадра
-		int contrast_frame;                           // Счётчик кадров для отсчёта времени до contrast_time
-		static const float_t contrast_threshold;      // Порог значения контраста, ниже которого отключается детектор теней
+		int contrast_time;                            // Р’СЂРµРјСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё РєРѕРЅС‚СЂР°СЃС‚Р° РєР°РґСЂР°
+		int contrast_frame;                           // РЎС‡С‘С‚С‡РёРє РєР°РґСЂРѕРІ РґР»СЏ РѕС‚СЃС‡С‘С‚Р° РІСЂРµРјРµРЅРё РґРѕ contrast_time
+		static const float_t contrast_threshold;      // РџРѕСЂРѕРі Р·РЅР°С‡РµРЅРёСЏ РєРѕРЅС‚СЂР°СЃС‚Р°, РЅРёР¶Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕС‚РєР»СЋС‡Р°РµС‚СЃСЏ РґРµС‚РµРєС‚РѕСЂ С‚РµРЅРµР№
 
-		bool use_shadow_detector;                     // Использовать детектор теней
+		bool use_shadow_detector;                     // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґРµС‚РµРєС‚РѕСЂ С‚РµРЅРµР№
 
-		rgb_params_cont rgb_params;                   // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
-		gray_params_cont gray_params;                 // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
+		rgb_params_cont rgb_params;                   // РњР°СЃСЃРёРІ СЂР°Р·РјРµСЂРѕРј frame_width * frame_height, РІ РєРѕС‚РѕСЂРѕРј С…СЂР°РЅСЏС‚СЃСЏ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёРµ РґР°РЅРЅС‹Рµ Рѕ РєР°Р¶РґРѕРј РїРёРєСЃРµР»Рµ
+		gray_params_cont gray_params;                 // РњР°СЃСЃРёРІ СЂР°Р·РјРµСЂРѕРј frame_width * frame_height, РІ РєРѕС‚РѕСЂРѕРј С…СЂР°РЅСЏС‚СЃСЏ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёРµ РґР°РЅРЅС‹Рµ Рѕ РєР°Р¶РґРѕРј РїРёРєСЃРµР»Рµ
 
 #ifdef USE_GPU
-        CCudaBuf<BGRXf, false> h_frame_bgrxf;         // Буфер кадра для копирования в видеопамять
-        CCudaBuf<int32_t, true> d_bgr32;              // Видеопамять под кадр
-		CCudaBuf<float, true> d_params_b_mu;          // Видеопамять под параметры модели заднего плана
-		CCudaBuf<float, true> d_params_b_sigma;       // Видеопамять под параметры модели заднего плана
-		CCudaBuf<float, true> d_params_g_mu;          // Видеопамять под параметры модели заднего плана
-		CCudaBuf<float, true> d_params_g_sigma;       // Видеопамять под параметры модели заднего плана
-		CCudaBuf<float, true> d_params_r_mu;          // Видеопамять под параметры модели заднего плана
-		CCudaBuf<float, true> d_params_r_sigma;       // Видеопамять под параметры модели заднего плана
+        CCudaBuf<BGRXf, false> h_frame_bgrxf;         // Р‘СѓС„РµСЂ РєР°РґСЂР° РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РІ РІРёРґРµРѕРїР°РјСЏС‚СЊ
+        CCudaBuf<int32_t, true> d_bgr32;              // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РєР°РґСЂ
+		CCudaBuf<float, true> d_params_b_mu;          // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РїР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
+		CCudaBuf<float, true> d_params_b_sigma;       // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РїР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
+		CCudaBuf<float, true> d_params_g_mu;          // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РїР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
+		CCudaBuf<float, true> d_params_g_sigma;       // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РїР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
+		CCudaBuf<float, true> d_params_r_mu;          // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РїР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
+		CCudaBuf<float, true> d_params_r_sigma;       // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РїР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
 #endif
 
-		// Вычитание фона
+		// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
 		template<class PARAMS_CONT>
 #if !ADV_OUT
 #ifdef USE_GPU
@@ -268,17 +268,17 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 #endif
 #endif
 
-		// Обновляет статистику в регионе
+		// РћР±РЅРѕРІР»СЏРµС‚ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РІ СЂРµРіРёРѕРЅРµ
 		template<class PARAMS_CONT>
         void update_statistic_in_region(const uchar* buf, uint32_t pitch, PARAMS_CONT& params, const CObjectRegion& region);
 		
-		// Делает значения выборочного среднего в регионе равными текущим значениям пикселей
+		// Р”РµР»Р°РµС‚ Р·РЅР°С‡РµРЅРёСЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ РІ СЂРµРіРёРѕРЅРµ СЂР°РІРЅС‹РјРё С‚РµРєСѓС‰РёРј Р·РЅР°С‡РµРЅРёСЏРј РїРёРєСЃРµР»РµР№
 		template<class PARAMS_CONT>
         void reset_statistic_in_region(const uchar* buf, uint32_t pitch, PARAMS_CONT& params, const CObjectRegion& region);
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Параметры нормального распределения + вес параметров как части процесса
+	// РџР°СЂР°РјРµС‚СЂС‹ РЅРѕСЂРјР°Р»СЊРЅРѕРіРѕ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ + РІРµСЃ РїР°СЂР°РјРµС‚СЂРѕРІ РєР°Рє С‡Р°СЃС‚Рё РїСЂРѕС†РµСЃСЃР°
 	template<size_t NORM_COUNT>
 	struct CNormWeightProcess: public CNormParamsPixel<NORM_COUNT>
 	{
@@ -287,11 +287,11 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 		{
 		}
 
-        float_t weight;       // Вес процесса
+        float_t weight;       // Р’РµСЃ РїСЂРѕС†РµСЃСЃР°
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Список процессов, соответствующий каждому пикселю
+	// РЎРїРёСЃРѕРє РїСЂРѕС†РµСЃСЃРѕРІ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РєР°Р¶РґРѕРјСѓ РїРёРєСЃРµР»СЋ
 	template<size_t NORM_COUNT>
 	struct CNormWeightParams3
 	{
@@ -300,14 +300,14 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 		{
 		}
 
-        static const size_t PROC_PER_PIXEL = 2;                   // Число процессов на каждый пиксель
-		CNormWeightProcess<NORM_COUNT> proc_list[PROC_PER_PIXEL]; // Параметры распределения на каждый процесс
-		size_t curr_proc;                                         // Текущий процесс
-		size_t created_processes;                                 // Количество уже созданных процессов
+        static const size_t PROC_PER_PIXEL = 2;                   // Р§РёСЃР»Рѕ РїСЂРѕС†РµСЃСЃРѕРІ РЅР° РєР°Р¶РґС‹Р№ РїРёРєСЃРµР»СЊ
+		CNormWeightProcess<NORM_COUNT> proc_list[PROC_PER_PIXEL]; // РџР°СЂР°РјРµС‚СЂС‹ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РЅР° РєР°Р¶РґС‹Р№ РїСЂРѕС†РµСЃСЃ
+		size_t curr_proc;                                         // РўРµРєСѓС‰РёР№ РїСЂРѕС†РµСЃСЃ
+		size_t created_processes;                                 // РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР¶Рµ СЃРѕР·РґР°РЅРЅС‹С… РїСЂРѕС†РµСЃСЃРѕРІ
 
         static const size_t PIXEL_VALUES = NORM_COUNT; ///< Count a significant values on pixel
 
-		// Создание статистической модели заднего плана на очередном кадре
+		// РЎРѕР·РґР°РЅРёРµ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР° РЅР° РѕС‡РµСЂРµРґРЅРѕРј РєР°РґСЂРµ
         void create_statistic(ft_param_t* new_val, ft_param_t curr_frame)
 		{
 			for (size_t proc_ind = 0; proc_ind < PROC_PER_PIXEL; ++proc_ind)
@@ -315,7 +315,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 				proc_list[proc_ind].create_statistic(new_val, curr_frame);
 			}
 		}
-		// Завершение создания модели заднего плана
+		// Р—Р°РІРµСЂС€РµРЅРёРµ СЃРѕР·РґР°РЅРёСЏ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
         void end_create_statistic(ft_param_t* new_val, ft_param_t curr_frame, ft_param_t min_sigma_val, ft_param_t max_sigma_val)
 		{
 			for (size_t proc_ind = 0; proc_ind < PROC_PER_PIXEL; ++proc_ind)
@@ -325,20 +325,20 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 			proc_list[curr_proc].weight = 1;
 		}
 
-		// Проверка на принадлежность пикселя заднему плану
+		// РџСЂРѕРІРµСЂРєР° РЅР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ РїРёРєСЃРµР»СЏ Р·Р°РґРЅРµРјСѓ РїР»Р°РЅСѓ
         bool is_back(ft_param_t *new_val, ft_param_t *eps, ft_param_t alpha1, ft_param_t alpha2, float_t alpha3, ft_param_t min_sigma_val, ft_param_t max_sigma_val, float_t weight_threshold)
 		{
 			bool find_process = false;
 
 			for (size_t proc_ind = 0; proc_ind < created_processes; ++proc_ind)
 			{
-				// Ищем процесс, который лучше соответствует текущему значению пикселя
+				// РС‰РµРј РїСЂРѕС†РµСЃСЃ, РєРѕС‚РѕСЂС‹Р№ Р»СѓС‡С€Рµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РµРєСѓС‰РµРјСѓ Р·РЅР°С‡РµРЅРёСЋ РїРёРєСЃРµР»СЏ
 				if (proc_list[proc_ind].is_back(new_val, eps))
 				{
-					// Процесс найден - уточняем его параметры
+					// РџСЂРѕС†РµСЃСЃ РЅР°Р№РґРµРЅ - СѓС‚РѕС‡РЅСЏРµРј РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹
 					curr_proc = proc_ind;
 					
-					// Оценки мат. ожидания и дисперсии обновляются с помощью низкочастотного фильтра рекурсивного сглаживания
+					// РћС†РµРЅРєРё РјР°С‚. РѕР¶РёРґР°РЅРёСЏ Рё РґРёСЃРїРµСЂСЃРёРё РѕР±РЅРѕРІР»СЏСЋС‚СЃСЏ СЃ РїРѕРјРѕС‰СЊСЋ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
 					proc_list[curr_proc].recalc_mu(new_val, alpha1);
 					proc_list[curr_proc].recalc_sigma(new_val, alpha2, min_sigma_val, max_sigma_val);
 
@@ -346,9 +346,9 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 					break;
 				}
 			}
-			if (!find_process) // Процесс не найден
+			if (!find_process) // РџСЂРѕС†РµСЃСЃ РЅРµ РЅР°Р№РґРµРЅ
 			{
-				// Создаём новый процесс или,
+				// РЎРѕР·РґР°С‘Рј РЅРѕРІС‹Р№ РїСЂРѕС†РµСЃСЃ РёР»Рё,
 				if (created_processes < PROC_PER_PIXEL)
 				{
 					++created_processes;
@@ -358,7 +358,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 
 					find_process = true;
 				}
-				// если количество процессов равно PROC_PER_PIXEL, ищем процесс с наименьшим весом
+				// РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС†РµСЃСЃРѕРІ СЂР°РІРЅРѕ PROC_PER_PIXEL, РёС‰РµРј РїСЂРѕС†РµСЃСЃ СЃ РЅР°РёРјРµРЅСЊС€РёРј РІРµСЃРѕРј
 				else
 				{
                     float_t min_weight = proc_list[0].weight;
@@ -376,7 +376,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 				}
 			}
 
-			// Обновление весов процессов
+			// РћР±РЅРѕРІР»РµРЅРёРµ РІРµСЃРѕРІ РїСЂРѕС†РµСЃСЃРѕРІ
 			if (find_process)
 			{
 				for (size_t proc_ind = 0; proc_ind < created_processes; ++proc_ind)
@@ -388,7 +388,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 			return proc_list[curr_proc].weight > weight_threshold;
 		}
 
-		// Задание значений модели
+		// Р—Р°РґР°РЅРёРµ Р·РЅР°С‡РµРЅРёР№ РјРѕРґРµР»Рё
         void set_mu_sigma(ft_param_t* new_val, ft_param_t new_sigma)
 		{
 			proc_list[curr_proc].set_mu_sigma(new_val, new_sigma);
@@ -396,16 +396,16 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Вычитание фона на основе моделирования каждого пикселя случайным нормально распределённым вектором
+	// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР° РЅР° РѕСЃРЅРѕРІРµ РјРѕРґРµР»РёСЂРѕРІР°РЅРёСЏ РєР°Р¶РґРѕРіРѕ РїРёРєСЃРµР»СЏ СЃР»СѓС‡Р°Р№РЅС‹Рј РЅРѕСЂРјР°Р»СЊРЅРѕ СЂР°СЃРїСЂРµРґРµР»С‘РЅРЅС‹Рј РІРµРєС‚РѕСЂРѕРј
 	class CGaussianMixtureBackSubstr: public CBackSubstraction
 	{
 	public:
 		CGaussianMixtureBackSubstr();
 		~CGaussianMixtureBackSubstr();
 
-        bool init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_); // Возвращает true, если инициализация была проведена, иначе - false
+        bool init(uint32_t width, uint32_t height, color_type buf_type, bool& use_cuda_); // Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±С‹Р»Р° РїСЂРѕРІРµРґРµРЅР°, РёРЅР°С‡Рµ - false
 
-		// Вычитание фона
+		// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
 #if !ADV_OUT
 #ifdef USE_GPU
         virtual int background_substraction(int& curr_frame, const uchar* buf, uint32_t pitch, mask_cont& pixels_l, CCudaBuf<mask_type, true>& d_mask);
@@ -420,10 +420,10 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 #endif
 #endif
 
-        void update_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region); // Обновляет статистику в регионе
-        void reset_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region);  // Делает значения выборочного среднего в регионе равными текущим значениям пикселей
+        void update_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region); // РћР±РЅРѕРІР»СЏРµС‚ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РІ СЂРµРіРёРѕРЅРµ
+        void reset_statistic_in_region(const uchar* buf, uint32_t pitch, const CObjectRegion& region);  // Р”РµР»Р°РµС‚ Р·РЅР°С‡РµРЅРёСЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ РІ СЂРµРіРёРѕРЅРµ СЂР°РІРЅС‹РјРё С‚РµРєСѓС‰РёРј Р·РЅР°С‡РµРЅРёСЏРј РїРёРєСЃРµР»РµР№
 
-		void set_show_objects(bool show_objects);              // Показывать/не показывать объекты
+		void set_show_objects(bool show_objects);              // РџРѕРєР°Р·С‹РІР°С‚СЊ/РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РѕР±СЉРµРєС‚С‹
 
 	private:
 		typedef CNormWeightParams3<3> rgb_param_type;          //
@@ -431,23 +431,23 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 		typedef std::vector<rgb_param_type> rgb_params_cont;   // 
 		typedef std::vector<gray_param_type> gray_params_cont; // 
 
-		rgb_params_cont rgb_params;                            // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
-		gray_params_cont gray_params;                          // Массив размером frame_width * frame_height, в котором хранятся статистические данные о каждом пикселе
+		rgb_params_cont rgb_params;                            // РњР°СЃСЃРёРІ СЂР°Р·РјРµСЂРѕРј frame_width * frame_height, РІ РєРѕС‚РѕСЂРѕРј С…СЂР°РЅСЏС‚СЃСЏ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёРµ РґР°РЅРЅС‹Рµ Рѕ РєР°Р¶РґРѕРј РїРёРєСЃРµР»Рµ
+		gray_params_cont gray_params;                          // РњР°СЃСЃРёРІ СЂР°Р·РјРµСЂРѕРј frame_width * frame_height, РІ РєРѕС‚РѕСЂРѕРј С…СЂР°РЅСЏС‚СЃСЏ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёРµ РґР°РЅРЅС‹Рµ Рѕ РєР°Р¶РґРѕРј РїРёРєСЃРµР»Рµ
 
 #ifdef USE_GPU
-        CCudaBuf<BGRXf, false> h_frame_bgrxf;                  // Буфер кадра для копирования в видеопамять
-        CCudaBuf<int32_t, true> d_bgr32;                       // Видеопамять под кадр
-        CCudaBuf<int32_t, true> d_curr_processes;              // Видеопамять с индексами текущих процессов для каждого пикселя
-        CCudaBuf<int32_t, true> d_created_processes;           // Видеопамять с числом созданных процессов для каждого пикселя
-		CCudaBuf<BgrndProcess, true> d_process1;               // Видеопамять с параметрами модели фона для первого процесса
-		CCudaBuf<BgrndProcess, true> d_process2;               // Видеопамять с параметрами модели фона для второго процесса
-		CCudaBuf<BgrndProcess, true> d_process3;               // Видеопамять с параметрами модели фона для третьего процесса
+        CCudaBuf<BGRXf, false> h_frame_bgrxf;                  // Р‘СѓС„РµСЂ РєР°РґСЂР° РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РІ РІРёРґРµРѕРїР°РјСЏС‚СЊ
+        CCudaBuf<int32_t, true> d_bgr32;                       // Р’РёРґРµРѕРїР°РјСЏС‚СЊ РїРѕРґ РєР°РґСЂ
+        CCudaBuf<int32_t, true> d_curr_processes;              // Р’РёРґРµРѕРїР°РјСЏС‚СЊ СЃ РёРЅРґРµРєСЃР°РјРё С‚РµРєСѓС‰РёС… РїСЂРѕС†РµСЃСЃРѕРІ РґР»СЏ РєР°Р¶РґРѕРіРѕ РїРёРєСЃРµР»СЏ
+        CCudaBuf<int32_t, true> d_created_processes;           // Р’РёРґРµРѕРїР°РјСЏС‚СЊ СЃ С‡РёСЃР»РѕРј СЃРѕР·РґР°РЅРЅС‹С… РїСЂРѕС†РµСЃСЃРѕРІ РґР»СЏ РєР°Р¶РґРѕРіРѕ РїРёРєСЃРµР»СЏ
+		CCudaBuf<BgrndProcess, true> d_process1;               // Р’РёРґРµРѕРїР°РјСЏС‚СЊ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РјРѕРґРµР»Рё С„РѕРЅР° РґР»СЏ РїРµСЂРІРѕРіРѕ РїСЂРѕС†РµСЃСЃР°
+		CCudaBuf<BgrndProcess, true> d_process2;               // Р’РёРґРµРѕРїР°РјСЏС‚СЊ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РјРѕРґРµР»Рё С„РѕРЅР° РґР»СЏ РІС‚РѕСЂРѕРіРѕ РїСЂРѕС†РµСЃСЃР°
+		CCudaBuf<BgrndProcess, true> d_process3;               // Р’РёРґРµРѕРїР°РјСЏС‚СЊ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РјРѕРґРµР»Рё С„РѕРЅР° РґР»СЏ С‚СЂРµС‚СЊРµРіРѕ РїСЂРѕС†РµСЃСЃР°
 #endif
 
-        static const float_t alpha3;                           // Параметр обучения низкочастотного фильтра рекурсивного сглаживания для веса процесса
-        static const float_t weight_threshold;                 // Порог для веса процесса
+        static const float_t alpha3;                           // РџР°СЂР°РјРµС‚СЂ РѕР±СѓС‡РµРЅРёСЏ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ РґР»СЏ РІРµСЃР° РїСЂРѕС†РµСЃСЃР°
+        static const float_t weight_threshold;                 // РџРѕСЂРѕРі РґР»СЏ РІРµСЃР° РїСЂРѕС†РµСЃСЃР°
 
-		// Вычитание фона
+		// Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
 		template<class PARAMS_CONT>
 #if !ADV_OUT
 #ifdef USE_GPU
@@ -463,7 +463,7 @@ typedef uint32_t ft_param_t;                 // Тип статистических характеристик
 #endif
 #endif
 
-		// Делает значения выборочного среднего в регионе равными текущим значениям пикселей
+		// Р”РµР»Р°РµС‚ Р·РЅР°С‡РµРЅРёСЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ РІ СЂРµРіРёРѕРЅРµ СЂР°РІРЅС‹РјРё С‚РµРєСѓС‰РёРј Р·РЅР°С‡РµРЅРёСЏРј РїРёРєСЃРµР»РµР№
 		template<class PARAMS_CONT>
         void reset_statistic_in_region(const uchar* buf, uint32_t pitch, PARAMS_CONT& params, const CObjectRegion& region);
 	};

@@ -55,31 +55,31 @@ namespace vl_feintrack
 {
 	////////////////////////////////////////////////////////////////////////////
 
-	// Распознавание объектов
+	// Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ
 	class CRecognition
 	{
 	public:
 		CRecognition();
 		~CRecognition();
 
-		// Распознавание объекта
+		// Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ РѕР±СЉРµРєС‚Р°
         object_types recognize_object(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask);
 
 	private:
-		// Является ли данная область похожей на голову
+		// РЇРІР»СЏРµС‚СЃСЏ Р»Рё РґР°РЅРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ РїРѕС…РѕР¶РµР№ РЅР° РіРѕР»РѕРІСѓ
 		bool is_head(int head_height, const hist_cont& h_hist, double &head_area, double& head_center, double& head_r_mu);
-		// Является ли данная область похожей на тело
+		// РЇРІР»СЏРµС‚СЃСЏ Р»Рё РґР°РЅРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ РїРѕС…РѕР¶РµР№ РЅР° С‚РµР»Рѕ
 		bool is_body(int body_height, const hist_cont& h_hist, double head_center, double head_r_mu, double legs_center, double& body_area);
 		
-		// Распознавание людей
+		// Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ Р»СЋРґРµР№
         object_types is_human(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask);
-		// Распознавание автомобиля
+		// Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ Р°РІС‚РѕРјРѕР±РёР»СЏ
         object_types is_vehicle(const CObjectRegion& region, uint32_t frame_width, const mask_type* mask);
-		// Распознавание животного
+		// Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ Р¶РёРІРѕС‚РЅРѕРіРѕ
         object_types is_animal(const CObjectRegion& region, uint32_t frame_width, const mask_type* mask);
 
 #if USE_HOG_RECOGNIZE
-		cv::HOGDescriptor hog; // Распознавание людей с помощью OpenCV'шного HOG
+		cv::HOGDescriptor hog; // Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ Р»СЋРґРµР№ СЃ РїРѕРјРѕС‰СЊСЋ OpenCV'С€РЅРѕРіРѕ HOG
 #endif
 	};
 	////////////////////////////////////////////////////////////////////////////

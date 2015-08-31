@@ -21,17 +21,17 @@ namespace vl_feintrack
 {
 ////////////////////////////////////////////////////////////////////////////
 
-const ft_param_t CBackSubstraction::min_sens = (ft_param_t)1;   // Минимальное и
-const ft_param_t CBackSubstraction::max_sens = (ft_param_t)10; // максимальное значение порога при вычитании фона (epsilon)
+const ft_param_t CBackSubstraction::min_sens = (ft_param_t)1;   // РњРёРЅРёРјР°Р»СЊРЅРѕРµ Рё
+const ft_param_t CBackSubstraction::max_sens = (ft_param_t)10; // РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РїРѕСЂРѕРіР° РїСЂРё РІС‹С‡РёС‚Р°РЅРёРё С„РѕРЅР° (epsilon)
 
-// Параметры обучения низкочастотного фильтра рекурсивного сглаживания
-const ft_param_t CBackSubstraction::alpha1 = (ft_param_t)10; // Для выборочного среднего
-const ft_param_t CBackSubstraction::alpha2 = (ft_param_t)10; // Для среднеквадратичного отклонения
+// РџР°СЂР°РјРµС‚СЂС‹ РѕР±СѓС‡РµРЅРёСЏ РЅРёР·РєРѕС‡Р°СЃС‚РѕС‚РЅРѕРіРѕ С„РёР»СЊС‚СЂР° СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ СЃРіР»Р°Р¶РёРІР°РЅРёСЏ
+const ft_param_t CBackSubstraction::alpha1 = (ft_param_t)10; // Р”Р»СЏ РІС‹Р±РѕСЂРѕС‡РЅРѕРіРѕ СЃСЂРµРґРЅРµРіРѕ
+const ft_param_t CBackSubstraction::alpha2 = (ft_param_t)10; // Р”Р»СЏ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ
 
-const ft_param_t CBackSubstraction::min_sigma_val = (ft_param_t)3;  // Минимальное и
-const ft_param_t CBackSubstraction::max_sigma_val = (ft_param_t)20; // максимальное значение для среднеквадратичного отклонения (используется при вычитании фона)
+const ft_param_t CBackSubstraction::min_sigma_val = (ft_param_t)3;  // РњРёРЅРёРјР°Р»СЊРЅРѕРµ Рё
+const ft_param_t CBackSubstraction::max_sigma_val = (ft_param_t)20; // РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё РІС‹С‡РёС‚Р°РЅРёРё С„РѕРЅР°)
 
-const ft_param_t CBackSubstraction::sunlight_threshold = (ft_param_t)150; // Порог значение пикселя для определения блика
+const ft_param_t CBackSubstraction::sunlight_threshold = (ft_param_t)150; // РџРѕСЂРѕРі Р·РЅР°С‡РµРЅРёРµ РїРёРєСЃРµР»СЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ Р±Р»РёРєР°
 ////////////////////////////////////////////////////////////////////////////
 
 CBackSubstraction::CBackSubstraction()
@@ -101,7 +101,7 @@ int CBackSubstraction::get_sensitivity() const
 
 void CBackSubstraction::set_show_objects(bool show_objects)
 {
-    // Если отображение объектов не нужно, то полностью отключаем анализ и удаляем статистику
+    // Р•СЃР»Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ РЅРµ РЅСѓР¶РЅРѕ, С‚Рѕ РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‚РєР»СЋС‡Р°РµРј Р°РЅР°Р»РёР· Рё СѓРґР°Р»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ
     if (!show_objects)
     {
         frame_width = 0;
@@ -169,7 +169,7 @@ void CNormBackSubstraction::set_show_objects(bool show_objects)
 {
     CBackSubstraction::set_show_objects(show_objects);
 
-    // Если отображение объектов не нужно, то полностью отключаем анализ и удаляем статистику
+    // Р•СЃР»Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ РЅРµ РЅСѓР¶РЅРѕ, С‚Рѕ РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‚РєР»СЋС‡Р°РµРј Р°РЅР°Р»РёР· Рё СѓРґР°Р»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ
     if (!show_objects)
     {
         rgb_params.clear();
@@ -294,7 +294,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 #endif
 #endif
 {
-    // Обучение в течение 1-й секунды: вычисляем выборочное среднее и среднеквадратичное отклонение
+    // РћР±СѓС‡РµРЅРёРµ РІ С‚РµС‡РµРЅРёРµ 1-Р№ СЃРµРєСѓРЅРґС‹: РІС‹С‡РёСЃР»СЏРµРј РІС‹Р±РѕСЂРѕС‡РЅРѕРµ СЃСЂРµРґРЅРµРµ Рё СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ
     if (!init_filter && (curr_frame < fps))
     {
         ++curr_frame;
@@ -327,7 +327,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
             if (use_cuda)
             {
 #ifdef USE_GPU
-                // Память под данные статистической модели
+                // РџР°РјСЏС‚СЊ РїРѕРґ РґР°РЅРЅС‹Рµ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ РјРѕРґРµР»Рё
                 switch (curr_color_type)
                 {
                 case buf_rgb24:
@@ -388,7 +388,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     if (++contrast_frame == contrast_time &&
             curr_color_type != buf_gray)
     {
-        // Необходимо ли использовать детектор теней
+        // РќРµРѕР±С…РѕРґРёРјРѕ Р»Рё РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґРµС‚РµРєС‚РѕСЂ С‚РµРЅРµР№
         contrast_frame = 0;
         use_shadow_detector = (get_contrast_rgb(buf, pitch, frame_width, frame_height, pixel_size) < contrast_threshold);
     }
@@ -396,11 +396,11 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     auto* par = &params[0];
     const uchar* pbuf = buf;
 
-    // Раз в секунду обновляем статистику - уточнение параметров фона
+    // Р Р°Р· РІ СЃРµРєСѓРЅРґСѓ РѕР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ - СѓС‚РѕС‡РЅРµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ С„РѕРЅР°
     bool curr_background_update = (curr_frame % fps == fps - 1) && need_background_update;
 
-    // Коэффициенты (0.587 / 0.144) и (0.299 / 0.144) служат как примитивный детектор теней
-    // Их значения взяты из формулы перевода RGB->YUV для компоненты яркости
+    // РљРѕСЌС„С„РёС†РёРµРЅС‚С‹ (0.587 / 0.144) Рё (0.299 / 0.144) СЃР»СѓР¶Р°С‚ РєР°Рє РїСЂРёРјРёС‚РёРІРЅС‹Р№ РґРµС‚РµРєС‚РѕСЂ С‚РµРЅРµР№
+    // РС… Р·РЅР°С‡РµРЅРёСЏ РІР·СЏС‚С‹ РёР· С„РѕСЂРјСѓР»С‹ РїРµСЂРµРІРѕРґР° RGB->YUV РґР»СЏ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЏСЂРєРѕСЃС‚Рё
     ft_param_t tmp_eps[3];
     if (use_shadow_detector)
     {
@@ -418,7 +418,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     if (use_cuda)
     {
 #ifdef USE_GPU
-        // Конвертация кадра в выровненный по 4 байта формат
+        // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РєР°РґСЂР° РІ РІС‹СЂРѕРІРЅРµРЅРЅС‹Р№ РїРѕ 4 Р±Р°Р№С‚Р° С„РѕСЂРјР°С‚
         switch (curr_color_type)
         {
         case buf_rgb24:
@@ -434,14 +434,14 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
             break;
         }
 
-        // Копирование кадра в видеопамять
+        // РљРѕРїРёСЂРѕРІР°РЅРёРµ РєР°РґСЂР° РІ РІРёРґРµРѕРїР°РјСЏС‚СЊ
         if (cudaMemcpy(d_bgr32.buf, h_frame_bgrxf.buf, d_bgr32.buf_size, cudaMemcpyHostToDevice) != cudaSuccess)
         {
             set_show_objects(false);
             return 0;
         }
 
-        // Выполняем вычитание фона
+        // Р’С‹РїРѕР»РЅСЏРµРј РІС‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
         if (curr_background_update)
         {
             PixelUpdateParams pup = { alpha1, alpha2, min_sigma_val, max_sigma_val };
@@ -473,7 +473,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     {
         ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
-        // Работа алгоритма вычитания фона
+        // Р Р°Р±РѕС‚Р° Р°Р»РіРѕСЂРёС‚РјР° РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
         size_t i = 0;
         pitch -= frame_width * pixel_size;
         if (get_detect_patches_of_sunlight())
@@ -482,7 +482,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
             {
                 for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
-                    // Классификация пикселя
+                    // РљР»Р°СЃСЃРёС„РёРєР°С†РёСЏ РїРёРєСЃРµР»СЏ
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
                         float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
@@ -490,19 +490,19 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 
                     if (par->is_back(float_src, tmp_eps) || is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
                     {
-                        // Пиксель принадлежит заднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ Р·Р°РґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 0;
 
                         if (curr_background_update)
                         {
-                            // Обновление параметров модели заднего плана
+                            // РћР±РЅРѕРІР»РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
                             par->recalc_mu(float_src, alpha1);
                             par->recalc_sigma(float_src, alpha2, min_sigma_val, max_sigma_val);
                         }
                     }
                     else
                     {
-                        // Пиксель принадлежит переднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїРµСЂРµРґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 1;
                     }
                     pbuf += pixel_size;
@@ -517,7 +517,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
             {
                 for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
-                    // Классификация пикселя
+                    // РљР»Р°СЃСЃРёС„РёРєР°С†РёСЏ РїРёРєСЃРµР»СЏ
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
                         float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
@@ -525,19 +525,19 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 
                     if (par->is_back(float_src, tmp_eps))
                     {
-                        // Пиксель принадлежит заднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ Р·Р°РґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 0;
 
                         if (curr_background_update)
                         {
-                            // Обновление параметров модели заднего плана
+                            // РћР±РЅРѕРІР»РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РјРѕРґРµР»Рё Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
                             par->recalc_mu(float_src, alpha1);
                             par->recalc_sigma(float_src, alpha2, min_sigma_val, max_sigma_val);
                         }
                     }
                     else
                     {
-                        // Пиксель принадлежит переднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїРµСЂРµРґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 1;
                     }
                     pbuf += pixel_size;
@@ -568,7 +568,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
                     adv_dest_buf[2] = (uchar)par->p[0].mu;
                 }
 
-                // Вывести все пиксели переднего плана другим цветом
+                // Р’С‹РІРµСЃС‚Рё РІСЃРµ РїРёРєСЃРµР»Рё РїРµСЂРµРґРЅРµРіРѕ РїР»Р°РЅР° РґСЂСѓРіРёРј С†РІРµС‚РѕРј
 #if 1
                 if (pixels_l[i])
                 {
@@ -631,7 +631,7 @@ void CNormBackSubstraction::update_statistic_in_region(const uchar* buf, uint32_
     }
     else
     {
-        // Просматриваем прямоугольник региона и в каждом пикселе обновляем статистику
+        // РџСЂРѕСЃРјР°С‚СЂРёРІР°РµРј РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЂРµРіРёРѕРЅР° Рё РІ РєР°Р¶РґРѕРј РїРёРєСЃРµР»Рµ РѕР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ
         int w1 = pitch - pixel_size * region.width();
         int w2 = frame_width - region.width();
 
@@ -691,7 +691,7 @@ void CNormBackSubstraction::reset_statistic_in_region(const uchar* buf, uint32_t
     }
     else
     {
-        // Просматриваем прямоугольник региона и значение каждого пикселя присваиваем выборочному среднему
+        // РџСЂРѕСЃРјР°С‚СЂРёРІР°РµРј РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЂРµРіРёРѕРЅР° Рё Р·РЅР°С‡РµРЅРёРµ РєР°Р¶РґРѕРіРѕ РїРёРєСЃРµР»СЏ РїСЂРёСЃРІР°РёРІР°РµРј РІС‹Р±РѕСЂРѕС‡РЅРѕРјСѓ СЃСЂРµРґРЅРµРјСѓ
         int w1 = pitch - pixel_size * region.width();
         int w2 = frame_width - region.width();
 
@@ -745,7 +745,7 @@ void CGaussianMixtureBackSubstr::set_show_objects(bool show_objects)
 {
     CBackSubstraction::set_show_objects(show_objects);
 
-    // Если отображение объектов не нужно, то полностью отключаем анализ и удаляем статистику
+    // Р•СЃР»Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ РЅРµ РЅСѓР¶РЅРѕ, С‚Рѕ РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‚РєР»СЋС‡Р°РµРј Р°РЅР°Р»РёР· Рё СѓРґР°Р»СЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ
     if (!show_objects)
     {
         rgb_params.clear();
@@ -858,7 +858,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 #endif
 #endif
 {
-    // Обучение в течение 1-й секунды: вычисляем выборочное среднее и среднеквадратичное отклонение
+    // РћР±СѓС‡РµРЅРёРµ РІ С‚РµС‡РµРЅРёРµ 1-Р№ СЃРµРєСѓРЅРґС‹: РІС‹С‡РёСЃР»СЏРµРј РІС‹Р±РѕСЂРѕС‡РЅРѕРµ СЃСЂРµРґРЅРµРµ Рё СЃСЂРµРґРЅРµРєРІР°РґСЂР°С‚РёС‡РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ
     if (!init_filter && (curr_frame < fps))
     {
         ++curr_frame;
@@ -891,7 +891,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
             if (use_cuda)
             {
 #ifdef USE_GPU
-                // Память под данные статистической модели
+                // РџР°РјСЏС‚СЊ РїРѕРґ РґР°РЅРЅС‹Рµ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ РјРѕРґРµР»Рё
                 switch (curr_color_type)
                 {
                 case buf_rgb24:
@@ -966,7 +966,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
     if (use_cuda)
     {
 #ifdef USE_GPU
-        // Конвертация кадра в выровненный по 4 байта формат
+        // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РєР°РґСЂР° РІ РІС‹СЂРѕРІРЅРµРЅРЅС‹Р№ РїРѕ 4 Р±Р°Р№С‚Р° С„РѕСЂРјР°С‚
         switch (curr_color_type)
         {
         case buf_rgb24:
@@ -982,14 +982,14 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
             break;
         }
 
-        // Копирование кадра в видеопамять
+        // РљРѕРїРёСЂРѕРІР°РЅРёРµ РєР°РґСЂР° РІ РІРёРґРµРѕРїР°РјСЏС‚СЊ
         if (cudaMemcpy(d_bgr32.buf, h_frame_bgrxf.buf, d_bgr32.buf_size, cudaMemcpyHostToDevice) != cudaSuccess)
         {
             set_show_objects(false);
             return 0;
         }
 
-        // Выполняем вычитание фона
+        // Р’С‹РїРѕР»РЅСЏРµРј РІС‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
         PixelUpdateParams pup = { alpha1, alpha2, min_sigma_val, max_sigma_val };
         MixturePixelUpdateParams mup = { alpha3, weight_threshold };
 
@@ -1005,7 +1005,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
     {
         ft_param_t float_src[PARAMS_CONT::value_type::PIXEL_VALUES];
 
-        // Работа алгоритма вычитания фона
+        // Р Р°Р±РѕС‚Р° Р°Р»РіРѕСЂРёС‚РјР° РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
         size_t i = 0;
         pitch -= frame_width * pixel_size;
         if (get_detect_patches_of_sunlight())
@@ -1014,7 +1014,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
             {
                 for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
-                    // Классификация пикселя
+                    // РљР»Р°СЃСЃРёС„РёРєР°С†РёСЏ РїРёРєСЃРµР»СЏ
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
                         float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
@@ -1023,12 +1023,12 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
                     if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold) ||
                             is_patch_of_sunlight(float_src, PARAMS_CONT::value_type::PIXEL_VALUES))
                     {
-                        // Пиксель принадлежит заднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ Р·Р°РґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 0;
                     }
                     else
                     {
-                        // Пиксель принадлежит переднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїРµСЂРµРґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 1;
                     }
                     pbuf += pixel_size;
@@ -1043,7 +1043,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
             {
                 for (uint32_t x = 0; x < frame_width; ++x, ++i)
                 {
-                    // Классификация пикселя
+                    // РљР»Р°СЃСЃРёС„РёРєР°С†РёСЏ РїРёРєСЃРµР»СЏ
                     for (size_t vc = 0; vc < PARAMS_CONT::value_type::PIXEL_VALUES; ++vc)
                     {
                         float_src[vc] = static_cast<ft_param_t>(pbuf[vc]);
@@ -1051,12 +1051,12 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
 
                     if (par->is_back(float_src, tmp_eps, alpha1, alpha2, alpha3, min_sigma_val, max_sigma_val, weight_threshold))
                     {
-                        // Пиксель принадлежит заднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ Р·Р°РґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 0;
                     }
                     else
                     {
-                        // Пиксель принадлежит переднему плану
+                        // РџРёРєСЃРµР»СЊ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїРµСЂРµРґРЅРµРјСѓ РїР»Р°РЅСѓ
                         pixels_l[i] = 1;
                     }
                     pbuf += pixel_size;
@@ -1087,7 +1087,7 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
                     adv_dest_buf[2] = (uchar)par->proc_list[par->curr_proc].p[0].mu;
                 }
 
-                // Вывести все пиксели переднего плана другим цветом
+                // Р’С‹РІРµСЃС‚Рё РІСЃРµ РїРёРєСЃРµР»Рё РїРµСЂРµРґРЅРµРіРѕ РїР»Р°РЅР° РґСЂСѓРіРёРј С†РІРµС‚РѕРј
 #if 1
                 if (pixels_l[i])
                 {
@@ -1132,7 +1132,7 @@ void CGaussianMixtureBackSubstr::reset_statistic_in_region(const uchar* buf, uin
     }
     else
     {
-        // Просматриваем прямоугольник региона и значение каждого пикселя присваиваем выборочному среднему
+        // РџСЂРѕСЃРјР°С‚СЂРёРІР°РµРј РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЂРµРіРёРѕРЅР° Рё Р·РЅР°С‡РµРЅРёРµ РєР°Р¶РґРѕРіРѕ РїРёРєСЃРµР»СЏ РїСЂРёСЃРІР°РёРІР°РµРј РІС‹Р±РѕСЂРѕС‡РЅРѕРјСѓ СЃСЂРµРґРЅРµРјСѓ
         int w1 = pitch - pixel_size * region.width();
         int w2 = frame_width - region.width();
 

@@ -17,197 +17,197 @@ namespace vl_feintrack
 	typedef std::basic_string<char> mstring;
 	////////////////////////////////////////////////////////////////////////////
 
-	// Выделение и сопровождение объектов
+	// Р’С‹РґРµР»РµРЅРёРµ Рё СЃРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ
 	class CFeinTrack
 	{
 	private:
-		static const float_t density_threshold;  // Порог плотности региона. Регионы с уровнем плотности ниже этого порога сразу удаляются
+		static const float_t density_threshold;  // РџРѕСЂРѕРі РїР»РѕС‚РЅРѕСЃС‚Рё СЂРµРіРёРѕРЅР°. Р РµРіРёРѕРЅС‹ СЃ СѓСЂРѕРІРЅРµРј РїР»РѕС‚РЅРѕСЃС‚Рё РЅРёР¶Рµ СЌС‚РѕРіРѕ РїРѕСЂРѕРіР° СЃСЂР°Р·Сѓ СѓРґР°Р»СЏСЋС‚СЃСЏ
 
-		bool use_square_segmentation;            // Использовать сегментацию объектов как прямоугольных регионов. Иначе используется 8-ми связность
+		bool use_square_segmentation;            // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃРµРіРјРµРЅС‚Р°С†РёСЋ РѕР±СЉРµРєС‚РѕРІ РєР°Рє РїСЂСЏРјРѕСѓРіРѕР»СЊРЅС‹С… СЂРµРіРёРѕРЅРѕРІ. РРЅР°С‡Рµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ 8-РјРё СЃРІСЏР·РЅРѕСЃС‚СЊ
 
-		int left_object_time0;                   // Время, после которого объект заносится в список объектов, возможно являющихся оставленными
-		int left_object_time1;                   // Время, после которого объект считается похожим на оставленный
-		int left_object_time2;                   // Время, после которого объект считается оставленным
-		int left_object_time3;                   // Время, после которого оставленный предмет удаляется
+		int left_object_time0;                   // Р’СЂРµРјСЏ, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕР±СЉРµРєС‚ Р·Р°РЅРѕСЃРёС‚СЃСЏ РІ СЃРїРёСЃРѕРє РѕР±СЉРµРєС‚РѕРІ, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё
+		int left_object_time1;                   // Р’СЂРµРјСЏ, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕР±СЉРµРєС‚ СЃС‡РёС‚Р°РµС‚СЃСЏ РїРѕС…РѕР¶РёРј РЅР° РѕСЃС‚Р°РІР»РµРЅРЅС‹Р№
+		int left_object_time2;                   // Р’СЂРµРјСЏ, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕР±СЉРµРєС‚ СЃС‡РёС‚Р°РµС‚СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹Рј
+		int left_object_time3;                   // Р’СЂРµРјСЏ, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕСЃС‚Р°РІР»РµРЅРЅС‹Р№ РїСЂРµРґРјРµС‚ СѓРґР°Р»СЏРµС‚СЃСЏ
 
-		int left_object_time1_sec;               // Время в секундах, после которого объект считается похожим на оставленный
-		int left_object_time2_sec;               // Время в секундах, после которого объект считается оставленным
-		int left_object_time3_sec;               // Время в секундах, после которого оставленный предмет удаляется
+		int left_object_time1_sec;               // Р’СЂРµРјСЏ РІ СЃРµРєСѓРЅРґР°С…, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕР±СЉРµРєС‚ СЃС‡РёС‚Р°РµС‚СЃСЏ РїРѕС…РѕР¶РёРј РЅР° РѕСЃС‚Р°РІР»РµРЅРЅС‹Р№
+		int left_object_time2_sec;               // Р’СЂРµРјСЏ РІ СЃРµРєСѓРЅРґР°С…, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕР±СЉРµРєС‚ СЃС‡РёС‚Р°РµС‚СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹Рј
+		int left_object_time3_sec;               // Р’СЂРµРјСЏ РІ СЃРµРєСѓРЅРґР°С…, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕРіРѕ РѕСЃС‚Р°РІР»РµРЅРЅС‹Р№ РїСЂРµРґРјРµС‚ СѓРґР°Р»СЏРµС‚СЃСЏ
 
-        uint32_t frame_width;                    // Ширина
-        uint32_t frame_height;                   // и высота одного кадра в пикселях
-		color_type curr_color_type;              // Текущий тип цветового пространства анализируемого кадра
+        uint32_t frame_width;                    // РЁРёСЂРёРЅР°
+        uint32_t frame_height;                   // Рё РІС‹СЃРѕС‚Р° РѕРґРЅРѕРіРѕ РєР°РґСЂР° РІ РїРёРєСЃРµР»СЏС…
+		color_type curr_color_type;              // РўРµРєСѓС‰РёР№ С‚РёРї С†РІРµС‚РѕРІРѕРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° Р°РЅР°Р»РёР·РёСЂСѓРµРјРѕРіРѕ РєР°РґСЂР°
 
-		int fps;                                 // Количество кадров в секунду, поступающих на фильтр. Обновление статистики производится раз в секунду. Время будет измеряться по кадрам.
-		int selection_time;                      // Временной порог селекции объектов
-		int curr_frame;                          // Номер текущего кадра
+		int fps;                                 // РљРѕР»РёС‡РµСЃС‚РІРѕ РєР°РґСЂРѕРІ РІ СЃРµРєСѓРЅРґСѓ, РїРѕСЃС‚СѓРїР°СЋС‰РёС… РЅР° С„РёР»СЊС‚СЂ. РћР±РЅРѕРІР»РµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ СЂР°Р· РІ СЃРµРєСѓРЅРґСѓ. Р’СЂРµРјСЏ Р±СѓРґРµС‚ РёР·РјРµСЂСЏС‚СЊСЃСЏ РїРѕ РєР°РґСЂР°Рј.
+		int selection_time;                      // Р’СЂРµРјРµРЅРЅРѕР№ РїРѕСЂРѕРі СЃРµР»РµРєС†РёРё РѕР±СЉРµРєС‚РѕРІ
+		int curr_frame;                          // РќРѕРјРµСЂ С‚РµРєСѓС‰РµРіРѕ РєР°РґСЂР°
 
-		bool cut_shadows;                        // Убирать тени, основываясь на анализе формы объекта
+		bool cut_shadows;                        // РЈР±РёСЂР°С‚СЊ С‚РµРЅРё, РѕСЃРЅРѕРІС‹РІР°СЏСЃСЊ РЅР° Р°РЅР°Р»РёР·Рµ С„РѕСЂРјС‹ РѕР±СЉРµРєС‚Р°
 
-		bool use_cuda;                           // Использовать CUDA для вычитания фона и морфологии
-		int cuda_device_ind;                     // Индекс используемого устройства, поддерживающего CUDA
+		bool use_cuda;                           // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ CUDA РґР»СЏ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР° Рё РјРѕСЂС„РѕР»РѕРіРёРё
+		int cuda_device_ind;                     // РРЅРґРµРєСЃ РёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°, РїРѕРґРґРµСЂР¶РёРІР°СЋС‰РµРіРѕ CUDA
 
-        int pixel_size;                          // Размер одного пикселя в байтах
+        int pixel_size;                          // Р Р°Р·РјРµСЂ РѕРґРЅРѕРіРѕ РїРёРєСЃРµР»СЏ РІ Р±Р°Р№С‚Р°С…
 
-		bool use_morphology;                     // Использовать операцию математической морфологии "открытие" для результатов вычитания фона
+		bool use_morphology;                     // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕРїРµСЂР°С†РёСЋ РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕР№ РјРѕСЂС„РѕР»РѕРіРёРё "РѕС‚РєСЂС‹С‚РёРµ" РґР»СЏ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 
-		int min_region_width;                    // Минимальная ширина и
-		int min_region_height;                   // высота региона
+		int min_region_width;                    // РњРёРЅРёРјР°Р»СЊРЅР°СЏ С€РёСЂРёРЅР° Рё
+		int min_region_height;                   // РІС‹СЃРѕС‚Р° СЂРµРіРёРѕРЅР°
 
-		int left_padding;                        // Отступ от левого и
-		int top_padding;                         // верхнего угла кадра при наличии ограничения
-		RECT_ analyze_area;                      // Часть кадра, которая будет анализироваться
+		int left_padding;                        // РћС‚СЃС‚СѓРї РѕС‚ Р»РµРІРѕРіРѕ Рё
+		int top_padding;                         // РІРµСЂС…РЅРµРіРѕ СѓРіР»Р° РєР°РґСЂР° РїСЂРё РЅР°Р»РёС‡РёРё РѕРіСЂР°РЅРёС‡РµРЅРёСЏ
+		RECT_ analyze_area;                      // Р§Р°СЃС‚СЊ РєР°РґСЂР°, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ Р°РЅР°Р»РёР·РёСЂРѕРІР°С‚СЊСЃСЏ
 
-		bool need_background_update;             // Обновлять ли модель заднего плана
+		bool need_background_update;             // РћР±РЅРѕРІР»СЏС‚СЊ Р»Рё РјРѕРґРµР»СЊ Р·Р°РґРЅРµРіРѕ РїР»Р°РЅР°
 
-		regions_container regions;                                // Список регионов на последнем кадре
-        void regions_preprocessing(const uchar* buf, uint32_t pitch); // Предварительный анализ и обработка регионов: отсечение теней, удаление маленьких регионов и т.д.
+		regions_container regions;                                // РЎРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ РЅР° РїРѕСЃР»РµРґРЅРµРј РєР°РґСЂРµ
+        void regions_preprocessing(const uchar* buf, uint32_t pitch); // РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Р№ Р°РЅР°Р»РёР· Рё РѕР±СЂР°Р±РѕС‚РєР° СЂРµРіРёРѕРЅРѕРІ: РѕС‚СЃРµС‡РµРЅРёРµ С‚РµРЅРµР№, СѓРґР°Р»РµРЅРёРµ РјР°Р»РµРЅСЊРєРёС… СЂРµРіРёРѕРЅРѕРІ Рё С‚.Рґ.
 #if !ADV_OUT
-        void tracking_objects(const uchar* buf, uint32_t pitch);      // Анализ регионов и добавление подходящих на вывод
+        void tracking_objects(const uchar* buf, uint32_t pitch);      // РђРЅР°Р»РёР· СЂРµРіРёРѕРЅРѕРІ Рё РґРѕР±Р°РІР»РµРЅРёРµ РїРѕРґС…РѕРґСЏС‰РёС… РЅР° РІС‹РІРѕРґ
 #else
-        void tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_buf_rgb24); // Анализ регионов
+        void tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_buf_rgb24); // РђРЅР°Р»РёР· СЂРµРіРёРѕРЅРѕРІ
 #endif
 
-		objects_container objects_history;                    // Список объектов, найденных на предыдущих кадрах
+		objects_container objects_history;                    // РЎРїРёСЃРѕРє РѕР±СЉРµРєС‚РѕРІ, РЅР°Р№РґРµРЅРЅС‹С… РЅР° РїСЂРµРґС‹РґСѓС‰РёС… РєР°РґСЂР°С…
 
-        void add_uid_to_del_objects(unsigned int uid);               // Добавление иденфификатора с списку удалёных объектов
-        void del_object(std::unique_ptr<CTrackingObject>& object, bool del_adv_data); // Удаление объекта и связанных с ним данных
-        std::vector<unsigned int> del_objects;                       // Массив координат объектов. Заполняется для рисования прямоугольников. Валиден до прихода следующего кадра
-		size_t del_objects_count;                             // Количество найденных объектов на последнем кадре
+        void add_uid_to_del_objects(unsigned int uid);               // Р”РѕР±Р°РІР»РµРЅРёРµ РёРґРµРЅС„РёС„РёРєР°С‚РѕСЂР° СЃ СЃРїРёСЃРєСѓ СѓРґР°Р»С‘РЅС‹С… РѕР±СЉРµРєС‚РѕРІ
+        void del_object(std::unique_ptr<CTrackingObject>& object, bool del_adv_data); // РЈРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚Р° Рё СЃРІСЏР·Р°РЅРЅС‹С… СЃ РЅРёРј РґР°РЅРЅС‹С…
+        std::vector<unsigned int> del_objects;                       // РњР°СЃСЃРёРІ РєРѕРѕСЂРґРёРЅР°С‚ РѕР±СЉРµРєС‚РѕРІ. Р—Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРІ. Р’Р°Р»РёРґРµРЅ РґРѕ РїСЂРёС…РѕРґР° СЃР»РµРґСѓСЋС‰РµРіРѕ РєР°РґСЂР°
+		size_t del_objects_count;                             // РљРѕР»РёС‡РµСЃС‚РІРѕ РЅР°Р№РґРµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ РЅР° РїРѕСЃР»РµРґРЅРµРј РєР°РґСЂРµ
 
-        unsigned int get_free_uid() const;                           // Получение свободного иденификатора объекта
+        unsigned int get_free_uid() const;                           // РџРѕР»СѓС‡РµРЅРёРµ СЃРІРѕР±РѕРґРЅРѕРіРѕ РёРґРµРЅРёС„РёРєР°С‚РѕСЂР° РѕР±СЉРµРєС‚Р°
 
-		regions_container::iterator find_region_by_center(int c_x, int c_y, int width, int height); // Поиск подходящего региона по координатам центра объекта
-        regions_container::iterator find_region_by_hist(const uchar* buf, int pitch, const std::unique_ptr<CTrackingObject>& obj);  // Поиск региона по гистограмме
+		regions_container::iterator find_region_by_center(int c_x, int c_y, int width, int height); // РџРѕРёСЃРє РїРѕРґС…РѕРґСЏС‰РµРіРѕ СЂРµРіРёРѕРЅР° РїРѕ РєРѕРѕСЂРґРёРЅР°С‚Р°Рј С†РµРЅС‚СЂР° РѕР±СЉРµРєС‚Р°
+        regions_container::iterator find_region_by_hist(const uchar* buf, int pitch, const std::unique_ptr<CTrackingObject>& obj);  // РџРѕРёСЃРє СЂРµРіРёРѕРЅР° РїРѕ РіРёСЃС‚РѕРіСЂР°РјРјРµ
 
-		float_t weight_threshold;                             // Порог. Объекты с весом ниже него признаются несущественными или устаревшими и удаляются
-		float_t weight_alpha;                                 // Коэффициент, отвечающий за величину обучения веса региона на каждом шаге
+		float_t weight_threshold;                             // РџРѕСЂРѕРі. РћР±СЉРµРєС‚С‹ СЃ РІРµСЃРѕРј РЅРёР¶Рµ РЅРµРіРѕ РїСЂРёР·РЅР°СЋС‚СЃСЏ РЅРµСЃСѓС‰РµСЃС‚РІРµРЅРЅС‹РјРё РёР»Рё СѓСЃС‚Р°СЂРµРІС€РёРјРё Рё СѓРґР°Р»СЏСЋС‚СЃСЏ
+		float_t weight_alpha;                                 // РљРѕСЌС„С„РёС†РёРµРЅС‚, РѕС‚РІРµС‡Р°СЋС‰РёР№ Р·Р° РІРµР»РёС‡РёРЅСѓ РѕР±СѓС‡РµРЅРёСЏ РІРµСЃР° СЂРµРіРёРѕРЅР° РЅР° РєР°Р¶РґРѕРј С€Р°РіРµ
 
-		std::vector<CObjRect> obj_rects;                      // Массив координат объектов. Заполняется для рисования прямоугольников. Валиден до прихода следующего кадра
-		size_t objects_count;                                 // Количество найденных объектов на последнем кадре
+		std::vector<CObjRect> obj_rects;                      // РњР°СЃСЃРёРІ РєРѕРѕСЂРґРёРЅР°С‚ РѕР±СЉРµРєС‚РѕРІ. Р—Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРІ. Р’Р°Р»РёРґРµРЅ РґРѕ РїСЂРёС…РѕРґР° СЃР»РµРґСѓСЋС‰РµРіРѕ РєР°РґСЂР°
+		size_t objects_count;                                 // РљРѕР»РёС‡РµСЃС‚РІРѕ РЅР°Р№РґРµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ РЅР° РїРѕСЃР»РµРґРЅРµРј РєР°РґСЂРµ
 
-		std::list<CShadyLeftObj> shady_left_objects;          // Объекты, возможно являющиеся оставленными предметами
-		void add_to_shady_left_objects(CTrackingObject &obj); // Добавление объекта к списку объектов, возможно являющихся оставленными предметами
-        void del_from_shady_left_objects(unsigned int obj_uid);      // Удаление объекта из списка объектов, возможно являющихся оставленными предметами
-        void del_uid_from_shady_left_objects(unsigned int obj_uid);  // Удаление идентификатора объекта из списка объектов, возможно являющихся оставленными предметами
-        void inc_time_shady_left_objects(unsigned int obj_uid);      // Увеличение времени жизни объекта
-		void analyze_shady_left_objects();                    // Удаление объектов, не обнаруживающихся в течение некоторого времени
+		std::list<CShadyLeftObj> shady_left_objects;          // РћР±СЉРµРєС‚С‹, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёРµСЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё РїСЂРµРґРјРµС‚Р°РјРё
+		void add_to_shady_left_objects(CTrackingObject &obj); // Р”РѕР±Р°РІР»РµРЅРёРµ РѕР±СЉРµРєС‚Р° Рє СЃРїРёСЃРєСѓ РѕР±СЉРµРєС‚РѕРІ, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё РїСЂРµРґРјРµС‚Р°РјРё
+        void del_from_shady_left_objects(unsigned int obj_uid);      // РЈРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚Р° РёР· СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё РїСЂРµРґРјРµС‚Р°РјРё
+        void del_uid_from_shady_left_objects(unsigned int obj_uid);  // РЈРґР°Р»РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РѕР±СЉРµРєС‚Р° РёР· СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ, РІРѕР·РјРѕР¶РЅРѕ СЏРІР»СЏСЋС‰РёС…СЃСЏ РѕСЃС‚Р°РІР»РµРЅРЅС‹РјРё РїСЂРµРґРјРµС‚Р°РјРё
+        void inc_time_shady_left_objects(unsigned int obj_uid);      // РЈРІРµР»РёС‡РµРЅРёРµ РІСЂРµРјРµРЅРё Р¶РёР·РЅРё РѕР±СЉРµРєС‚Р°
+		void analyze_shady_left_objects();                    // РЈРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ, РЅРµ РѕР±РЅР°СЂСѓР¶РёРІР°СЋС‰РёС…СЃСЏ РІ С‚РµС‡РµРЅРёРµ РЅРµРєРѕС‚РѕСЂРѕРіРѕ РІСЂРµРјРµРЅРё
 
-		std::vector<CLeftObjRect> left_obj_rects;             // Массив координат оставленных объектов. Заполняется для рисования прямоугольников. Валиден до прихода следующего кадра
-		size_t left_objects_count;                            // Количество оставленных объектов
-		bool show_left_objects;                               // Подавать на отображение оставленные предметы
+		std::vector<CLeftObjRect> left_obj_rects;             // РњР°СЃСЃРёРІ РєРѕРѕСЂРґРёРЅР°С‚ РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ. Р—Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРІ. Р’Р°Р»РёРґРµРЅ РґРѕ РїСЂРёС…РѕРґР° СЃР»РµРґСѓСЋС‰РµРіРѕ РєР°РґСЂР°
+		size_t left_objects_count;                            // РљРѕР»РёС‡РµСЃС‚РІРѕ РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
+		bool show_left_objects;                               // РџРѕРґР°РІР°С‚СЊ РЅР° РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ РѕСЃС‚Р°РІР»РµРЅРЅС‹Рµ РїСЂРµРґРјРµС‚С‹
 
-		bool show_objects;                                    // Отображать объекты
-		bool show_trajectory;                                 // Отображать траектории объектов
+		bool show_objects;                                    // РћС‚РѕР±СЂР°Р¶Р°С‚СЊ РѕР±СЉРµРєС‚С‹
+		bool show_trajectory;                                 // РћС‚РѕР±СЂР°Р¶Р°С‚СЊ С‚СЂР°РµРєС‚РѕСЂРёРё РѕР±СЉРµРєС‚РѕРІ
 
-		std::list<CLeftObjView> lefted_objects;               // Оставленные предметы
-		void analyze_lefted_objects();                        // Анализ оставленных предметов
+		std::list<CLeftObjView> lefted_objects;               // РћСЃС‚Р°РІР»РµРЅРЅС‹Рµ РїСЂРµРґРјРµС‚С‹
+		void analyze_lefted_objects();                        // РђРЅР°Р»РёР· РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
 
-		lines_cont lines;                                     // Список пользовательских линий с реальными координатами на кадре
-		lines_cont correct_lines;                             // Список пользовательских линий с координатами относительно области анализа
-		void recalc_correct_lines();                          // Пересчёт координат линий на кадре
+		lines_cont lines;                                     // РЎРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… Р»РёРЅРёР№ СЃ СЂРµР°Р»СЊРЅС‹РјРё РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё РЅР° РєР°РґСЂРµ
+		lines_cont correct_lines;                             // РЎРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… Р»РёРЅРёР№ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РѕР±Р»Р°СЃС‚Рё Р°РЅР°Р»РёР·Р°
+		void recalc_correct_lines();                          // РџРµСЂРµСЃС‡С‘С‚ РєРѕРѕСЂРґРёРЅР°С‚ Р»РёРЅРёР№ РЅР° РєР°РґСЂРµ
 
-        bool with_line_intersect(const CTrackingObject &obj, int new_center_x, int new_center_y); // Проверка пересечения объектом линии
+        bool with_line_intersect(const CTrackingObject &obj, int new_center_x, int new_center_y); // РџСЂРѕРІРµСЂРєР° РїРµСЂРµСЃРµС‡РµРЅРёСЏ РѕР±СЉРµРєС‚РѕРј Р»РёРЅРёРё
 
-		zones_cont zones;                                     // Список зон детекции с реальными координатами на кадре
-		zones_cont correct_zones;                             // Список зон детекции с координатами относительно области анализа
-		void recalc_correct_zones();                          // Пересчёт координат зон на кадре
-		template<class T> bool is_in_zone(const T &rect, mstring *zone_name) const; // Попадает ли прямоугольник в список зон детекции
-		template<class T> const CZone* get_zone(const T &rect) const;               // Получение зоны, в которую попадает прямоугольник
+		zones_cont zones;                                     // РЎРїРёСЃРѕРє Р·РѕРЅ РґРµС‚РµРєС†РёРё СЃ СЂРµР°Р»СЊРЅС‹РјРё РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё РЅР° РєР°РґСЂРµ
+		zones_cont correct_zones;                             // РЎРїРёСЃРѕРє Р·РѕРЅ РґРµС‚РµРєС†РёРё СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РѕР±Р»Р°СЃС‚Рё Р°РЅР°Р»РёР·Р°
+		void recalc_correct_zones();                          // РџРµСЂРµСЃС‡С‘С‚ РєРѕРѕСЂРґРёРЅР°С‚ Р·РѕРЅ РЅР° РєР°РґСЂРµ
+		template<class T> bool is_in_zone(const T &rect, mstring *zone_name) const; // РџРѕРїР°РґР°РµС‚ Р»Рё РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє РІ СЃРїРёСЃРѕРє Р·РѕРЅ РґРµС‚РµРєС†РёРё
+		template<class T> const CZone* get_zone(const T &rect) const;               // РџРѕР»СѓС‡РµРЅРёРµ Р·РѕРЅС‹, РІ РєРѕС‚РѕСЂСѓСЋ РїРѕРїР°РґР°РµС‚ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє
 
-		template<class T> void add_object_to_out_rects(const T &rect, const CTrackingObject &object, object_types obj_type, const mstring &zone_name); // Добавление объекта на вывод
-		void add_left_object_to_out_rects(const CLeftObjView &left_obj, CLeftObjRect::types type); // Добавление оставленного предмета на вывод
+		template<class T> void add_object_to_out_rects(const T &rect, const CTrackingObject &object, object_types obj_type, const mstring &zone_name); // Р”РѕР±Р°РІР»РµРЅРёРµ РѕР±СЉРµРєС‚Р° РЅР° РІС‹РІРѕРґ
+		void add_left_object_to_out_rects(const CLeftObjView &left_obj, CLeftObjRect::types type); // Р”РѕР±Р°РІР»РµРЅРёРµ РѕСЃС‚Р°РІР»РµРЅРЅРѕРіРѕ РїСЂРµРґРјРµС‚Р° РЅР° РІС‹РІРѕРґ
 
-        bool use_recognition;                                // Использовать распознавание объектов
+        bool use_recognition;                                // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЂР°СЃРїРѕР·РЅР°РІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ
 
-        bool cut_shadow(CObjectRegion& region);              // Отсечение тени
+        bool cut_shadow(CObjectRegion& region);              // РћС‚СЃРµС‡РµРЅРёРµ С‚РµРЅРё
 
-		objects_container::iterator get_object_by_region(const CObjectRegion& region, objects_container::iterator from_obj); //Получение объекта, наиболее приближённого к данному региону
+		objects_container::iterator get_object_by_region(const CObjectRegion& region, objects_container::iterator from_obj); //РџРѕР»СѓС‡РµРЅРёРµ РѕР±СЉРµРєС‚Р°, РЅР°РёР±РѕР»РµРµ РїСЂРёР±Р»РёР¶С‘РЅРЅРѕРіРѕ Рє РґР°РЅРЅРѕРјСѓ СЂРµРіРёРѕРЅСѓ
 
-        bgrnd_substr_types bgrnd_type;                       // Тип алгоритма вычитания фона
+        bgrnd_substr_types bgrnd_type;                       // РўРёРї Р°Р»РіРѕСЂРёС‚РјР° РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 
-        std::unique_ptr<CBackSubstraction> back_substractor; // Вычитание фона
-        CSegmentation segmentator;                           // Сегментация объектов переднего плана в регионы
-        CRecognition recognizer;                             // Распознавание объектов
+        std::unique_ptr<CBackSubstraction> back_substractor; // Р’С‹С‡РёС‚Р°РЅРёРµ С„РѕРЅР°
+        CSegmentation segmentator;                           // РЎРµРіРјРµРЅС‚Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ РїРµСЂРµРґРЅРµРіРѕ РїР»Р°РЅР° РІ СЂРµРіРёРѕРЅС‹
+        CRecognition recognizer;                             // Р Р°СЃРїРѕР·РЅР°РІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ
 
 	public:
 		CFeinTrack();
 		~CFeinTrack();
 
 #if !ADV_OUT
-        int new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type); // Анализ очередного кадра
+        int new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type); // РђРЅР°Р»РёР· РѕС‡РµСЂРµРґРЅРѕРіРѕ РєР°РґСЂР°
 #else
-        int new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type, uchar* adv_buf_rgb24); // Анализ очередного кадра
+        int new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint32_t height, color_type buf_type, uchar* adv_buf_rgb24); // РђРЅР°Р»РёР· РѕС‡РµСЂРµРґРЅРѕРіРѕ РєР°РґСЂР°
 #endif
 
-		void set_sensitivity(int sens_level);                           // Задаёт уровень чувствительности для вычитания фона (от 1 до 100)
-		int get_sensitivity() const;                                    // Получение уровня чувствительности для вычитания фона (от 1 до 100)
+		void set_sensitivity(int sens_level);                           // Р—Р°РґР°С‘С‚ СѓСЂРѕРІРµРЅСЊ С‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚Рё РґР»СЏ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР° (РѕС‚ 1 РґРѕ 100)
+		int get_sensitivity() const;                                    // РџРѕР»СѓС‡РµРЅРёРµ СѓСЂРѕРІРЅСЏ С‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚Рё РґР»СЏ РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР° (РѕС‚ 1 РґРѕ 100)
 
-		void get_objects(CObjRect* &rect_arr, size_t& rect_count);      // Получение списка отображаемых объектов, обнаруженных на последнем кадре
-        void set_one_object(unsigned int uid, int left, int right, int top, int bottom); // Задание координат единственного объекта, который будет отображаться на кадре
-		bool get_object_points(size_t obj_ind, POINTF* points, size_t& max_points); // Получение набора точек, принадлежащих объекту
-        void get_del_objects(unsigned int* &uids_arr, size_t& uids_count);     // Получение списка идентификаторов удалённых на последнем кадре объектов
-		void get_left_objects(CLeftObjRect* &rect_arr, size_t& rect_count); // Получение списка оставленных объектов
+		void get_objects(CObjRect* &rect_arr, size_t& rect_count);      // РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹С… РѕР±СЉРµРєС‚РѕРІ, РѕР±РЅР°СЂСѓР¶РµРЅРЅС‹С… РЅР° РїРѕСЃР»РµРґРЅРµРј РєР°РґСЂРµ
+        void set_one_object(unsigned int uid, int left, int right, int top, int bottom); // Р—Р°РґР°РЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РЅР° РєР°РґСЂРµ
+		bool get_object_points(size_t obj_ind, POINTF* points, size_t& max_points); // РџРѕР»СѓС‡РµРЅРёРµ РЅР°Р±РѕСЂР° С‚РѕС‡РµРє, РїСЂРёРЅР°РґР»РµР¶Р°С‰РёС… РѕР±СЉРµРєС‚Сѓ
+        void get_del_objects(unsigned int* &uids_arr, size_t& uids_count);     // РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СѓРґР°Р»С‘РЅРЅС‹С… РЅР° РїРѕСЃР»РµРґРЅРµРј РєР°РґСЂРµ РѕР±СЉРµРєС‚РѕРІ
+		void get_left_objects(CLeftObjRect* &rect_arr, size_t& rect_count); // РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
 
-		int get_fps() const;                                            // Получение и
-		void set_fps(int new_fps);                                      // задание fps
+		int get_fps() const;                                            // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_fps(int new_fps);                                      // Р·Р°РґР°РЅРёРµ fps
 
-		void set_show_objects(bool new_val);                            // Показывать/не показывать объекты
-		bool get_show_objects() const;                                  // Получение значения
+		void set_show_objects(bool new_val);                            // РџРѕРєР°Р·С‹РІР°С‚СЊ/РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РѕР±СЉРµРєС‚С‹
+		bool get_show_objects() const;                                  // РџРѕР»СѓС‡РµРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ
 
-		void set_zones_list(const zones_cont& zones_);                  // Задание и
-		void get_zones_list(zones_cont& zones_) const;                  // получение списка зон
+		void set_zones_list(const zones_cont& zones_);                  // Р—Р°РґР°РЅРёРµ Рё
+		void get_zones_list(zones_cont& zones_) const;                  // РїРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° Р·РѕРЅ
 
-		void set_show_left_objects(bool show_left_objects_);            // Задание и
-		bool get_show_left_objects() const;                             // получение значения show_left_objects
+		void set_show_left_objects(bool show_left_objects_);            // Р—Р°РґР°РЅРёРµ Рё
+		bool get_show_left_objects() const;                             // РїРѕР»СѓС‡РµРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ show_left_objects
 
-		void set_show_trajectory(bool show_trajectory_);                // Задание и
-		bool get_show_trajectory() const;                               // получение значения show_trajectory
+		void set_show_trajectory(bool show_trajectory_);                // Р—Р°РґР°РЅРёРµ Рё
+		bool get_show_trajectory() const;                               // РїРѕР»СѓС‡РµРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ show_trajectory
 
-		bool get_use_morphology() const;                                // Задание и
-		void set_use_morphology(bool use_morphology_);                  // получение значения use_morphology
+		bool get_use_morphology() const;                                // Р—Р°РґР°РЅРёРµ Рё
+		void set_use_morphology(bool use_morphology_);                  // РїРѕР»СѓС‡РµРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ use_morphology
 
-		void set_lines_list(const lines_cont& lines_);                  // Задание и
-		void get_lines_list(lines_cont& lines_) const;                  // получение списка линий
+		void set_lines_list(const lines_cont& lines_);                  // Р—Р°РґР°РЅРёРµ Рё
+		void get_lines_list(lines_cont& lines_) const;                  // РїРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° Р»РёРЅРёР№
 
-		bool get_use_square_segmentation() const;                        // Получение и
-		void set_use_square_segmentation(bool use_square_segmentation_); // задание режима сегментации
+		bool get_use_square_segmentation() const;                        // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_use_square_segmentation(bool use_square_segmentation_); // Р·Р°РґР°РЅРёРµ СЂРµР¶РёРјР° СЃРµРіРјРµРЅС‚Р°С†РёРё
 
-		bool get_use_recognition() const;                           // Получение и
-		void set_use_recognition(bool new_val);                     // задание значения use_recognition
+		bool get_use_recognition() const;                           // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_use_recognition(bool new_val);                     // Р·Р°РґР°РЅРёРµ Р·РЅР°С‡РµРЅРёСЏ use_recognition
 
-		int get_min_region_width() const;                           // Получение и
-		void set_min_region_width(int min_region_width_);           // задание минимального размера региона
-		int get_min_region_height() const;                          // Получение и
-		void set_min_region_height(int min_region_height_);         // задание минимального размера региона
+		int get_min_region_width() const;                           // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_min_region_width(int min_region_width_);           // Р·Р°РґР°РЅРёРµ РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ СЂР°Р·РјРµСЂР° СЂРµРіРёРѕРЅР°
+		int get_min_region_height() const;                          // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_min_region_height(int min_region_height_);         // Р·Р°РґР°РЅРёРµ РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ СЂР°Р·РјРµСЂР° СЂРµРіРёРѕРЅР°
 
-		int get_selection_time() const;                             // Получение и
-		void set_selection_time(int selection_time_);               // задание времени фильтрации новых объектов
+		int get_selection_time() const;                             // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_selection_time(int selection_time_);               // Р·Р°РґР°РЅРёРµ РІСЂРµРјРµРЅРё С„РёР»СЊС‚СЂР°С†РёРё РЅРѕРІС‹С… РѕР±СЉРµРєС‚РѕРІ
 
-		RECT_ get_analyze_area() const;                             // Получение и
-		void set_analyze_area(const RECT_ &analyze_area_);          // задание области анализа изображения
+		RECT_ get_analyze_area() const;                             // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_analyze_area(const RECT_ &analyze_area_);          // Р·Р°РґР°РЅРёРµ РѕР±Р»Р°СЃС‚Рё Р°РЅР°Р»РёР·Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
 
-		int get_left_object_time1_sec() const;                      // Получение и
-		void set_left_object_time1_sec(int left_object_time1_sec_); // задание времени детекции оставленных предметов
-		int get_left_object_time2_sec() const;                      // Получение и
-		void set_left_object_time2_sec(int left_object_time2_sec_); // задание времени детекции оставленных предметов
-		int get_left_object_time3_sec() const;                      // Получение и
-		void set_left_object_time3_sec(int left_object_time3_sec_); // задание времени детекции оставленных предметов
+		int get_left_object_time1_sec() const;                      // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_left_object_time1_sec(int left_object_time1_sec_); // Р·Р°РґР°РЅРёРµ РІСЂРµРјРµРЅРё РґРµС‚РµРєС†РёРё РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
+		int get_left_object_time2_sec() const;                      // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_left_object_time2_sec(int left_object_time2_sec_); // Р·Р°РґР°РЅРёРµ РІСЂРµРјРµРЅРё РґРµС‚РµРєС†РёРё РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
+		int get_left_object_time3_sec() const;                      // РџРѕР»СѓС‡РµРЅРёРµ Рё
+		void set_left_object_time3_sec(int left_object_time3_sec_); // Р·Р°РґР°РЅРёРµ РІСЂРµРјРµРЅРё РґРµС‚РµРєС†РёРё РѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ
 
-		void enable_back_update(bool enable_val);                   // Разрешение/запрещение обновления фона
+		void enable_back_update(bool enable_val);                   // Р Р°Р·СЂРµС€РµРЅРёРµ/Р·Р°РїСЂРµС‰РµРЅРёРµ РѕР±РЅРѕРІР»РµРЅРёСЏ С„РѕРЅР°
 
-		bool get_detect_patches_of_sunlight() const;                           // Используется ли детектор бликов
-		void set_detect_patches_of_sunlight(bool detect_patches_of_sunlight_); // Включение/выключение детектора бликов
+		bool get_detect_patches_of_sunlight() const;                           // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р»Рё РґРµС‚РµРєС‚РѕСЂ Р±Р»РёРєРѕРІ
+		void set_detect_patches_of_sunlight(bool detect_patches_of_sunlight_); // Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ РґРµС‚РµРєС‚РѕСЂР° Р±Р»РёРєРѕРІ
 
-		bool get_cut_shadows() const;                               // Используется ли отсечение теней
-		void set_cut_shadows(bool cut_shadows_);                    // Включение/выключение отсечения теней
+		bool get_cut_shadows() const;                               // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р»Рё РѕС‚СЃРµС‡РµРЅРёРµ С‚РµРЅРµР№
+		void set_cut_shadows(bool cut_shadows_);                    // Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ РѕС‚СЃРµС‡РµРЅРёСЏ С‚РµРЅРµР№
 
-		void set_use_cuda(bool use_cuda_, int cuda_device_ind_);    // Задание и
-		bool get_use_cuda() const;                                  // получение использования CUDA
-		int get_cuda_device() const;                                // Получение индекса используемого устройства, поддерживающего CUDA
+		void set_use_cuda(bool use_cuda_, int cuda_device_ind_);    // Р—Р°РґР°РЅРёРµ Рё
+		bool get_use_cuda() const;                                  // РїРѕР»СѓС‡РµРЅРёРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ CUDA
+		int get_cuda_device() const;                                // РџРѕР»СѓС‡РµРЅРёРµ РёРЅРґРµРєСЃР° РёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°, РїРѕРґРґРµСЂР¶РёРІР°СЋС‰РµРіРѕ CUDA
 
-		void set_bgrnd_type(bgrnd_substr_types bgrnd_type_);        // Задание и
-		bgrnd_substr_types get_bgrnd_type() const;                  // получение типа используемого алгоритма вычитания фона
+		void set_bgrnd_type(bgrnd_substr_types bgrnd_type_);        // Р—Р°РґР°РЅРёРµ Рё
+		bgrnd_substr_types get_bgrnd_type() const;                  // РїРѕР»СѓС‡РµРЅРёРµ С‚РёРїР° РёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ Р°Р»РіРѕСЂРёС‚РјР° РІС‹С‡РёС‚Р°РЅРёСЏ С„РѕРЅР°
 	};
 	////////////////////////////////////////////////////////////////////////////
 } //end namespace vl_feintrack
