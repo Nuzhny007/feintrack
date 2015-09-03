@@ -153,9 +153,9 @@ int main(int argc, char* argv[])
             int64 t1 = cv::getTickCount();
 
 #if !ADV_OUT
-            ftrack->frame_analyze((const uchar*)curr_frame.data, curr_frame.step1(), curr_frame.cols, curr_frame.rows, cl_type);
+			ftrack->new_frame((const uchar*)curr_frame.data, static_cast<uint32_t>(curr_frame.step[0]), curr_frame.cols, curr_frame.rows, cl_type);
 #else
-            ftrack->new_frame((const uchar*)curr_frame.data, curr_frame.step1(), curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
+            ftrack->new_frame((const uchar*)curr_frame.data, static_cast<uint32_t>(curr_frame.step[0]), curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
 #endif
             int64 t2 = cv::getTickCount();
             double freq = cv::getTickFrequency();
