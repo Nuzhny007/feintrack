@@ -57,7 +57,6 @@ set(SOURCE
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/bgrnd_substr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/FeintrackManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_objects.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/recognition.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/segmentation.cpp
@@ -67,7 +66,6 @@ set(SOURCE
 set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/bgrnd_substr.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/FeintrackManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_objects.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/recognition.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/segmentation.h

@@ -3,7 +3,7 @@
 
 #include "src/utils.h"
 #include "src/feintrack_params.h"
-#include "src/FeintrackManager.h"
+#include "src/feintrack.h"
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -39,37 +39,35 @@ int main(int argc, char* argv[])
     int framesNum = static_cast<int>(CV_CAP_PROP_FRAME_COUNT);
 #endif
 
-    auto ftrack = std::shared_ptr<feintrack::CFTCont>(new feintrack::CFTCont);
-    feintrack::CFeintrackParams ftparams;
-    ftrack->get_config(ftparams);
+    auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
-    ftparams.set_fps(25);
-    ftparams.set_show_objects(true);
-    ftparams.set_min_region_width(10);
-    ftparams.set_min_region_height(10);
-    ftparams.set_left_object_time1_sec(10);
-    ftparams.set_left_object_time2_sec(20);
-    ftparams.set_left_object_time3_sec(30);
-    ftparams.set_show_left_objects(true);
-    ftparams.set_use_square_segmentation(false);
-    ftparams.set_detect_patches_of_sunlight(false);
-    ftparams.set_cut_shadows(true);
-    ftparams.set_analyze_area(feintrack::RECT_(0, 100, 0, 100));
-    ftparams.set_sensitivity(80);
-    ftparams.set_use_recognition(false);
-    ftparams.set_use_morphology(true);
-    ftparams.set_selection_time(12);
-    ftparams.set_show_trajectory(true);
-    ftparams.set_use_cuda(false, 0);
-#if 1
-    ftparams.set_bgrnd_type(feintrack::norm_back);
-#else
-    ftparams.set_bgrnd_type(feintrack::gaussian_mixture);
-#endif
+    ftrack->set_sensitivity(80);
+    ftrack->set_fps(25);
+    ftrack->set_show_objects(true);
+    ftrack->set_use_cuda(false, 0);
+    ftrack->set_bgrnd_type(feintrack::norm_back);
+    ftrack->set_use_recognition(false);
+    ftrack->set_use_morphology(true);
+    ftrack->set_show_left_objects(true);
+    ftrack->set_show_trajectory(true);
+    ftrack->set_selection_time(12);
+    ftrack->set_min_region_width(10);
+    ftrack->set_min_region_height(10);
+    ftrack->set_analyze_area(feintrack::RECT_(0, 100, 0, 100));
+    ftrack->set_use_square_segmentation(false);
+    ftrack->set_detect_patches_of_sunlight(false);
+    ftrack->set_cut_shadows(true);
 
-    ftrack->set_config(ftparams);
+    ftrack->set_left_object_time1_sec(10);
+    ftrack->set_left_object_time2_sec(20);
+    ftrack->set_left_object_time3_sec(30);
 
-    ftrack->fein_track.enable_back_update(true);
+    feintrack::zones_cont zones;
+    ftrack->set_zones_list(zones);
+    feintrack::lines_cont lines;
+    ftrack->set_lines_list(lines);
+
+    ftrack->enable_back_update(true);
 
 
     uint32_t frame_num(0);
@@ -126,9 +124,7 @@ int main(int argc, char* argv[])
                 zone.name = "Zone 3";
                 zones.push_back(zone);
 
-                ftparams.set_zones(zones);
-
-                feintrack::SetFeintrackConfigStruct(feintrack, &ftp);
+                ftrack->set_zones_list(zones);
 #endif
 
                 init_zones = true;
@@ -155,10 +151,11 @@ int main(int argc, char* argv[])
             }
 
             int64 t1 = cv::getTickCount();
+
 #if !ADV_OUT
-            ftrack->frame_analyze((const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type);
+            ftrack->frame_analyze((const uchar*)curr_frame.data, curr_frame.step1(), curr_frame.cols, curr_frame.rows, cl_type);
 #else
-            ftrack->frame_analyze((const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
+            ftrack->new_frame((const uchar*)curr_frame.data, curr_frame.step1(), curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
 #endif
             int64 t2 = cv::getTickCount();
             double freq = cv::getTickFrequency();
@@ -168,7 +165,7 @@ int main(int argc, char* argv[])
             // Обводка объектов
             feintrack::CObjRect *rect_arr;
             size_t rect_count;
-            ftrack->fein_track.get_objects(rect_arr, rect_count);
+            ftrack->get_objects(rect_arr, rect_count);
 
             if (rect_count && rect_arr)
             {
@@ -216,7 +213,7 @@ int main(int argc, char* argv[])
             // Обводка оставленных объектов
             feintrack::CLeftObjRect *left_rect_arr;
             size_t left_rect_count;
-            ftrack->fein_track.get_left_objects(left_rect_arr, left_rect_count);
+            ftrack->get_left_objects(left_rect_arr, left_rect_count);
 
             for (size_t i = 0; i < left_rect_count; ++i)
             {
