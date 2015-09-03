@@ -9,7 +9,8 @@
 
 int main(int argc, char* argv[])
 {
-    std::string input_file_name = "/home/snuzhny/Documents/automotive/pedestrians_datasets/ikoretsk/video/camera1.mov";
+    //std::string input_file_name = "/home/snuzhny/Documents/automotive/pedestrians_datasets/ikoretsk/video/camera1.mov";
+	std::string input_file_name = "0";
     if (argc > 1)
     {
         input_file_name = argv[1];
@@ -28,21 +29,24 @@ int main(int argc, char* argv[])
     {
         capture.open(input_file_name.c_str());
     }
+
     if (!capture.isOpened())
     {
         std::cerr << "File " <<  input_file_name << " not opened!" << std::endl;
         return 1;
     }
-#if (CV_VERSION_EPOCH > 2)
-    int framesNum = static_cast<int>(cv::CAP_PROP_FRAME_COUNT);
-#else
-    int framesNum = static_cast<int>(CV_CAP_PROP_FRAME_COUNT);
-#endif
+	int framesNum = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_COUNT));
+
+	int fps = static_cast<int>(capture.get(CV_CAP_PROP_FPS));
+	if (fps < 1)
+	{
+		fps = 25;
+	}
 
     auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
     ftrack->set_sensitivity(80);
-    ftrack->set_fps(25);
+	ftrack->set_fps(fps);
     ftrack->set_show_objects(true);
     ftrack->set_use_cuda(false, 0);
     ftrack->set_bgrnd_type(feintrack::norm_back);

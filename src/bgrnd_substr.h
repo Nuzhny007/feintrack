@@ -14,7 +14,7 @@ namespace feintrack
 #if 1
 typedef float ft_param_t;                 // Тип статистических характеристик модели заднего плана
 #else
-typedef uint32_t ft_param_t;                 // Тип статистических характеристик модели заднего плана
+typedef int32_t ft_param_t;                 // Тип статистических характеристик модели заднего плана
 #endif
 	////////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +166,7 @@ typedef uint32_t ft_param_t;                 // Тип статистическ�
 				p[i].mu = (p[i].mu + new_val[i]) / curr_frame;
 
 				p[i].sigma += sqr(new_val[i] - p[i].mu / curr_frame);
-				p[i].sigma = sqrt(p[i].sigma / (curr_frame - 1));
+				p[i].sigma = static_cast<ft_param_t>(sqrt(p[i].sigma / (curr_frame - 1)));
 				set_range(p[i].sigma, min_sigma_val, max_sigma_val);
 			}
 		}
@@ -176,7 +176,7 @@ typedef uint32_t ft_param_t;                 // Тип статистическ�
 		{
 			for (size_t i = 0; i < NORM_COUNT; ++i)
 			{
-                if (eps[i] * p[i].sigma < abs(p[i].mu - new_val[i]))
+                if (eps[i] * p[i].sigma < std::abs(p[i].mu - new_val[i]))
                 {
 					return false;
                 }

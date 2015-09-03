@@ -405,8 +405,8 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     if (use_shadow_detector)
     {
         tmp_eps[0] = epsilon;                        // b
-        tmp_eps[1] = (0.587f * tmp_eps[0]) / 0.144f; // g
-        tmp_eps[2] = (0.299f * tmp_eps[0]) / 0.144f; // r
+		tmp_eps[1] = static_cast<ft_param_t>((0.587f * tmp_eps[0]) / 0.144f); // g
+		tmp_eps[2] = static_cast<ft_param_t>((0.299f * tmp_eps[0]) / 0.144f); // r
     }
     else
     {
