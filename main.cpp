@@ -106,9 +106,9 @@ int main(int argc, char* argv[])
 
                 feintrack::CZone zone;
                 zone.left = 0;
-                zone.right = frame->width - 1;
+                zone.right = frame.cols - 1;
                 zone.top = 0;
-                zone.bottom = frame->height / 3;
+                zone.bottom = frame.rows / 3;
                 zone.uid = 1;
                 zone.name = "Zone 1";
                 zone.min_obj_width = 5;
@@ -117,13 +117,13 @@ int main(int argc, char* argv[])
                 zones.push_back(zone);
 
                 zone.top = zone.bottom;
-                zone.bottom = (2 * frame->height) / 3;
+				zone.bottom = (2 * frame.rows) / 3;
                 zone.uid = 2;
                 zone.name = "Zone 2";
                 zones.push_back(zone);
 
                 zone.top = zone.bottom;
-                zone.bottom = frame->height - 1;
+				zone.bottom = frame.rows - 1;
                 zone.uid = 3;
                 zone.name = "Zone 3";
                 zones.push_back(zone);
