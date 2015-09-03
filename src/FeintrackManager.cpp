@@ -3,7 +3,7 @@
 #include "FeintrackManager.h"
 
 ////////////////////////////////////////////////////////////////////////////
-namespace vl_feintrack
+namespace feintrack
 {
 	////////////////////////////////////////////////////////////////////////////
 	
@@ -17,22 +17,6 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	CFTCont* CFTCont::create()
-	{
-		return new CFTCont();
-	}
-	////////////////////////////////////////////////////////////////////////////
-	
-	void CFTCont::destroy(CFTCont* &ft_cont)
-	{
-		if (ft_cont)
-		{
-			delete ft_cont;
-            ft_cont = nullptr;
-		}
-	}
-	////////////////////////////////////////////////////////////////////////////
-
 	void CFTCont::set_use_feintrack(bool new_val)
 	{
 		fein_track.set_show_objects(new_val);
@@ -54,42 +38,17 @@ namespace vl_feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	void CFTCont::set_config(const void* config_struct)
+    void CFTCont::set_config(const CFeintrackParams& config_struct)
 	{
-		CFeintrackParams *ftp = (CFeintrackParams *)config_struct;
-		if (!ftp)
-			return;
-
-		// Конфигурация finetrack'a
-		apply_ft_profile(*ftp);
-
-		// Конфигурация finedome
-		ftp->get_channel_name(channel_name);
+        // Конфигурация feintrack'a
+        apply_ft_profile(config_struct);
 	}
 	////////////////////////////////////////////////////////////////////////////
 	
-	void CFTCont::update_config(int channel_fps, const char* channel_name, void* config_struct)
+    void CFTCont::get_config(CFeintrackParams& config_struct) const
 	{
-		CFeintrackParams *ftp = (CFeintrackParams *)config_struct;
-		if (!ftp)
-			return;
-
-		ftp->set_fps(channel_fps);
-		ftp->set_channel_name(channel_name);
-	}
-	////////////////////////////////////////////////////////////////////////////
-	
-	void CFTCont::get_config(void* config_struct)
-	{
-		CFeintrackParams *ftp = (CFeintrackParams *)config_struct;
-		if (!ftp)
-			return;
-
-		// Конфигурация finetrack'a
-		fill_ft_profile(*ftp);
-
-		// Конфигурация finedome
-		ftp->set_channel_name(channel_name.c_str());
+        // Конфигурация feintrack'a
+        fill_ft_profile(config_struct);
 	}
 	////////////////////////////////////////////////////////////////////////////
 
@@ -168,5 +127,5 @@ namespace vl_feintrack
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
 	
-} //end namespace vl_feintrack
+} //end namespace feintrack
 ////////////////////////////////////////////////////////////////////////////

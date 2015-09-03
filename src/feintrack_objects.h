@@ -2,10 +2,10 @@
 #include <deque>
 #include <memory>
 
-#include "feintrack_dll.h"
+#include "feintrack_params.h"
 #include "utils.h"
 ////////////////////////////////////////////////////////////////////////////
-namespace vl_feintrack
+namespace feintrack
 {
 	//Использовать линейное предсказание положения объекта (Иначе используется также линейный алгоритм но с предварительной обработкой траектории алгоритмом Дугласа-Пекера)
 #define LIN_MNK 0
@@ -216,5 +216,5 @@ namespace vl_feintrack
 	typedef std::list<CObjectRegion> regions_container;
     typedef std::list<std::unique_ptr<CTrackingObject> > objects_container;
 	////////////////////////////////////////////////////////////////////////////
-} //end namespace vl_feintrack
+} //end namespace feintrack
 ////////////////////////////////////////////////////////////////////////////

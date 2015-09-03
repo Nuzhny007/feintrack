@@ -57,19 +57,16 @@ set(SOURCE
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/bgrnd_substr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_dll.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FeintrackManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_objects.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/recognition.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/segmentation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_dll.cpp
 )
 
 set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/bgrnd_substr.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_dll.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FeintrackManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_objects.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/recognition.h
@@ -78,7 +75,6 @@ set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/some_types.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_params.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_d.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_dll.h
 )
 
 file(GLOB SrcGpuCpp

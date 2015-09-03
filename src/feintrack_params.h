@@ -1,10 +1,156 @@
 #pragma once
 
-#include "feintrack_dll.h"
+#pragma once
+
+#include <string>
+#include <deque>
+
+#define ADV_OUT 1             // Вывод отладочной информации в отдельный буфер
+
+#define USE_HOG_RECOGNIZE 0   // Распознавание людей с помощью OpenCV'шного HOG
+
+typedef int int32_t;
+typedef unsigned int uint32_t;
+typedef unsigned char uchar;
+typedef float float_t;
 
 ////////////////////////////////////////////////////////////////////////////
-namespace vl_feintrack
+namespace feintrack
 {
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Точка
+    template<class T>
+    struct POINT_
+    {
+        POINT_(): x(0), y(0) {}
+        POINT_(T x_, T y_): x(x_), y(y_) {}
+
+        T x;
+        T y;
+    };
+
+    typedef POINT_<float> POINTF;
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Простой прямоугольник
+    template <typename T>
+    struct TRECT_
+    {
+        TRECT_(T left_, T right_, T top_, T bottom_)
+            : left(left_), right(right_), top(top_), bottom(bottom_)
+        {
+        }
+        TRECT_()
+            : left(0), right(0), top(0), bottom(0)
+        {
+        }
+
+        T left;          // Левая,
+        T right;         // правая,
+        T top;           // верхняя и
+        T bottom;        // нижняя координаты прямоугольника
+
+        T get_left() const { return left; }     // Функции, возвращающие границы прямоугольника
+        T get_right() const { return right; }   //
+        T get_top() const { return top; }       //
+        T get_bottom() const { return bottom; } //
+
+        T width() const { return right - left + 1; }      // Возвращает ширину
+        T height() const { return bottom - top + 1; }     // и высоту прямоугольника
+
+        int center_x() const { return (right + left) / 2; } // Возвращает центр прямоугольника по х
+        int center_y() const { return (bottom + top) / 2; } // и по y
+
+        bool operator==(const TRECT_ &rect)                  // Проверка на равенство двух прямоугольников
+        {
+            return (left == rect.left) && (right == rect.right) && (top == rect.top) && (bottom == rect.bottom);
+        }
+    };
+
+    typedef TRECT_<int> RECT_;
+    typedef TRECT_<double> RECTF_;
+    ////////////////////////////////////////////////////////////////////////////
+
+    enum object_types                        // Типы объекта
+    {
+        unknown_object,                      // объект неизвестного типа
+        human,                               // человек
+        vehicle,                             // автомобиль
+        animal,                              // животное
+        humans                               // группа людей
+    };
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Прямоугольник с координатами и идентификатором объекта
+    struct CObjRect: public RECT_
+    {
+        CObjRect(int left_, int right_, int top_, int bottom_, unsigned int uid_, int new_center_x_, int new_center_y_)
+            : RECT_(left_, right_, top_, bottom_),
+            type(unknown_object), uid(uid_),
+            new_center_x(new_center_x_), new_center_y(new_center_y_),
+            traectory_size(0)
+        {
+            zone_name[0] = '\0';
+
+            traectory[0].x = center_x();
+            traectory[0].y = center_y();
+            traectory_size = 1;
+        }
+
+        object_types type;                       // Тип объекта
+
+        unsigned int uid;                        // Уникальный идентификатор объекта
+
+        int new_center_x;                        // Предположительное новое положение центра объекта
+        int new_center_y;                        //
+
+        std::string zone_name;                   // Имя зоны, в которой обнаружен объект (если объект обнаружен одновременно в 2-х зонах, то записывается имя только одной зоны)
+
+        static const size_t MAX_TRAECTORY = 200; // Максимальный размер отображаемой траектории
+        POINT_<int> traectory[MAX_TRAECTORY];    // Траектория движения объекта
+        size_t traectory_size;                   // Текущий размер траектории
+    };
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Прямоугольник с координатами оставленного предмета
+    struct CLeftObjRect: public RECT_
+    {
+        enum types        // Типы объекта
+        {
+            first, second
+        };
+        types type;       // Тип объекта
+
+        CLeftObjRect(const RECT_ &rect, types type_)
+            : RECT_(rect), type(type_)
+        {
+        }
+    };
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Поддерживаемые цветовые пространства
+    enum color_type
+    {
+        unknown_color, // Неизвестный цвет
+        buf_rgb24,     //
+        buf_gray,      //
+        buf_rgb32      //
+    };
+
+    // Получение размера пикселя в байтах для различных типов цветовых пространств
+    template<class T> inline
+        T get_pixel_size(color_type cl_type)
+    {
+        switch (cl_type)
+        {
+        case unknown_color: return 0;
+        case buf_rgb24: return 3;
+        case buf_gray: return 1;
+        case buf_rgb32: return 4;
+        default: return 0;
+        }
+    }
 	////////////////////////////////////////////////////////////////////////////
 
 	// Зона детекции
@@ -29,8 +175,8 @@ namespace vl_feintrack
 		{
 		}
 
-        unsigned int uid;          // Уникальный идентификатор зоны
-		cstring name;       // Имя зоны
+        unsigned int uid;   // Уникальный идентификатор зоны
+        std::string name;   // Имя зоны
 
 		int min_obj_width;  // Минимальная ширина и
 		int min_obj_height; // высота объекта, который может детектироваться в данной зоне
@@ -66,7 +212,7 @@ namespace vl_feintrack
 		int y2;       //
 
         unsigned int uid;    // Уникальный идентификатор линии
-		cstring name; // Имя линии
+        std::string name;    // Имя линии
 
 		// Равенство 2-х линий определяется равенством их uid
 		bool operator==(const CLine &line) const
@@ -85,7 +231,7 @@ namespace vl_feintrack
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	// Профиль с настройками finetrack'a
+    // Профиль с настройками feintrack'a
 	struct CFeintrackProfile
 	{
 		CFeintrackProfile()
@@ -117,7 +263,7 @@ namespace vl_feintrack
 		{
 		}
 
-		cstring profile_name;            // Имя профиля
+        std::string profile_name;        // Имя профиля
 
 		int sensitivity;                 // Чувствительность (для метода вычитания фона)
 		int fps;                         // Количество кадров в секунду, подаваемых на feintrack
@@ -186,7 +332,7 @@ namespace vl_feintrack
 		profiles_cont profiles;            // Профили настроек
 		size_t curr_profile_ind;           // Индекс выбранного профиля
 
-		cstring channel_name;              // Имя видеоканала, к которому относятся параметры
+        std::string channel_name;          // Имя видеоканала, к которому относятся параметры
 
 		int get_sensitivity() const                                             //
 		{
@@ -352,11 +498,11 @@ namespace vl_feintrack
 			get_curr_profile().lines = lines_;
 		}
 
-		void get_channel_name(cstring &channel_name_) const                     //
+        void get_channel_name(std::string &channel_name_) const                 //
 		{
 			channel_name_ = channel_name;
 		}
-		void set_channel_name(const cstring &channel_name_)                     //
+        void set_channel_name(const std::string &channel_name_)                 //
 		{
 			channel_name = channel_name_;
 		}
@@ -420,5 +566,5 @@ namespace vl_feintrack
 		}
 	};
 	////////////////////////////////////////////////////////////////////////////
-} // end namespace vl_feintrack
+} // end namespace feintrack
 ////////////////////////////////////////////////////////////////////////////

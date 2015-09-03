@@ -1,8 +1,9 @@
-
+#include <memory>
 #include <opencv2/opencv.hpp>
 
 #include "src/utils.h"
-#include "src/feintrack_dll.h"
+#include "src/feintrack_params.h"
+#include "src/FeintrackManager.h"
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -38,42 +39,42 @@ int main(int argc, char* argv[])
     int framesNum = static_cast<int>(CV_CAP_PROP_FRAME_COUNT);
 #endif
 
-    void* feintrack = vl_feintrack::AddFeintrack();
-    vl_feintrack::CFeintrackParams ftp;
-    vl_feintrack::GetFeintrackConfigStruct(feintrack, &ftp);
+    auto ftrack = std::shared_ptr<feintrack::CFTCont>(new feintrack::CFTCont);
+    feintrack::CFeintrackParams ftparams;
+    ftrack->get_config(ftparams);
 
-    ftp.set_fps(25);
-    ftp.set_show_objects(true);
-    ftp.set_min_region_width(10);
-    ftp.set_min_region_height(10);
-    ftp.set_left_object_time1_sec(10);
-    ftp.set_left_object_time2_sec(20);
-    ftp.set_left_object_time3_sec(30);
-    ftp.set_show_left_objects(true);
-    ftp.set_use_square_segmentation(false);
-    ftp.set_detect_patches_of_sunlight(false);
-    ftp.set_cut_shadows(true);
-    ftp.set_analyze_area(vl_feintrack::RECT_(0, 100, 0, 100));
-    ftp.set_sensitivity(80);
-    ftp.set_use_recognition(false);
-    ftp.set_use_morphology(true);
-    ftp.set_selection_time(12);
-    ftp.set_show_trajectory(true);
-    ftp.set_use_cuda(true, 0);
+    ftparams.set_fps(25);
+    ftparams.set_show_objects(true);
+    ftparams.set_min_region_width(10);
+    ftparams.set_min_region_height(10);
+    ftparams.set_left_object_time1_sec(10);
+    ftparams.set_left_object_time2_sec(20);
+    ftparams.set_left_object_time3_sec(30);
+    ftparams.set_show_left_objects(true);
+    ftparams.set_use_square_segmentation(false);
+    ftparams.set_detect_patches_of_sunlight(false);
+    ftparams.set_cut_shadows(true);
+    ftparams.set_analyze_area(feintrack::RECT_(0, 100, 0, 100));
+    ftparams.set_sensitivity(80);
+    ftparams.set_use_recognition(false);
+    ftparams.set_use_morphology(true);
+    ftparams.set_selection_time(12);
+    ftparams.set_show_trajectory(true);
+    ftparams.set_use_cuda(false, 0);
 #if 1
-    ftp.set_bgrnd_type(vl_feintrack::norm_back);
+    ftparams.set_bgrnd_type(feintrack::norm_back);
 #else
-    ftp.set_bgrnd_type(vl_feintrack::gaussian_mixture);
+    ftparams.set_bgrnd_type(feintrack::gaussian_mixture);
 #endif
 
-    vl_feintrack::SetFeintrackConfigStruct(feintrack, &ftp);
+    ftrack->set_config(ftparams);
 
-    vl_feintrack::EnableBackUpdate(feintrack, true);
+    ftrack->fein_track.enable_back_update(true);
 
 
     uint32_t frame_num(0);
 
-    vl_feintrack::color_type cl_type = vl_feintrack::buf_gray;
+    feintrack::color_type cl_type = feintrack::buf_gray;
 
     bool init_zones = false;
 
@@ -99,9 +100,9 @@ int main(int argc, char* argv[])
             if (!init_zones)
             {
 #if 0
-                vl_feintrack::zones_cont zones;
+                feintrack::zones_cont zones;
 
-                vl_feintrack::CZone zone;
+                feintrack::CZone zone;
                 zone.left = 0;
                 zone.right = frame->width - 1;
                 zone.top = 0;
@@ -125,9 +126,9 @@ int main(int argc, char* argv[])
                 zone.name = "Zone 3";
                 zones.push_back(zone);
 
-                ftp.set_zones(zones);
+                ftparams.set_zones(zones);
 
-                vl_feintrack::SetFeintrackConfigStruct(feintrack, &ftp);
+                feintrack::SetFeintrackConfigStruct(feintrack, &ftp);
 #endif
 
                 init_zones = true;
@@ -136,13 +137,13 @@ int main(int argc, char* argv[])
             cv::Mat curr_frame;
             switch (cl_type)
             {
-            case vl_feintrack::buf_gray:
+            case feintrack::buf_gray:
             {
                 cv::cvtColor(frame, curr_frame, CV_RGB2GRAY);
                 break;
             }
 
-            case vl_feintrack::buf_rgb32:
+            case feintrack::buf_rgb32:
             {
                 cv::cvtColor(frame, curr_frame, CV_RGB2RGBA);
                 break;
@@ -155,9 +156,9 @@ int main(int argc, char* argv[])
 
             int64 t1 = cv::getTickCount();
 #if !ADV_OUT
-            FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type);
+            ftrack->frame_analyze((const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type);
 #else
-            FeintrackFrameAnalyze(feintrack, (const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
+            ftrack->frame_analyze((const uchar*)curr_frame.data, curr_frame.cols, curr_frame.rows, cl_type, (uchar*)adv_img.data);
 #endif
             int64 t2 = cv::getTickCount();
             double freq = cv::getTickFrequency();
@@ -165,9 +166,9 @@ int main(int argc, char* argv[])
 
 #if 1
             // Обводка объектов
-            vl_feintrack::CObjRect *rect_arr;
+            feintrack::CObjRect *rect_arr;
             size_t rect_count;
-            GetObjects(feintrack, rect_arr, rect_count);
+            ftrack->fein_track.get_objects(rect_arr, rect_count);
 
             if (rect_count && rect_arr)
             {
@@ -200,11 +201,11 @@ int main(int argc, char* argv[])
                     std::string type_str("u");
                     switch (rect_arr[i].type)
                     {
-                    case vl_feintrack::unknown_object: type_str = "u";  break;
-                    case vl_feintrack::human:          type_str = "h";  break;
-                    case vl_feintrack::vehicle:        type_str = "v";  break;
-                    case vl_feintrack::animal:         type_str = "a";  break;
-                    case vl_feintrack::humans:         type_str = "hh"; break;
+                    case feintrack::unknown_object: type_str = "u";  break;
+                    case feintrack::human:          type_str = "h";  break;
+                    case feintrack::vehicle:        type_str = "v";  break;
+                    case feintrack::animal:         type_str = "a";  break;
+                    case feintrack::humans:         type_str = "hh"; break;
                     }
                     sprintf(object_name, "%u %s", rect_arr[i].uid, type_str.c_str());
                     cv::putText(frame, object_name, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 255, 255));
@@ -213,19 +214,19 @@ int main(int argc, char* argv[])
             }
 
             // Обводка оставленных объектов
-            vl_feintrack::CLeftObjRect *left_rect_arr;
+            feintrack::CLeftObjRect *left_rect_arr;
             size_t left_rect_count;
-            vl_feintrack::GetLeftObjects(feintrack, left_rect_arr, left_rect_count);
+            ftrack->fein_track.get_left_objects(left_rect_arr, left_rect_count);
 
             for (size_t i = 0; i < left_rect_count; ++i)
             {
                 switch (left_rect_arr[i].type)
                 {
-                case vl_feintrack::CLeftObjRect::first:
+                case feintrack::CLeftObjRect::first:
                     cv::rectangle(frame, cv::Point(left_rect_arr[i].left, left_rect_arr[i].top), cv::Point(left_rect_arr[i].right, left_rect_arr[i].bottom), cv::Scalar(0, 0, 255));
                     break;
 
-                case vl_feintrack::CLeftObjRect::second:
+                case feintrack::CLeftObjRect::second:
                     cv::rectangle(frame, cv::Point(left_rect_arr[i].left, left_rect_arr[i].top), cv::Point(left_rect_arr[i].right, left_rect_arr[i].bottom), cv::Scalar(255, 0, 255));
                     break;
                 }
@@ -249,7 +250,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    vl_feintrack::DelFeintrack(feintrack);
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
