@@ -98,7 +98,7 @@ link_directories(${local_CUDA_CUT_LIBRARY_DIRS})
 
 #set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} --generate-line-info) # used during profiling
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_20)
-  
+ 
 endif(USE_GPU)
 
 # ----------------------------------------------------------------------
@@ -110,18 +110,25 @@ set(LIBS
 #    ${QT_LIBRARIES}
 )
 
-if(USE_GPU)
-   list(APPEND LIBS ${CUDA_LIBRARIES} ${cutil_LIB})
-endif(USE_GPU)
-
 else(CMAKE_COMPILER_IS_GNUCXX)
 set(LIBS
     ${OpenCV_LIBS}
 )
 endif()
 
+if(USE_GPU)
+   #list(APPEND LIBS ${CUDA_LIBRARIES} ${cutil_LIB})
 
-add_executable(feintrack ${SOURCE} ${HEADERS})
+   #MESSAGE(${CUDA_CUDA_LIBRARY})
+   #MESSAGE(${CUDA_CUDART_LIBRARY})
+   list(APPEND LIBS ${CUDA_CUDA_LIBRARY} ${CUDA_CUDART_LIBRARY})
+endif(USE_GPU)
+
+if(USE_GPU)
+   CUDA_ADD_EXECUTABLE(feintrack  ${SOURCE} ${HEADERS})
+else()
+   add_executable(feintrack ${SOURCE} ${HEADERS})
+endif()
 
 target_link_libraries(feintrack ${LIBS})
 

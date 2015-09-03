@@ -1,7 +1,16 @@
 #pragma once
 
+#ifdef USE_GPU
+#include <cuda.h>
+#include <cuda_runtime.h>
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef int int32_t;
+typedef unsigned int uint32_t;
+typedef unsigned char uchar;
+typedef float float_t;
 typedef int32_t mask_type;
 ////////////////////////////////////////////////////////////////////////////////
 

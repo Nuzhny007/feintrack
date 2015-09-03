@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
     ftrack->set_sensitivity(80);
 	ftrack->set_fps(fps);
     ftrack->set_show_objects(true);
-    ftrack->set_use_cuda(false, 0);
     ftrack->set_bgrnd_type(feintrack::norm_back);
     ftrack->set_use_recognition(false);
     ftrack->set_use_morphology(true);
@@ -72,6 +71,8 @@ int main(int argc, char* argv[])
     ftrack->set_lines_list(lines);
 
     ftrack->enable_back_update(true);
+
+	ftrack->set_use_cuda(false, 0);
 
 
     uint32_t frame_num(0);

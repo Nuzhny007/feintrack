@@ -1,10 +1,5 @@
 #pragma once
 
-#ifdef USE_GPU
-#include <cuda.h>
-#include <cuda_runtime.h>
-#endif
-
 #include "feintrack_d.h"
 ////////////////////////////////////////////////////////////////////////////
 

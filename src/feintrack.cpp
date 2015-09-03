@@ -487,7 +487,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     }
 
 #if ADV_OUT
-    //segmentator.draw_mask(use_cuda, adv_buf_rgb24);
+    segmentator.draw_mask(use_cuda, adv_buf_rgb24);
 #endif
 
     // Если используется cuda и требуется распознавание, то копируем маску из видеопамяти в системную
