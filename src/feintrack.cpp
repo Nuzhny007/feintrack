@@ -174,7 +174,9 @@ void CFeinTrack::set_use_cuda(bool use_cuda_, int cuda_device_ind_)
     {
         use_cuda = false;
         if (back_substractor)
+        {
             back_substractor->set_use_cuda(use_cuda);
+        }
         if (show_objects)
         {
             set_show_objects(false);
@@ -487,7 +489,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     }
 
 #if ADV_OUT
-    segmentator.draw_mask(use_cuda, adv_buf_rgb24);
+    //segmentator.draw_mask(use_cuda, adv_buf_rgb24);
 #endif
 
     // Если используется cuda и требуется распознавание, то копируем маску из видеопамяти в системную

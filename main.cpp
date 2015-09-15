@@ -52,12 +52,12 @@ int main(int argc, char* argv[])
     ftrack->set_use_recognition(false);
     ftrack->set_use_morphology(true);
     ftrack->set_show_left_objects(true);
-    ftrack->set_show_trajectory(true);
+    ftrack->set_show_trajectory(false);
     ftrack->set_selection_time(12);
-    ftrack->set_min_region_width(10);
-    ftrack->set_min_region_height(10);
+    ftrack->set_min_region_width(5);
+    ftrack->set_min_region_height(5);
     ftrack->set_analyze_area(feintrack::RECT_(0, 100, 0, 100));
-    ftrack->set_use_square_segmentation(false);
+    ftrack->set_use_square_segmentation(true);
     ftrack->set_detect_patches_of_sunlight(false);
     ftrack->set_cut_shadows(true);
 
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
     uint32_t frame_num(0);
 
-    feintrack::color_type cl_type = feintrack::buf_gray;
+    feintrack::color_type cl_type = feintrack::buf_rgb24;
 
     bool init_zones = false;
 
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
     for (int vc = 0; vc < 3; ++vc)
     {
         frame_num = 0;
-        capture.set(CV_CAP_PROP_POS_FRAMES, 100);
+        //capture.set(CV_CAP_PROP_POS_FRAMES, 100);
 
         cv::Mat frame;
         for (capture >> frame; !frame.empty(); capture >> frame)
@@ -244,9 +244,11 @@ int main(int argc, char* argv[])
             std::cout << "Frame " << frame_num << " of " << framesNum << ": " << rect_count << " objects are tracking at " << ((t2 - t1) / freq) << " sec" << std::endl;
 
             int workTime = static_cast<int>(1000. * (t2 - t1) / freq);
-            int waitTime = (workTime >= 40) ? 1 : (40 - workTime);
+            int waitTime = (workTime >= 1000 / fps) ? 1 : (1000 / fps - workTime);
             if (cv::waitKey(waitTime) > 0)
+            {
                 break;
+            }
 
             ++frame_num;
         }
