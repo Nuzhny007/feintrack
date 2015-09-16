@@ -43,6 +43,9 @@ int main(int argc, char* argv[])
 		fps = 25;
 	}
 
+    int frameWidth = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH));
+    int frameHeight = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_HEIGHT));
+
     auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
     ftrack->set_sensitivity(80);
@@ -54,8 +57,8 @@ int main(int argc, char* argv[])
     ftrack->set_show_left_objects(true);
     ftrack->set_show_trajectory(false);
     ftrack->set_selection_time(12);
-    ftrack->set_min_region_width(5);
-    ftrack->set_min_region_height(5);
+    ftrack->set_min_region_width(std::max(5, frameWidth / 100));
+    ftrack->set_min_region_height(ftrack->get_min_region_width());
     ftrack->set_analyze_area(feintrack::RECT_(0, 100, 0, 100));
     ftrack->set_use_square_segmentation(true);
     ftrack->set_detect_patches_of_sunlight(false);
@@ -65,8 +68,36 @@ int main(int argc, char* argv[])
     ftrack->set_left_object_time2_sec(20);
     ftrack->set_left_object_time3_sec(30);
 
+#if 0
     feintrack::zones_cont zones;
+
+    feintrack::CZone zone;
+    zone.left = 0;
+    zone.right = frameWidth - 1;
+    zone.top = 0;
+    zone.bottom = frameHeight / 3;
+    zone.uid = 1;
+    zone.name = "Zone 1";
+    zone.min_obj_width = 5;
+    zone.min_obj_height = 5;
+    zone.use_detection = true;
+    zones.push_back(zone);
+
+    zone.top = zone.bottom;
+    zone.bottom = (2 * frameHeight) / 3;
+    zone.uid = 2;
+    zone.name = "Zone 2";
+    zones.push_back(zone);
+
+    zone.top = zone.bottom;
+    zone.bottom = frameHeight - 1;
+    zone.uid = 3;
+    zone.name = "Zone 3";
+    zones.push_back(zone);
+
     ftrack->set_zones_list(zones);
+#endif
+
     feintrack::lines_cont lines;
     ftrack->set_lines_list(lines);
 
@@ -78,8 +109,6 @@ int main(int argc, char* argv[])
     uint32_t frame_num(0);
 
     feintrack::color_type cl_type = feintrack::buf_rgb24;
-
-    bool init_zones = false;
 
 #if ADV_OUT
     cv::Mat adv_img;
@@ -99,41 +128,6 @@ int main(int argc, char* argv[])
                 adv_img = cv::Mat(frame.rows, frame.cols, CV_8UC3, cv::Scalar(0, 0, 0));
             }
 #endif
-
-            if (!init_zones)
-            {
-#if 0
-                feintrack::zones_cont zones;
-
-                feintrack::CZone zone;
-                zone.left = 0;
-                zone.right = frame.cols - 1;
-                zone.top = 0;
-                zone.bottom = frame.rows / 3;
-                zone.uid = 1;
-                zone.name = "Zone 1";
-                zone.min_obj_width = 5;
-                zone.min_obj_height = 5;
-                zone.use_detection = true;
-                zones.push_back(zone);
-
-                zone.top = zone.bottom;
-				zone.bottom = (2 * frame.rows) / 3;
-                zone.uid = 2;
-                zone.name = "Zone 2";
-                zones.push_back(zone);
-
-                zone.top = zone.bottom;
-				zone.bottom = frame.rows - 1;
-                zone.uid = 3;
-                zone.name = "Zone 3";
-                zones.push_back(zone);
-
-                ftrack->set_zones_list(zones);
-#endif
-
-                init_zones = true;
-            }
 
             cv::Mat curr_frame;
             switch (cl_type)
