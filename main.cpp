@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 
             if (rect_count && rect_arr)
             {
-                cv::Scalar colors[5] = {
+                cv::Scalar colors[feintrack::max_types] = {
                     cv::Scalar(0, 255, 0),
                     cv::Scalar(0, 0, 0),
                     cv::Scalar(0, 0, 0),
@@ -202,6 +202,7 @@ int main(int argc, char* argv[])
                     case feintrack::vehicle:        type_str = "v";  break;
                     case feintrack::animal:         type_str = "a";  break;
                     case feintrack::humans:         type_str = "hh"; break;
+                    case feintrack::max_types:      assert(0);       break;
                     }
                     sprintf(object_name, "%u %s", rect_arr[i].uid, type_str.c_str());
                     cv::putText(frame, object_name, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 255, 255));
