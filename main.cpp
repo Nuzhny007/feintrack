@@ -178,6 +178,8 @@ int main(int argc, char* argv[])
 
                 for (size_t i = 0; i < rect_count; ++i)
                 {
+                    assert(rect_arr[i].type < feintrack::max_types);
+
                     cv::rectangle(frame, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::Point(rect_arr[i].right, rect_arr[i].bottom), colors[rect_arr[i].type]);
 
                     // Вывод траектории
