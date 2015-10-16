@@ -31,6 +31,7 @@ CFeinTrack::CFeinTrack()
       top_padding(0),
       need_background_update(true),
       del_objects_count(0),
+      lastUid(1),
       weight_threshold(0.1f),
       weight_alpha(0.5f / 25),
       objects_count(0),
@@ -828,7 +829,7 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                     if (is_in_zone(*find_region, nullptr))
                     {
                         // Cоздаём оставленный предмет
-                        lefted_objects.push_back(CLeftObjView(left_object_time3 - left_object_time1, find_region->get_left(), find_region->get_right(), find_region->get_top(), find_region->get_bottom()));
+                        lefted_objects.push_back(CLeftObjView(left_object_time3 - left_object_time1, find_region->get_left(), find_region->get_right(), find_region->get_top(), find_region->get_bottom(), (*iter_obj)->uid));
                     }
 
                     if (need_background_update)
@@ -933,7 +934,7 @@ void CFeinTrack::add_to_shady_left_objects(CTrackingObject &obj)
 {
     CShadyLeftObj new_obj(obj.uid, obj.get_left_frames(), obj.get_left(), obj.get_right(), obj.get_top(), obj.get_bottom());
     // Если существует объект с центром в некоторой окрестности, то его удаляем а время складываем
-    for (std::list<CShadyLeftObj>::iterator iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
+    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
     {
         if ((abs(iter->rect.center_x() - obj.get_last_center_x()) < 2 * obj.get_left_epsilon()) &&
                 (abs(iter->rect.center_y() - obj.get_last_center_y()) < 2 * obj.get_left_epsilon()))
@@ -953,9 +954,9 @@ void CFeinTrack::add_to_shady_left_objects(CTrackingObject &obj)
 
 void CFeinTrack::del_from_shady_left_objects(unsigned int obj_uid)
 {
-    for (std::list<CShadyLeftObj>::iterator iter = shady_left_objects.begin(); iter != shady_left_objects.end(); ++iter)
+    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end(); ++iter)
     {
-        if (iter->real_obj_uid == obj_uid)
+        if (iter->obj_uid == obj_uid)
         {
             iter = shady_left_objects.erase(iter);
             return;
@@ -966,11 +967,11 @@ void CFeinTrack::del_from_shady_left_objects(unsigned int obj_uid)
 
 void CFeinTrack::del_uid_from_shady_left_objects(unsigned int obj_uid)
 {
-    for (std::list<CShadyLeftObj>::iterator iter = shady_left_objects.begin(); iter != shady_left_objects.end(); ++iter)
+    for (auto& obj : shady_left_objects)
     {
-        if (iter->real_obj_uid == obj_uid)
+        if (obj.obj_uid == obj_uid)
         {
-            iter->real_obj_uid = 0;
+            obj.obj_uid = 0;
             return;
         }
     }
@@ -979,11 +980,11 @@ void CFeinTrack::del_uid_from_shady_left_objects(unsigned int obj_uid)
 
 void CFeinTrack::inc_time_shady_left_objects(unsigned int obj_uid)
 {
-    for (std::list<CShadyLeftObj>::iterator iter = shady_left_objects.begin(); iter != shady_left_objects.end(); ++iter)
+    for (auto& obj : shady_left_objects)
     {
-        if (iter->real_obj_uid == obj_uid)
+        if (obj.obj_uid == obj_uid)
         {
-            iter->life_time++;
+            obj.life_time++;
             return;
         }
     }
@@ -992,9 +993,9 @@ void CFeinTrack::inc_time_shady_left_objects(unsigned int obj_uid)
 
 void CFeinTrack::analyze_shady_left_objects()
 {
-    for (std::list<CShadyLeftObj>::iterator iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
+    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
     {
-        if (!iter->real_obj_uid)
+        if (!iter->obj_uid)
         {
             iter->not_detect_time++;
             if (iter->not_detect_time > left_object_time1)
@@ -1144,8 +1145,9 @@ regions_container::iterator CFeinTrack::find_region_by_center(int c_x, int c_y, 
 }
 ////////////////////////////////////////////////////////////////////////////
 
-unsigned int CFeinTrack::get_free_uid() const
+unsigned int CFeinTrack::get_free_uid()
 {
+#if 0
     // Получаем простым перебором
     unsigned int ret_val = 1;
     for (; ret_val < std::numeric_limits<unsigned int>::max(); ++ret_val)
@@ -1168,6 +1170,19 @@ unsigned int CFeinTrack::get_free_uid() const
             break;
     }
     return ret_val;
+#else
+    // Глобальная индексация
+    unsigned int ret_val = lastUid;
+    if (lastUid < std::numeric_limits<unsigned int>::max())
+    {
+        ++lastUid;
+    }
+    else
+    {
+        lastUid = 1;
+    }
+    return ret_val;
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -1177,7 +1192,7 @@ void CFeinTrack::add_left_object_to_out_rects(const CLeftObjView &left_obj, CLef
     // Он может только увеличивать свой размер, если на последующих кадрах выделенных объектов больше, чем на предыдущих
     if (++left_objects_count > left_obj_rects.size())
     {
-        left_obj_rects.push_back(CLeftObjRect(left_obj.rect, type));
+        left_obj_rects.push_back(CLeftObjRect(left_obj.rect, type, left_obj.obj_uid));
         if (left_padding)
         {
             left_obj_rects[left_objects_count - 1].left += left_padding;
@@ -1196,6 +1211,7 @@ void CFeinTrack::add_left_object_to_out_rects(const CLeftObjView &left_obj, CLef
         left_obj_rects[left_objects_count - 1].top = left_obj.rect.top + top_padding;
         left_obj_rects[left_objects_count - 1].bottom = left_obj.rect.bottom + top_padding;
         left_obj_rects[left_objects_count - 1].type = type;
+        left_obj_rects[left_objects_count - 1].obj_uid = left_obj.obj_uid;
     }
 }
 ////////////////////////////////////////////////////////////////////////////

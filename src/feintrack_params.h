@@ -112,14 +112,15 @@ namespace feintrack
     // Прямоугольник с координатами оставленного предмета
     struct CLeftObjRect: public RECT_
     {
-        enum types        // Типы объекта
+        enum types             // Типы объекта
         {
             first, second
         };
-        types type;       // Тип объекта
+        types type;            // Тип объекта
+        unsigned int obj_uid;  // Идентификатор объекта, который стал оставленным
 
-        CLeftObjRect(const RECT_ &rect, types type_)
-            : RECT_(rect), type(type_)
+        CLeftObjRect(const RECT_ &rect, types type_, unsigned int obj_uid_)
+            : RECT_(rect), type(type_), obj_uid(obj_uid_)
         {
         }
     };

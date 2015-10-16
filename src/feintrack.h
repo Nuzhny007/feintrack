@@ -70,12 +70,13 @@ namespace feintrack
 
 		objects_container objects_history;                    // Список объектов, найденных на предыдущих кадрах
 
-        void add_uid_to_del_objects(unsigned int uid);               // Добавление иденфификатора с списку удалёных объектов
+        void add_uid_to_del_objects(unsigned int uid);        // Добавление иденфификатора с списку удалёных объектов
         void del_object(std::unique_ptr<CTrackingObject>& object, bool del_adv_data); // Удаление объекта и связанных с ним данных
-        std::vector<unsigned int> del_objects;                       // Массив координат объектов. Заполняется для рисования прямоугольников. Валиден до прихода следующего кадра
+        std::vector<unsigned int> del_objects;                // Массив координат объектов. Заполняется для рисования прямоугольников. Валиден до прихода следующего кадра
 		size_t del_objects_count;                             // Количество найденных объектов на последнем кадре
 
-        unsigned int get_free_uid() const;                           // Получение свободного иденификатора объекта
+        unsigned int get_free_uid();                          // Получение свободного иденификатора объекта
+        unsigned int lastUid;                                 // Наибольший идентификатор объекта
 
 		regions_container::iterator find_region_by_center(int c_x, int c_y, int width, int height); // Поиск подходящего региона по координатам центра объекта
         regions_container::iterator find_region_by_hist(const uchar* buf, int pitch, const std::unique_ptr<CTrackingObject>& obj);  // Поиск региона по гистограмме

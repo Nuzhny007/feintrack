@@ -176,20 +176,21 @@ namespace feintrack
 	struct CLeftObjView
 	{
 		CLeftObjView()
-			: life_time(0)
+            : life_time(0), obj_uid(0)
 		{}
-		CLeftObjView(int life_time_, int left, int right, int top, int bottom)
-			: life_time(life_time_)
+        CLeftObjView(int life_time_, int left, int right, int top, int bottom, unsigned int obj_uid_)
+            : life_time(life_time_), obj_uid(obj_uid_)
 		{
 			rect.left = left;
 			rect.right = right;
 			rect.top = top;
 			rect.bottom = bottom;
 		}
-		int life_time; //Время жизни предмета
-		RECT_ rect;    //Прямоугольник предмета
+        int life_time;        // Время жизни предмета
+        RECT_ rect;           // Прямоугольник предмета
+        unsigned int obj_uid; // Идентификатор объекта, который стал оставленным
 
-		//Сравнение по времени жизни
+        // Сравнение по времени жизни
 		static bool bigger(const CLeftObjView &obj1, const CLeftObjView &obj2)
 		{
 			return obj1.life_time > obj2.life_time;
@@ -201,14 +202,16 @@ namespace feintrack
 	struct CShadyLeftObj: public CLeftObjView
 	{
 		CShadyLeftObj()
-			: real_obj_uid(0), not_detect_time(0)
+            :
+              not_detect_time(0)
 		{
 		}
-        CShadyLeftObj(unsigned int real_obj_uid_, int life_time_, int left, int right, int top, int bottom)
-			: CLeftObjView(life_time_, left, right, top, bottom), real_obj_uid(real_obj_uid_), not_detect_time(0)
+        CShadyLeftObj(unsigned int real_obj_uid, int life_time_, int left, int right, int top, int bottom)
+            :
+              CLeftObjView(life_time_, left, right, top, bottom, real_obj_uid),
+              not_detect_time(0)
 		{
 		}
-        unsigned int real_obj_uid;  //Идентификатор объекта, который возможно является оставленным
 		int not_detect_time; //Количество кадров, на которых объект не был найден
 	};
 	////////////////////////////////////////////////////////////////////////////

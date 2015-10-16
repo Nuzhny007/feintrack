@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
     ftrack->set_sensitivity(80);
-	ftrack->set_fps(fps);
+    ftrack->set_fps(fps);
     ftrack->set_show_objects(true);
     ftrack->set_bgrnd_type(feintrack::norm_back);
     ftrack->set_use_recognition(false);
@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
     ftrack->set_detect_patches_of_sunlight(false);
     ftrack->set_cut_shadows(true);
 
-    ftrack->set_left_object_time1_sec(10);
-    ftrack->set_left_object_time2_sec(20);
-    ftrack->set_left_object_time3_sec(30);
+    ftrack->set_left_object_time1_sec(5);
+    ftrack->set_left_object_time2_sec(10);
+    ftrack->set_left_object_time3_sec(15);
 
 #if 0
     feintrack::zones_cont zones;
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 
     ftrack->enable_back_update(true);
 
-	ftrack->set_use_cuda(false, 0);
+    ftrack->set_use_cuda(false, 0);
 
 
     uint32_t frame_num(0);
