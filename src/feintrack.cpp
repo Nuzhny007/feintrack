@@ -681,20 +681,20 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                     mstring zone_name;
                     if (is_in_zone(*find_region, &zone_name))
                     {
-                            // Проверяем на пересечение с линиями и обновляем координаты центра объекта и скорость его смещения
-                            with_line_intersect(**iter_obj, find_region->get_center_x(), find_region->get_center_y());
+                        // Проверяем на пересечение с линиями и обновляем координаты центра объекта и скорость его смещения
+                        with_line_intersect(**iter_obj, find_region->get_center_x(), find_region->get_center_y());
 
-                            // Задаём новые значения центра объекта
-                            (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                            // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
-                            if (!(*iter_obj)->get_left_frames())
-                            {
-                                del_uid_from_shady_left_objects((*iter_obj)->uid);
-                            }
-                            else
-                            {
-                                inc_time_shady_left_objects((*iter_obj)->uid);
-                            }
+                        // Задаём новые значения центра объекта
+                        (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
+                        // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
+                        if (!(*iter_obj)->get_left_frames())
+                        {
+                            del_uid_from_shady_left_objects((*iter_obj)->uid);
+                        }
+                        else
+                        {
+                            inc_time_shady_left_objects((*iter_obj)->uid);
+                        }
 
                         object_types type_now = unknown_object;
                         if (use_recognition)
@@ -709,17 +709,17 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                     }
                     else // Объект не попал в зоны детекции
                     {
-                            // Задаём новые значения центра объекта
-                            (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                            // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
-                            if (!(*iter_obj)->get_left_frames())
-                            {
-                                del_uid_from_shady_left_objects((*iter_obj)->uid);
-                            }
-                            else
-                            {
-                                inc_time_shady_left_objects((*iter_obj)->uid);
-                            }
+                        // Задаём новые значения центра объекта
+                        (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
+                        // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
+                        if (!(*iter_obj)->get_left_frames())
+                        {
+                            del_uid_from_shady_left_objects((*iter_obj)->uid);
+                        }
+                        else
+                        {
+                            inc_time_shady_left_objects((*iter_obj)->uid);
+                        }
                     }
                 }
                 else // Объект не двигается - становится оставленным предметом
@@ -750,17 +750,17 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
             }
             else // Объект существует недостаточно долго
             {
-                    // Задаём новые значения центра объекта
-                    (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                    // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
-                    if (!(*iter_obj)->get_left_frames())
-                    {
-                        del_uid_from_shady_left_objects((*iter_obj)->uid);
-                    }
-                    else
-                    {
-                        inc_time_shady_left_objects((*iter_obj)->uid);
-                    }
+                // Задаём новые значения центра объекта
+                (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
+                // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
+                if (!(*iter_obj)->get_left_frames())
+                {
+                    del_uid_from_shady_left_objects((*iter_obj)->uid);
+                }
+                else
+                {
+                    inc_time_shady_left_objects((*iter_obj)->uid);
+                }
             }
 
             // Удаляем найденный регион, чтобы избежать совпадений с другими объектами
