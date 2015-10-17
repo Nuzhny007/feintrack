@@ -93,9 +93,6 @@ namespace feintrack
 		object_types type;                                //Текущий тип объекта
 		static const int min_recogn_count = 5;            //Минимальное количество положительных распознаваний, при которых объект относится к данному типу
 
-		CTrackingObject *merge_object1;                   //Объекты,
-		CTrackingObject *merge_object2;                   //с которыми было произведено слияние при пересечении траекторий
-
 #if LIN_MNK
 		static const size_t STAT_FRAME_COUNT = 24;        //Количество кадров, которые используются для предсказания будущего положения объекта
 		cyclic_array<POINT_<int>, STAT_FRAME_COUNT> stat; //Координаты объекта на предыдущих кадрах
@@ -119,13 +116,6 @@ namespace feintrack
 
 		object_types get_type() const;                    //Получение типа объекта
 		void set_new_type(object_types new_type);         //Задание распознанного на очередном кадре типа объекта
-
-		bool have_merge_object() const;                          //Есть ли объект, с которым произвелось слияние
-		void add_merge_obj(const CTrackingObject &merge_object); //Слияние с объектом
-		CTrackingObject *get_merge_object(size_t ind);           //Получение объекта, с которым было произведено слияние
-		void inc_merge_frames();                                 //Увеличение времени слияния на 1
-		void set_merge_objects_to_null();                        //Обнулить указатели на объекты
-        bool has_merge_object(unsigned int object_uid) const;           //Имеется ли объект с искомым uid
 
 		static const float_t default_weight;              //Первоначальное значение веса объекта
 

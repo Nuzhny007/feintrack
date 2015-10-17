@@ -655,101 +655,6 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
         // Если, наконец, подходящий регион нашёлся, то:
         if (find_region != regions.end())
         {
-
-            bool is_merge(false);
-#if 0
-            //У данного объекта не было пересечений с другими
-            if (!(*iter_obj)->have_merge_object())
-            {
-                //Ищем объект, с которым возможно пересечение
-                objects_container::iterator merge_obj = get_object_by_region(*find_region, iter_obj);
-                if (merge_obj != objects_history.end())
-                {
-                    if (!(*merge_obj)->have_merge_object())
-                    {
-                        //Если размер нового региона больше размеров претендующих на него объектов, то происходит слияине
-                        if ((find_region->width() > (*iter_obj)->width()) &&
-                                (find_region->height() > (*iter_obj)->height()))
-                        {
-                            if ((find_region->width() > (*merge_obj)->width()) &&
-                                    (find_region->height() > (*merge_obj)->height()))
-                            {
-                                //Производим слияние
-                                (*iter_obj)->add_merge_obj(**merge_obj);
-                                //Удаляем объект, с которым было произведено слияние (это корректно, т.к. используется list)
-                                del_object(*merge_obj, false);
-                                objects_history.erase(merge_obj);
-
-                                is_merge = true;
-                            }
-                        }
-                    }
-                }
-            }
-            else //Данный объект содержит в себе 2 объекта меньшего размера
-            {
-                //Ищем регионы, которые могли бы претендовать на эти объекты
-                CTrackingObject *merge_object1 = (*iter_obj)->get_merge_object(1);
-                CTrackingObject *merge_object2 = (*iter_obj)->get_merge_object(2);
-                regions_container::iterator region1(find_region_by_center(merge_object1->get_new_center_x(), merge_object1->get_new_center_y(), merge_object1->width(), merge_object1->height()));
-                if (region1 != regions.end())
-                {
-                    regions_container::iterator region2(find_region_by_center(merge_object2->get_new_center_x(), merge_object2->get_new_center_y(), merge_object2->width(), merge_object2->height()));
-                    if (region2 != regions.end() &&
-                            region1 != region2)
-                    {
-                        //Подходящие регионы найдены и их размеры подходящие
-                        //Добавляем эти объекты в список, а существующий удаляем
-
-                        //1. вычисляем новый вес объекта
-                        merge_object1->weight = (1 - weight_alpha) * merge_object1->weight + weight_alpha;
-                        //2. увеличиваем время жизни объекта
-                        merge_object1->life_time++;
-                        //3. запоминаем координаты объекта
-                        merge_object1->set_rect(region1->get_left(), region1->get_right(), region1->get_top(), region1->get_bottom());
-                        //4. обнуляем количество кадров, на которых объект не был найден
-                        merge_object1->frames_left = 0;
-                        //Задаём новые значения центра объекта
-                        merge_object1->set_last_center(region1->get_center_x(), region1->get_center_y());
-
-                        //1. вычисляем новый вес объекта
-                        merge_object2->weight = (1 - weight_alpha) * merge_object2->weight + weight_alpha;
-                        //2. увеличиваем время жизни объекта
-                        merge_object2->life_time++;
-                        //3. запоминаем координаты объекта
-                        merge_object2->set_rect(region2->get_left(), region2->get_right(), region2->get_top(), region2->get_bottom());
-                        //4. обнуляем количество кадров, на которых объект не был найден
-                        merge_object2->frames_left = 0;
-                        //Задаём новые значения центра объекта
-                        merge_object2->set_last_center(region2->get_center_x(), region2->get_center_y());
-
-                        //Отправляем объекты на вывод
-                        mstring zone_name;
-                        if (is_in_zone(*region1, &zone_name))
-                            add_object_to_out_rects(*region1, *merge_object1, CObjRect::unknown, zone_name);
-                        if (is_in_zone(*region2, &zone_name))
-                            add_object_to_out_rects(*region2, *merge_object2, CObjRect::unknown, zone_name);
-
-                        //Объекты добавляем в общий список
-                        objects_history.push_front(merge_object2);
-                        objects_history.push_front(merge_object1);
-
-                        //"Родительский" объект удаляется
-                        (*iter_obj)->set_merge_objects_to_null();
-                        del_object(*iter_obj, false);
-                        iter_obj = objects_history.erase(iter_obj);
-
-                        //А также удаляются регионы, соответствующие разделённым объектам
-                        regions.erase(region1);
-                        regions.erase(region2);
-                        continue;
-                    }
-                }
-                //Разделения не произошло - увеличиваем время, в течение которого объекты существуют "совместно"
-                (*iter_obj)->inc_merge_frames();
-            }
-#endif
-
             // Изменяем параметры объекта:
             // 1. вычисляем новый вес объекта
             (*iter_obj)->weight = (1 - weight_alpha) * (*iter_obj)->weight + weight_alpha;
@@ -770,14 +675,12 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                 }
 
                 // Если объект двигается
-                if (((*iter_obj)->get_left_frames() < left_object_time1) || is_merge)
+                if ((*iter_obj)->get_left_frames() < left_object_time1)
                 {
                     // Попадает ли объект в зоны детекции
                     mstring zone_name;
                     if (is_in_zone(*find_region, &zone_name))
                     {
-                        if (!is_merge)
-                        {
                             // Проверяем на пересечение с линиями и обновляем координаты центра объекта и скорость его смещения
                             with_line_intersect(**iter_obj, find_region->get_center_x(), find_region->get_center_y());
 
@@ -792,7 +695,6 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                             {
                                 inc_time_shady_left_objects((*iter_obj)->uid);
                             }
-                        }
 
                         object_types type_now = unknown_object;
                         if (use_recognition)
@@ -807,8 +709,6 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                     }
                     else // Объект не попал в зоны детекции
                     {
-                        if (!is_merge)
-                        {
                             // Задаём новые значения центра объекта
                             (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
                             // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
@@ -820,7 +720,6 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                             {
                                 inc_time_shady_left_objects((*iter_obj)->uid);
                             }
-                        }
                     }
                 }
                 else // Объект не двигается - становится оставленным предметом
@@ -851,8 +750,6 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
             }
             else // Объект существует недостаточно долго
             {
-                if (!is_merge)
-                {
                     // Задаём новые значения центра объекта
                     (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
                     // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
@@ -864,7 +761,6 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
                     {
                         inc_time_shady_left_objects((*iter_obj)->uid);
                     }
-                }
             }
 
             // Удаляем найденный регион, чтобы избежать совпадений с другими объектами
@@ -1160,7 +1056,7 @@ unsigned int CFeinTrack::get_free_uid()
         bool find_uid = false;
         for (objects_container::const_iterator iter = objects_history.begin(); iter != objects_history.end(); ++iter)
         {
-            if ((ret_val == (*iter)->uid) || (*iter)->has_merge_object(ret_val))
+            if (ret_val == (*iter)->uid)
             {
                 find_uid = true;
                 break;

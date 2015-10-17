@@ -183,8 +183,6 @@ CTrackingObject::CTrackingObject(int center_x_, int center_y_, unsigned int uid_
       #endif
       obj_recogn_count(0),
       type(unknown_object),
-      merge_object1(nullptr),
-      merge_object2(nullptr),
       uid(uid_),
       weight(default_weight),
       life_time(0),
@@ -222,16 +220,12 @@ CTrackingObject::CTrackingObject(const CTrackingObject &obj)
       life_time(obj.life_time),
       frames_left(obj.frames_left)
 {
-    merge_object1 = obj.merge_object1;
-    merge_object2 = obj.merge_object2;
     traectory_x.assign(obj.traectory_x.begin(), obj.traectory_x.end());
     traectory_y.assign(obj.traectory_y.begin(), obj.traectory_y.end());
 }
 ////////////////////////////////////////////////////////////////////////////
 CTrackingObject::~CTrackingObject()
 {
-    delete merge_object1;
-    delete merge_object2;
 }
 ////////////////////////////////////////////////////////////////////////////
 object_types CTrackingObject::get_type() const
@@ -266,54 +260,6 @@ void CTrackingObject::set_new_type(object_types new_type)
                 type = new_type;
         }
     }
-}
-////////////////////////////////////////////////////////////////////////////
-bool CTrackingObject::have_merge_object() const
-{
-    return merge_object1 && merge_object2;
-}
-////////////////////////////////////////////////////////////////////////////
-void CTrackingObject::add_merge_obj(const CTrackingObject &merge_object)
-{
-    merge_object1 = new CTrackingObject(*this);
-    merge_object2 = new CTrackingObject(merge_object);
-
-    if (merge_object.weight > weight)
-        weight = merge_object.weight;
-    if (merge_object.life_time > life_time)
-        life_time = merge_object.life_time;
-}
-////////////////////////////////////////////////////////////////////////////
-CTrackingObject *CTrackingObject::get_merge_object(size_t ind)
-{
-    switch (ind)
-    {
-    case 1:
-        return merge_object1;
-    case 2:
-        return merge_object2;
-    default:
-        return nullptr;
-    }
-}
-////////////////////////////////////////////////////////////////////////////
-void CTrackingObject::inc_merge_frames()
-{
-    merge_object1->life_time++;
-    merge_object1->recalc_center();
-    merge_object2->life_time++;
-    merge_object2->recalc_center();
-}
-////////////////////////////////////////////////////////////////////////////
-void CTrackingObject::set_merge_objects_to_null()
-{
-    merge_object1 = nullptr;
-    merge_object2 = nullptr;
-}
-////////////////////////////////////////////////////////////////////////////
-bool CTrackingObject::has_merge_object(unsigned int object_uid) const
-{
-    return (merge_object1 && (merge_object1->uid == object_uid)) || (merge_object2 && (merge_object2->uid == object_uid));
 }
 ////////////////////////////////////////////////////////////////////////////
 #if !LIN_MNK
