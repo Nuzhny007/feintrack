@@ -1,20 +1,5 @@
 #include "bgrnd_substr.h"
 
-#if ADV_OUT
-#include <opencv2/core/core.hpp>
-
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/imgproc/types_c.h>
-
-#include <opencv2/video/video.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/highgui/highgui_c.h>
-#endif
-
 ////////////////////////////////////////////////////////////////////////////
 namespace feintrack
 {
@@ -547,11 +532,11 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
         }
 
 #if ADV_OUT
-        uchar* adv_dest_buf = adv_buf_rgb24;
         par = &params[0];
         i = 0;
         for (uint32_t y = 0; y < frame_height; ++y)
         {
+            uchar* adv_dest_buf = adv_buf_rgb24 + y * 2 * frame_width * 3;
             for (uint32_t x = 0; x < frame_width; ++x, ++i)
             {
 
@@ -583,17 +568,22 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
 #endif
 
 #if ADV_OUT
-        cv::Mat sigmaImg(frame_height, frame_width, CV_8UC1);
         par = &params[0];
         for (uint32_t y = 0; y < frame_height; ++y)
         {
+            uchar* adv_dest_buf = adv_buf_rgb24 + y * 2 * frame_width * 3 + frame_width * 3;
+
             for (uint32_t x = 0; x < frame_width; ++x, ++i)
             {
-                sigmaImg.at<uchar>(y, x) = (uchar)((255 * (par->p[0].sigma - min_sigma_val)) / (max_sigma_val - min_sigma_val));
+                uchar v = (uchar)((255 * (par->p[0].sigma - min_sigma_val)) / (max_sigma_val - min_sigma_val));
+                adv_dest_buf[0] = v;
+                adv_dest_buf[1] = v;
+                adv_dest_buf[2] = v;
+
                 ++par;
+                adv_dest_buf += 3;
             }
         }
-        cv::imshow("sigmaImg", sigmaImg);
 #endif
     }
     return 1;
@@ -1066,14 +1056,14 @@ int CGaussianMixtureBackSubstr::background_substraction(int& curr_frame, const u
         }
 
 #if ADV_OUT
-        uchar* adv_dest_buf = adv_buf_rgb24;
         par = &params[0];
         i = 0;
         for (uint32_t y = 0; y < frame_height; ++y)
         {
+            uchar* adv_dest_buf = adv_buf_rgb24 + y * 2 * frame_width * 3;
+
             for (uint32_t x = 0; x < frame_width; ++x, ++i)
             {
-
                 adv_dest_buf[0] = (uchar)par->proc_list[par->curr_proc].p[0].mu;
                 if ((curr_color_type == buf_rgb24) || (curr_color_type == buf_rgb32))
                 {

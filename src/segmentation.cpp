@@ -220,6 +220,7 @@ namespace feintrack
 				adv_buf_rgb24 += 3;
 				++pl;
 			}
+            adv_buf_rgb24 += 3 * frame_width;
 		}
 	}
 #endif

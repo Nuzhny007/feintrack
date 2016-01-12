@@ -425,7 +425,7 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
 
         buf += top_padding * pitch + pixel_size * left_padding;
 #if ADV_OUT
-        adv_buf_rgb24 += top_padding * 3 * width + 3 * left_padding;
+        adv_buf_rgb24 += top_padding * 3 * 2 * width + 3 * left_padding;
 #endif
         width = ((analyze_area.right - analyze_area.left) * width) / 100;
         height = ((analyze_area.bottom - analyze_area.top) * height) / 100;
@@ -625,11 +625,11 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
 #if 1
 #if ADV_OUT
         RECT_ r((*iter_obj)->get_rect());
-        paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * frame_width, r.left, r.right, r.top);
-        paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * frame_width, r.left, r.right + 1, r.bottom);
+        paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right, r.top);
+        paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right + 1, r.bottom);
 
-        paint_v_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * frame_width, r.left, r.top, r.bottom);
-        paint_v_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * frame_width, r.right, r.top, r.bottom);
+        paint_v_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.top, r.bottom);
+        paint_v_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.right, r.top, r.bottom);
 #endif
 #endif
 
