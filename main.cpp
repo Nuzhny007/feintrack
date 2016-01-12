@@ -5,12 +5,15 @@
 #include "src/feintrack_params.h"
 #include "src/feintrack.h"
 
+#define SAVE_DBG_VIDEO 1
+
 ////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[])
 {
     //std::string input_file_name = "/home/snuzhny/Documents/automotive/pedestrians_datasets/ikoretsk/video/camera1.mov";
-	std::string input_file_name = "0";
+    std::string input_file_name = "/home/user/cv/uav_detection/151223-1846/%04d.png";
+    //std::string input_file_name = "0";
     if (argc > 1)
     {
         input_file_name = argv[1];
@@ -37,7 +40,11 @@ int main(int argc, char* argv[])
     }
 	int framesNum = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_COUNT));
 
-	int fps = static_cast<int>(capture.get(CV_CAP_PROP_FPS));
+#if 1
+    capture.set(CV_CAP_PROP_FPS, 50.0);
+#endif
+    int fps = static_cast<int>(capture.get(CV_CAP_PROP_FPS));
+    std::cout << "Default fps = " << fps << std::endl;
 	if (fps < 1)
 	{
 		fps = 25;
@@ -48,25 +55,30 @@ int main(int argc, char* argv[])
 
     auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
-    ftrack->set_sensitivity(80);
+    ftrack->set_sensitivity(90);
     ftrack->set_fps(fps);
     ftrack->set_show_objects(true);
     ftrack->set_bgrnd_type(feintrack::norm_back);
     ftrack->set_use_recognition(false);
-    ftrack->set_use_morphology(true);
+    ftrack->set_use_morphology(false);
     ftrack->set_show_left_objects(true);
-    ftrack->set_show_trajectory(false);
+    ftrack->set_show_trajectory(true);
     ftrack->set_selection_time(12);
+#if 0
     ftrack->set_min_region_width(std::max(5, frameWidth / 100));
     ftrack->set_min_region_height(ftrack->get_min_region_width());
+#else
+    ftrack->set_min_region_width(2);
+    ftrack->set_min_region_height(2);
+#endif
     ftrack->set_analyze_area(feintrack::RECT_(0, 100, 0, 100));
     ftrack->set_use_square_segmentation(true);
     ftrack->set_detect_patches_of_sunlight(false);
-    ftrack->set_cut_shadows(true);
+    ftrack->set_cut_shadows(false);
 
-    ftrack->set_left_object_time1_sec(5);
-    ftrack->set_left_object_time2_sec(10);
-    ftrack->set_left_object_time3_sec(15);
+    ftrack->set_left_object_time1_sec(25);
+    ftrack->set_left_object_time2_sec(30);
+    ftrack->set_left_object_time3_sec(35);
 
 #if 0
     feintrack::zones_cont zones;
@@ -108,24 +120,50 @@ int main(int argc, char* argv[])
 
     uint32_t frame_num(0);
 
-    feintrack::color_type cl_type = feintrack::buf_rgb24;
+    feintrack::color_type cl_type = feintrack::buf_gray;
 
 #if ADV_OUT
     cv::Mat adv_img;
 #endif
 
-    for (int vc = 0; vc < 3; ++vc)
+#if SAVE_DBG_VIDEO
+    cv::VideoWriter writer;
+#endif
+
+    for (int vc = 0; vc < 1; ++vc)
     {
         frame_num = 0;
         //capture.set(CV_CAP_PROP_POS_FRAMES, 100);
 
+        cv::Mat frameOrig;
         cv::Mat frame;
-        for (capture >> frame; !frame.empty(); capture >> frame)
+        for (capture >> frameOrig; !frameOrig.empty(); capture >> frameOrig)
         {
+            frameOrig.copyTo(frame);
+            frameWidth = frame.cols;
+            frameHeight = frame.rows;
+
+#if SAVE_DBG_VIDEO
+            cv::Size resultFrameSize(2 * frameWidth, frameHeight);
+#if ADV_OUT
+            resultFrameSize.height *= 2;
+#endif
+
+            if (!writer.isOpened())
+            {
+                std::string resultFileName = "result.avi";
+                if (argc > 2)
+                {
+                    resultFileName = argv[2];
+                }
+                writer.open(resultFileName, cv::VideoWriter::fourcc('M','J','P','G'), fps, resultFrameSize, true);
+            }
+#endif
+
 #if ADV_OUT
             if (adv_img.empty())
             {
-                adv_img = cv::Mat(frame.rows, frame.cols, CV_8UC3, cv::Scalar(0, 0, 0));
+                adv_img = cv::Mat(frame.rows, 2 * frame.cols, CV_8UC3, cv::Scalar(0, 0, 0));
             }
 #endif
 
@@ -196,17 +234,25 @@ int main(int argc, char* argv[])
 
 #if 1
                     char object_name[256];
-                    std::string type_str("u");
-                    switch (rect_arr[i].type)
+
+                    if (ftrack->get_use_recognition())
                     {
-                    case feintrack::unknown_object: type_str = "u";  break;
-                    case feintrack::human:          type_str = "h";  break;
-                    case feintrack::vehicle:        type_str = "v";  break;
-                    case feintrack::animal:         type_str = "a";  break;
-                    case feintrack::humans:         type_str = "hh"; break;
-                    case feintrack::max_types:      assert(0);       break;
+                        std::string type_str("u");
+                        switch (rect_arr[i].type)
+                        {
+                        case feintrack::unknown_object: type_str = "u";  break;
+                        case feintrack::human:          type_str = "h";  break;
+                        case feintrack::vehicle:        type_str = "v";  break;
+                        case feintrack::animal:         type_str = "a";  break;
+                        case feintrack::humans:         type_str = "hh"; break;
+                        case feintrack::max_types:      assert(0);       break;
+                        }
+
+                        sprintf(object_name, "%u %s", rect_arr[i].uid, type_str.c_str());
                     }
-                    sprintf(object_name, "%u %s", rect_arr[i].uid, type_str.c_str());
+                    {
+                        sprintf(object_name, "%u", rect_arr[i].uid);
+                    }
                     cv::putText(frame, object_name, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 255, 255));
 #endif
                 }
@@ -236,6 +282,19 @@ int main(int argc, char* argv[])
 
 #if ADV_OUT
             cv::imshow("adv_img", adv_img);
+#endif
+
+#if SAVE_DBG_VIDEO
+            if (writer.isOpened())
+            {
+                cv::Mat resDbg(resultFrameSize, CV_8UC3);
+                frameOrig.copyTo(cv::Mat(resDbg, cv::Rect(0, 0, frameWidth, frameHeight)));
+                frame.copyTo(cv::Mat(resDbg, cv::Rect(frameWidth, 0, frameWidth, frameHeight)));
+#if ADV_OUT
+                adv_img.copyTo(cv::Mat(resDbg, cv::Rect(0, frameHeight, 2 * frameWidth, frameHeight)));
+#endif
+                writer << resDbg;
+            }
 #endif
 
             std::cout << "Frame " << frame_num << " of " << framesNum << ": " << rect_count << " objects are tracking at " << ((t2 - t1) / freq) << " sec" << std::endl;
