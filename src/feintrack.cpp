@@ -625,11 +625,12 @@ void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_b
 #if 1
 #if ADV_OUT
         RECT_ r((*iter_obj)->get_rect());
-        paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right, r.top);
-        paint_h_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right + 1, r.bottom);
+		std::array<uchar, 3> cl = { 0, 0xff, 0 };
+		paint_h_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right, r.top, cl);
+		paint_h_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right + 1, r.bottom, cl);
 
-        paint_v_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.top, r.bottom);
-        paint_v_line<0, 0xff, 0, 3>(adv_buf_rgb24, 3 * 2 * frame_width, r.right, r.top, r.bottom);
+		paint_v_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.top, r.bottom, cl);
+		paint_v_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.right, r.top, r.bottom, cl);
 #endif
 #endif
 
