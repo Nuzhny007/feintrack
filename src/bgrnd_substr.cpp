@@ -5,8 +5,8 @@ namespace feintrack
 {
 ////////////////////////////////////////////////////////////////////////////
 
-const ft_param_t CBackSubstraction::min_sens = (ft_param_t)1;   // Минимальное и
-const ft_param_t CBackSubstraction::max_sens = (ft_param_t)10; // максимальное значение порога при вычитании фона (epsilon)
+const ft_param_t CBackSubstraction::min_sens = (ft_param_t)0.5;  // Минимальное и
+const ft_param_t CBackSubstraction::max_sens = (ft_param_t)6;    // максимальное значение порога при вычитании фона (epsilon)
 
 // Параметры обучения низкочастотного фильтра рекурсивного сглаживания
 const ft_param_t CBackSubstraction::alpha1 = (ft_param_t)10; // Для выборочного среднего
