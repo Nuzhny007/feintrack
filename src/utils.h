@@ -3,6 +3,7 @@
 #include <limits>
 #include <vector>
 #include <string>
+#include <array>
 #include <list>
 #include <math.h>
 #include <string.h>
@@ -21,13 +22,24 @@ namespace feintrack
     template<class T> inline
     T RGB_2_Y(T R, T G, T B)
     {
-        return T(0.3 * R + 0.59 * G + 0.11 * B);
+        return static_cast<T>(0.3 * R + 0.59 * G + 0.11 * B);
     }
     template<class T> inline
     T RGB_2_Y(const T *buf)
     {
         return RGB_2_Y(buf[2], buf[1], buf[0]);
     }
+    template<class T> inline
+    std::array<T, 3> RGB_2_YUV(T R, T G, T B)
+    {
+        std::array<T, 3> res = {
+            static_cast<T>((0.257 * R) + (0.504 * G) + (0.098 * B) + 16),
+            static_cast<T>(-(0.148 * R) - (0.291 * G) + (0.439 * B) + 128),
+            static_cast<T>((0.439 * R) - (0.368 * G) - (0.071 * B) + 128)
+        };
+        return res;
+    }
+
     ////////////////////////////////////////////////////////////////////////
 	
 	// Циклический вектор
@@ -640,46 +652,162 @@ namespace feintrack
 		return ret_val;
 	}
 	////////////////////////////////////////////////////////////////////////////
-
-    template<uchar R, uchar G, uchar B, int pixel_size> inline
-    void paint_point(uchar* buf, uint32_t pitch, int x, int y)                  // Рисование на RGB24 кадре точки
+    ///
+    ///  \brief paint_point
+    ///         Draw a point on image
+    template<int pixel_size> inline
+    void paint_point(
+            uchar* buf,
+            int pitch,
+            int x,
+            int y,
+            const std::array<uchar, pixel_size>& cl
+            )
 	{
         buf += pixel_size * x + y * pitch;
 
-		buf[0] = B;
-		buf[1] = G;
-		buf[2] = R;
+        for (size_t i = 0; i < pixel_size; ++i)
+        {
+            buf[i] = cl[i];
+        }
 	}
-	////////////////////////////////////////////////////////////////////////
-	
-    template<uchar R, uchar G, uchar B, int pixel_size>
-    void paint_h_line(uchar* buf, uint32_t pitch, int x1, int x2, int y)        // Рисование на RGB буфере горизонтальной,
+    ////////////////////////////////////////////////////////////////////////////
+    ///
+    ///  \brief paint_point
+    ///         Draw a point on image
+    template<int pixel_size> inline
+    void paint_point(
+            uchar* const* buf,
+            const int* pitch,
+            int x,
+            int y,
+            const std::array<uchar, pixel_size>& cl
+            )
+    {
+        for (size_t i = 0; i < pixel_size; ++i)
+        {
+            const int buf_x = (i == 0) ? x : (x / 2);
+            const int buf_y = (i == 0) ? y : (y / 2);
+
+            uchar* pbuf = buf[i] + buf_x + buf_y * pitch[i];
+            *pbuf = cl[i];
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////
+    ///
+    ///  \brief paint_h_line
+    ///         Draw a horizontal line
+    template<size_t pixel_size>
+    void paint_h_line(
+            uchar* buf,
+            int pitch,
+            int x1,
+            int x2,
+            int y,
+            const std::array<uchar, pixel_size>& cl
+            )
 	{
         buf += pixel_size * x1 + y * pitch;
         for (; x1 < x2; ++x1, buf += pixel_size)
 		{
-			buf[0] = B;
-			buf[1] = G;
-			buf[2] = R;
+            for (size_t i = 0; i < pixel_size; ++i)
+            {
+                buf[i] = cl[i];
+            }
 		}
 	}
+    ////////////////////////////////////////////////////////////////////////
+    ///
+    ///  \brief paint_h_line
+    ///         Draw a horizontal line
+    template<size_t pixel_size>
+    void paint_h_line(
+            uchar* const* buf,
+            const int* pitch,
+            int x1,
+            int x2,
+            int y,
+            const std::array<uchar, pixel_size>& cl
+            )
+    {
+        for (size_t i = 0; i < pixel_size; ++i)
+        {
+            int buf_x1 = ((i == 0) ? x1 : (x1 / 2));
+            const int buf_x2 = ((i == 0) ? x2 : (x2 / 2));
+            const int buf_y = ((i == 0) ? y : (y / 2));
+
+            uchar* pbuf = buf[i] + buf_x1 + buf_y * pitch[i];
+
+            for (; buf_x1 < buf_x2; ++buf_x1, ++pbuf)
+            {
+                *pbuf = cl[i];
+            }
+        }
+    }
 	////////////////////////////////////////////////////////////////////////
-	
-    template<uchar R, uchar G, uchar B, int pixel_size>
-    void paint_v_line(uchar* buf, uint32_t pitch, int x, int y1, int y2)        // вертикальной и
+    ///
+    ///  \brief paint_v_line
+    ///         Draw a vertical line
+    template<int pixel_size>
+    void paint_v_line(
+            uchar* buf,
+            int pitch,
+            int x,
+            int y1,
+            int y2,
+            const std::array<uchar, pixel_size>& cl
+            )
 	{
         buf += pixel_size * x + y1 * pitch;
 		for (; y1 < y2; ++y1, buf += pitch)
 		{
-			buf[0] = B;
-			buf[1] = G;
-			buf[2] = R;
+            for (size_t i = 0; i < pixel_size; ++i)
+            {
+                buf[i] = cl[i];
+            }
 		}
 	}
+    ////////////////////////////////////////////////////////////////////////
+    ///
+    ///  \brief paint_v_line
+    ///         Draw a vertical line
+    template<int pixel_size>
+    void paint_v_line(
+            uchar* const* buf,
+            const int* pitch,
+            int x,
+            int y1,
+            int y2,
+            const std::array<uchar, pixel_size>& cl
+            )
+    {
+        for (size_t i = 0; i < pixel_size; ++i)
+        {
+            const int buf_x = (i == 0) ? x : (x / 2);
+            int buf_y1 = (i == 0) ? y1 : (y1 / 2);
+            const int buf_y2 = (i == 0) ? y2 : (y2 / 2);
+
+            uchar* pbuf = buf[i] + buf_x + buf_y1 * pitch[i];
+            for (; buf_y1 < buf_y2; ++buf_y1, pbuf += pitch[i])
+            {
+                *pbuf = cl[i];
+            }
+        }
+    }
 	////////////////////////////////////////////////////////////////////////
-	
-    template<uchar R, uchar G, uchar B, int pixel_size>
-    void paint_line(uchar* buf, uint32_t pitch, int x1, int x2, int y1, int y2) // произвольной линии
+    ///
+    ///  \brief paint_line
+    ///         Draw a line
+    template<int pixel_size>
+    void paint_line(
+            uchar* buf,
+            int pitch,
+            int x1,
+            int y1,
+            int x2,
+            int y2,
+            const std::array<uchar, pixel_size>& cl
+            )
 	{
 		int dx = abs(x2 - x1);
 		int dy = abs(y2 - y1);
@@ -692,7 +820,7 @@ namespace feintrack
 			int d1 = 2 * dy;
 			int d2 = 2 * (dy - dx);
 			int d = d1 - dx;
-            paint_point<R, G, B, pixel_size>(buf, pitch, x1, y1);
+            paint_point<pixel_size>(buf, pitch, x1, y1, cl);
 
 			for (int x = x1 + sx, y = y1, i = 1; i <= dx; ++i, x += sx)
 			{
@@ -703,7 +831,7 @@ namespace feintrack
 				}
 				else
 					d += d1;
-                paint_point<R, G, B, pixel_size>(buf, pitch, x, y);
+                paint_point<pixel_size>(buf, pitch, x, y, cl);
 			}
 		}
 		else
@@ -711,7 +839,7 @@ namespace feintrack
 			int d1 = 2 * dx;
 			int d2 = 2 * (dx - dy);
 			int d = d1 - dy;
-            paint_point<R, G, B, pixel_size>(buf, pitch, x1, y1);
+            paint_point<pixel_size>(buf, pitch, x1, y1, cl);
 
 			for (int x = x1, y = y1 + sy, i = 1; i <= dy; ++i, y += sy)
 			{
@@ -722,10 +850,102 @@ namespace feintrack
 				}
 				else
 					d += d1;
-                paint_point<R, G, B, pixel_size>(buf, pitch, x, y);
+                paint_point<pixel_size>(buf, pitch, x, y, cl);
 			}
 		}
 	}
+    ////////////////////////////////////////////////////////////////////////
+    ///
+    ///  \brief paint_line
+    ///         Draw a line
+    template<int pixel_size>
+    void paint_line(
+            uchar* const* buf,
+            const int* pitch,
+            int x1,
+            int y1,
+            int x2,
+            int y2,
+            const std::array<uchar, pixel_size>& cl
+            )
+    {
+        int dx = abs(x2 - x1);
+        int dy = abs(y2 - y1);
+
+        int sx = (x2 >= x1) ? 1: -1;
+        int sy = (y2 >= y1) ? 1: -1;
+
+        if (dy <= dx)
+        {
+            int d1 = 2 * dy;
+            int d2 = 2 * (dy - dx);
+            int d = d1 - dx;
+            paint_point<pixel_size>(buf, pitch, x1, y1, cl);
+
+            for (int x = x1 + sx, y = y1, i = 1; i <= dx; ++i, x += sx)
+            {
+                if (d > 0)
+                {
+                    d += d2;
+                    y += sy;
+                }
+                else
+                    d += d1;
+                paint_point<pixel_size>(buf, pitch, x, y, cl);
+            }
+        }
+        else
+        {
+            int d1 = 2 * dx;
+            int d2 = 2 * (dx - dy);
+            int d = d1 - dy;
+            paint_point<pixel_size>(buf, pitch, x1, y1, cl);
+
+            for (int x = x1, y = y1 + sy, i = 1; i <= dy; ++i, y += sy)
+            {
+                if (d > 0)
+                {
+                    d += d2;
+                    x += sx;
+                }
+                else
+                    d += d1;
+                paint_point<pixel_size>(buf, pitch, x, y, cl);
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////
+    ///
+    ///  \brief paint_rect
+    ///         Draw a rectangle
+    template<int pixel_size, typename RECT_T>
+    void paint_rect(uchar* buf,
+                    int pitch,
+                    const RECT_T& rect,
+                    const std::array<uchar, pixel_size>& cl
+                    )
+    {
+        paint_h_line<pixel_size>(buf, pitch, rect.left, rect.right, rect.top, cl);
+        paint_h_line<pixel_size>(buf, pitch, rect.left, rect.right, rect.bottom, cl);
+        paint_v_line<pixel_size>(buf, pitch, rect.left, rect.top, rect.bottom, cl);
+        paint_v_line<pixel_size>(buf, pitch, rect.right, rect.top, rect.bottom, cl);
+    }
+    ////////////////////////////////////////////////////////////////////////
+    ///
+    ///  \brief paint_rect
+    ///         Draw a rectangle
+    template<int pixel_size, typename RECT_T>
+    void paint_rect(uchar* const* buf,
+                    const int* pitch,
+                    const RECT_T& rect,
+                    const std::array<uchar, pixel_size>& cl
+                    )
+    {
+        paint_h_line<pixel_size>(buf, pitch, rect.left, rect.right, rect.top, cl);
+        paint_h_line<pixel_size>(buf, pitch, rect.left, rect.right, rect.bottom, cl);
+        paint_v_line<pixel_size>(buf, pitch, rect.left, rect.top, rect.bottom, cl);
+        paint_v_line<pixel_size>(buf, pitch, rect.right, rect.top, rect.bottom, cl);
+    }
 	////////////////////////////////////////////////////////////////////////////
 } //end namespace feintrack
 ////////////////////////////////////////////////////////////////////////////
