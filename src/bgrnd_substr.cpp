@@ -593,6 +593,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
                 ++par;
             }
         }
+        cv::namedWindow("sigmaImg", cv::WINDOW_NORMAL);
         cv::imshow("sigmaImg", sigmaImg);
 #endif
     }

@@ -1,5 +1,9 @@
 cmake_minimum_required (VERSION 2.8)
 
+cmake_policy(SET CMP0020 NEW)
+cmake_policy(SET CMP0028 NEW)
+
+
 project (feintrack)
 
 FIND_PACKAGE(OpenCV 3.0 REQUIRED)

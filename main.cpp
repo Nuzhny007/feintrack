@@ -10,7 +10,7 @@
 int main(int argc, char* argv[])
 {
     //std::string input_file_name = "/home/snuzhny/Documents/automotive/pedestrians_datasets/ikoretsk/video/camera1.mov";
-	std::string input_file_name = "0";
+    std::string input_file_name = "/home/nuzhny/Documents/megacam/detections/154/test.mp4";
     if (argc > 1)
     {
         input_file_name = argv[1];
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
     auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
-    ftrack->set_sensitivity(80);
+    ftrack->set_sensitivity(90);
     ftrack->set_fps(fps);
     ftrack->set_show_objects(true);
     ftrack->set_bgrnd_type(feintrack::norm_back);
@@ -57,16 +57,21 @@ int main(int argc, char* argv[])
     ftrack->set_show_left_objects(true);
     ftrack->set_show_trajectory(false);
     ftrack->set_selection_time(12);
+#if 0
     ftrack->set_min_region_width(std::max(5, frameWidth / 100));
     ftrack->set_min_region_height(ftrack->get_min_region_width());
+#else
+    ftrack->set_min_region_width(10);
+    ftrack->set_min_region_height(5);
+#endif
     ftrack->set_analyze_area(feintrack::RECT_(0, 100, 0, 100));
     ftrack->set_use_square_segmentation(true);
     ftrack->set_detect_patches_of_sunlight(false);
     ftrack->set_cut_shadows(true);
 
-    ftrack->set_left_object_time1_sec(5);
-    ftrack->set_left_object_time2_sec(10);
-    ftrack->set_left_object_time3_sec(15);
+    ftrack->set_left_object_time1_sec(15);
+    ftrack->set_left_object_time2_sec(20);
+    ftrack->set_left_object_time3_sec(25);
 
 #if 0
     feintrack::zones_cont zones;
@@ -108,7 +113,7 @@ int main(int argc, char* argv[])
 
     uint32_t frame_num(0);
 
-    feintrack::color_type cl_type = feintrack::buf_rgb24;
+    feintrack::color_type cl_type = feintrack::buf_gray;
 
 #if ADV_OUT
     cv::Mat adv_img;
@@ -232,9 +237,11 @@ int main(int argc, char* argv[])
             }
 #endif
 
+            cv::namedWindow("frame", cv::WINDOW_NORMAL);
             cv::imshow("frame", frame);
 
 #if ADV_OUT
+            cv::namedWindow("adv_img", cv::WINDOW_NORMAL);
             cv::imshow("adv_img", adv_img);
 #endif
 
