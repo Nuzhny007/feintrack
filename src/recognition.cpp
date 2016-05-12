@@ -7,15 +7,6 @@ namespace feintrack
 	
 	CRecognition::CRecognition()
 	{
-#if USE_HOG_RECOGNIZE
-#if 0
-		hog.setSVMDetector(cv::HOGDescriptor::getDefaultPeopleDetector());
-#else
-		hog.winSize.width = 48;
-		hog.winSize.height = 96;
-		hog.setSVMDetector(cv::HOGDescriptor::getDaimlerPeopleDetector());
-#endif
-#endif
 	}
 	////////////////////////////////////////////////////////////////////////////
 
@@ -204,40 +195,6 @@ namespace feintrack
 	
     object_types CRecognition::is_human(const CObjectRegion& region, const uchar* buf, uint32_t pitch, uint32_t frame_width, uint32_t frame_height, const mask_type* mask)
 	{
-#if USE_HOG_RECOGNIZE
-        mask;
-
-		int w_2 = region.width() / 2;
-		int left = std::max<int>(0, region.get_left() - w_2);
-		int right = std::min<int>(frame_width - 1, region.get_right() + w_2);
-		int width = right - left + 1;
-
-		int h_2 = region.height() / 2;
-		int top = std::max<int>(0, region.get_top() - h_2);
-		int bottom = std::min<int>(frame_height - 1, region.get_bottom() + h_2);
-		int height = bottom - top + 1;
-
-		if (width < 48 || height < 96)
-			return unknown_object;
-
-		std::vector<cv::Rect> found;
-		cv::Mat img(height, width, CV_8UC3, const_cast<uchar*>(buf + top * pitch + left * 3), pitch);
-		hog.detectMultiScale(img, found, 0, cv::Size(8, 8), cv::Size(32, 32), 1.5, 2);
-
-#if 0
-		static int ii = 0;
-		char file_name[256];
-		sprintf_s(file_name, sizeof(file_name), "D:\\video_bmp\\qqq\\%i.bmp", ii++);
-		cv::imwrite(file_name, img);
-#endif
-
-		if (found.size() == 0)
-			return unknown_object;
-		else if (found.size() == 1)
-			return human;
-		else
-			return humans;
-#else
         buf;
         pitch;
         frame_height;
@@ -295,7 +252,6 @@ namespace feintrack
 			return unknown_object;
 
 		return human;
-#endif
 	}
 	////////////////////////////////////////////////////////////////////////////
 } //end namespace feintrack

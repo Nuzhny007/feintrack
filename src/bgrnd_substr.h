@@ -463,8 +463,8 @@ typedef int32_t ft_param_t;                 // Тип статистически
 #endif
 #endif
 
-		// Делает значения выборочного среднего в регионе равными текущим значениям пикселей
-		template<class PARAMS_CONT>
+        // Делает значения выборочного среднего в регионе равными текущим значениям пикселей
+	template<class PARAMS_CONT>
         void reset_statistic_in_region(const uchar* buf, uint32_t pitch, PARAMS_CONT& params, const CObjectRegion& region);
 	};
 	////////////////////////////////////////////////////////////////////////////
