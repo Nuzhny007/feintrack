@@ -29,16 +29,9 @@ CFeinTrack::CFeinTrack()
       min_region_height(5),
       left_padding(0),
       top_padding(0),
-      need_background_update(true),
-      del_objects_count(0),
-      lastUid(1),
-      weight_threshold(0.1f),
-      weight_alpha(0.5f / 25),
-      objects_count(0),
-      left_objects_count(0),
-      show_left_objects(true),
       show_objects(false),
       show_trajectory(false),
+      show_left_objects(true),
       use_recognition(false),
       bgrnd_type(norm_back),
       back_substractor(nullptr)
@@ -49,9 +42,6 @@ CFeinTrack::CFeinTrack()
     set_fps(fps);
 
     analyze_area = RECT_(0, 100, 0, 100);
-
-    obj_rects.reserve(1500);
-    del_objects.reserve(50);
 
     back_substractor->set_use_cuda(use_cuda);
 }
@@ -93,7 +83,6 @@ void CFeinTrack::set_bgrnd_type(bgrnd_substr_types bgrnd_type_)
     back_substractor->set_fps(fps);
     back_substractor->set_sensitivity(sens_level);
     back_substractor->set_detect_patches_of_sunlight(detect_patches_of_sunlight);
-    back_substractor->enable_back_update(need_background_update);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -344,7 +333,7 @@ int CFeinTrack::get_left_object_time1_sec() const
 void CFeinTrack::set_left_object_time1_sec(int left_object_time1_sec_)
 {
     left_object_time1_sec = left_object_time1_sec_;
-    left_object_time1 = left_object_time1_sec * fps;
+    tracker.SetLeftObjectTime1(left_object_time1_sec * fps);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -357,7 +346,7 @@ int CFeinTrack::get_left_object_time2_sec() const
 void CFeinTrack::set_left_object_time2_sec(int left_object_time2_sec_)
 {
     left_object_time2_sec = left_object_time2_sec_;
-    left_object_time2 = left_object_time2_sec * fps;
+    tracker.SetLeftObjectTime2(left_object_time2_sec * fps);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -370,15 +359,7 @@ int CFeinTrack::get_left_object_time3_sec() const
 void CFeinTrack::set_left_object_time3_sec(int left_object_time3_sec_)
 {
     left_object_time3_sec = left_object_time3_sec_;
-    left_object_time3 = left_object_time3_sec * fps;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::enable_back_update(bool enable_val)
-{
-    need_background_update = enable_val;
-    if (back_substractor)
-        back_substractor->enable_back_update(enable_val);
+    tracker.SetLeftObjectTime3(left_object_time3_sec * fps);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -391,15 +372,13 @@ int CFeinTrack::get_fps() const
 void CFeinTrack::set_fps(int new_fps)
 {
     fps = new_fps;
-    weight_alpha = 0.5f / fps;
-
-    left_object_time0 = 1 * fps;
-    left_object_time1 = left_object_time1_sec * fps;
-    left_object_time2 = left_object_time2_sec * fps;
-    left_object_time3 = left_object_time3_sec * fps;
 
     if (back_substractor)
+    {
         back_substractor->set_fps(fps);
+    }
+
+    tracker.SetFps(fps, left_object_time1_sec, left_object_time2_sec, left_object_time3_sec);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -446,19 +425,13 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
 
         segmentator.init(width, height, use_cuda);
         if (tmp_use_cuda != use_cuda)
+        {
             back_substractor->init(width, height, buf_type, use_cuda);
+        }
 
         curr_frame = 0;
 
-        objects_count = 0;
-        del_objects_count = 0;
-        left_objects_count = 0;
-
-        shady_left_objects.clear();
-
-        lefted_objects.clear();
-
-        objects_history.clear();
+        tracker.Reset(true);
 
         // Пропуск первого кадра при смене разрешения
         return 0;
@@ -529,14 +502,29 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     regions_preprocessing(buf, pitch);
 
     // Создание и анализ поведения объектов на основании найденных на текущем кадре регионов
-#if !ADV_OUT
-    tracking_objects(buf, pitch);
-#else
-    tracking_objects(buf, pitch, adv_buf_rgb24);
+    VideoHeader videoHeader;
+    videoHeader.analyze_area = analyze_area;
+    videoHeader.buf = buf;
+    videoHeader.fps = fps;
+    videoHeader.frame_height = frame_height;
+    videoHeader.frame_width = frame_width;
+    videoHeader.left_padding = left_padding;
+    videoHeader.pitch = pitch;
+    videoHeader.pixel_size = pixel_size;
+    videoHeader.top_padding = top_padding;
+#if ADV_OUT
+    videoHeader.adv_buf_rgb24 = adv_buf_rgb24;
 #endif
+    regions_container update_regions;
+    tracker.Track(regions, update_regions, videoHeader, selection_time, show_trajectory, correct_zones, correct_lines);
 
-    // Анализ оставленных предметов
-    analyze_lefted_objects();
+    for (auto& region : update_regions)
+    {
+        // Расширяем регион, чтобы скомпенсировать возможное движение
+        region.resize_to_max_granz(frame_width - 1, frame_height - 1);
+        // И обнуляем статистику внутри него
+        back_substractor->reset_statistic_in_region(buf, pitch, region);
+    }
 
     if (++curr_frame == fps)
     {
@@ -544,28 +532,6 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     }
 
     return 1;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::add_uid_to_del_objects(unsigned int uid)
-{
-    // Добавление в список удалённых объектов
-    if (++del_objects_count > del_objects.size())
-        del_objects.push_back(uid);
-    else
-        del_objects[del_objects_count - 1] = uid;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::del_object(std::unique_ptr<CTrackingObject>& object, bool del_adv_data)
-{
-    if (del_adv_data)
-    {
-        // Удаление из списка возможно оставленных предметов
-        del_from_shady_left_objects(object->uid);
-    }
-    add_uid_to_del_objects(object->uid);
-    object = nullptr;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -605,625 +571,6 @@ void CFeinTrack::regions_preprocessing(const uchar* buf, uint32_t pitch)
             ++it_r;
         }
     }
-}
-////////////////////////////////////////////////////////////////////////////
-
-#if !ADV_OUT
-void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch)
-#else
-void CFeinTrack::tracking_objects(const uchar* buf, uint32_t pitch, uchar* adv_buf_rgb24)
-#endif
-{
-    // Обнуляем количество найденных объектов
-    objects_count = 0;
-    // Обнуляем количество удалённых объектов
-    del_objects_count = 0;
-
-    // Для объектов, найденных на предыдущих кадрах, ищем подходящие регионы
-    for (objects_container::iterator iter_obj = objects_history.begin(); iter_obj != objects_history.end();)
-    {
-#if 1
-#if ADV_OUT
-        RECT_ r((*iter_obj)->get_rect());
-		std::array<uchar, 3> cl = { 0, 0xff, 0 };
-		paint_h_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right, r.top, cl);
-		paint_h_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.right + 1, r.bottom, cl);
-
-		paint_v_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.left, r.top, r.bottom, cl);
-		paint_v_line<3>(adv_buf_rgb24, 3 * 2 * frame_width, r.right, r.top, r.bottom, cl);
-#endif
-#endif
-
-        // Ищем подходящий для объекта регион с учётом возможного нахождения координат объекта
-#if 1
-        regions_container::iterator find_region(find_region_by_center((*iter_obj)->get_new_center_x(), (*iter_obj)->get_new_center_y(), (*iter_obj)->width(), (*iter_obj)->height()));
-#else
-        regions_container::iterator find_region(find_region_by_hist(buf, pitch, *iter_obj));
-#endif
-
-        // Если регион не найден,
-        if (find_region == regions.end() &&
-                (*iter_obj)->get_new_center_x() != (*iter_obj)->get_last_center_x() &&
-                (*iter_obj)->get_new_center_y() != (*iter_obj)->get_last_center_y())
-        {
-            // то повторяем поиск с координатами центра, полученными на предыдущем шаге
-#if 1
-            find_region = find_region_by_center((*iter_obj)->get_last_center_x(), (*iter_obj)->get_last_center_y(), (*iter_obj)->width(), (*iter_obj)->height());
-#else
-            regions_container::iterator find_region(find_region_by_hist(buf, pitch, *iter_obj));
-#endif
-        }
-        // Если, наконец, подходящий регион нашёлся, то:
-        if (find_region != regions.end())
-        {
-            // Изменяем параметры объекта:
-            // 1. вычисляем новый вес объекта
-            (*iter_obj)->weight = (1 - weight_alpha) * (*iter_obj)->weight + weight_alpha;
-            // 2. увеличиваем время жизни объекта
-            (*iter_obj)->life_time++;
-            // 3. запоминаем координаты объекта
-            (*iter_obj)->set_rect(find_region->get_left(), find_region->get_right(), find_region->get_top(), find_region->get_bottom());
-            // 4. обнуляем количество кадров, на которых объект не был найден
-            (*iter_obj)->frames_left = 0;
-
-            // Объект выводится, если он существует достаточно долго
-            if ((*iter_obj)->life_time > selection_time)
-            {
-                // Объект считается принадлежащим к спискам возможно являющихся оставленными предметами
-                if ((*iter_obj)->get_left_frames() == left_object_time0)
-                {
-                    add_to_shady_left_objects(**iter_obj);
-                }
-
-                // Если объект двигается
-                if ((*iter_obj)->get_left_frames() < left_object_time1)
-                {
-                    // Попадает ли объект в зоны детекции
-                    mstring zone_name;
-                    if (is_in_zone(*find_region, &zone_name))
-                    {
-                        // Проверяем на пересечение с линиями и обновляем координаты центра объекта и скорость его смещения
-                        with_line_intersect(**iter_obj, find_region->get_center_x(), find_region->get_center_y());
-
-                        // Задаём новые значения центра объекта
-                        (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                        // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
-                        if (!(*iter_obj)->get_left_frames())
-                        {
-                            del_uid_from_shady_left_objects((*iter_obj)->uid);
-                        }
-                        else
-                        {
-                            inc_time_shady_left_objects((*iter_obj)->uid);
-                        }
-
-                        object_types type_now = unknown_object;
-                        if (use_recognition)
-                        {
-                            // Распознавание
-                            type_now = recognizer.recognize_object(*find_region, buf, pitch, frame_width, frame_height, &segmentator.get_mask()[0]);
-                            (*iter_obj)->set_new_type(type_now);
-                        }
-
-                        // Отправляем объект на вывод
-                        add_object_to_out_rects(*find_region, **iter_obj, type_now, zone_name);
-                    }
-                    else // Объект не попал в зоны детекции
-                    {
-                        // Задаём новые значения центра объекта
-                        (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                        // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
-                        if (!(*iter_obj)->get_left_frames())
-                        {
-                            del_uid_from_shady_left_objects((*iter_obj)->uid);
-                        }
-                        else
-                        {
-                            inc_time_shady_left_objects((*iter_obj)->uid);
-                        }
-                    }
-                }
-                else // Объект не двигается - становится оставленным предметом
-                {
-                    // Попадает ли оставленный предмет в зоны детекции
-                    if (is_in_zone(*find_region, nullptr))
-                    {
-                        // Cоздаём оставленный предмет
-                        lefted_objects.push_back(CLeftObjView(left_object_time3 - left_object_time1, find_region->get_left(), find_region->get_right(), find_region->get_top(), find_region->get_bottom(), (*iter_obj)->uid));
-                    }
-
-                    if (need_background_update)
-                    {
-                        // Расширяем регион, чтобы скомпенсировать возможное движение
-                        find_region->resize_to_max_granz(frame_width - 1, frame_height - 1);
-                        // И обнуляем статистику внутри него
-                        back_substractor->reset_statistic_in_region(buf, pitch, *find_region);
-                    }
-
-                    // Удаляем найденный регион, чтобы избежать совпадений с другими объектами
-                    regions.erase(find_region);
-
-                    // Удаляем из списка объектов
-                    del_object(*iter_obj, true);
-                    iter_obj = objects_history.erase(iter_obj);
-                    continue;
-                }
-            }
-            else // Объект существует недостаточно долго
-            {
-                // Задаём новые значения центра объекта
-                (*iter_obj)->set_last_center(find_region->get_center_x(), find_region->get_center_y());
-                // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
-                if (!(*iter_obj)->get_left_frames())
-                {
-                    del_uid_from_shady_left_objects((*iter_obj)->uid);
-                }
-                else
-                {
-                    inc_time_shady_left_objects((*iter_obj)->uid);
-                }
-            }
-
-            // Удаляем найденный регион, чтобы избежать совпадений с другими объектами
-            regions.erase(find_region);
-        }
-        else // Если подходящий регион не найден, то:
-        {
-            // 1. пересчитываем вес объекта
-            (*iter_obj)->weight = (1 - weight_alpha) * (*iter_obj)->weight;
-            // 2. если вес меньше допустимого, то объект удаляется
-            if ((*iter_obj)->weight < weight_threshold)
-            {
-                del_object(*iter_obj, true);
-                iter_obj = objects_history.erase(iter_obj);
-                continue;
-            }
-            // 3. пересчитываем его центр в соответствии с последней скоростью объекта
-            (*iter_obj)->recalc_center();
-            // 4. Если объект вышел за границы кадра - удаляем
-            if (!in_range<int>((*iter_obj)->get_last_center_x(), 0, frame_width) ||
-                    !in_range<int>((*iter_obj)->get_last_center_y(), 0, frame_height))
-            {
-                del_object(*iter_obj, true);
-                iter_obj = objects_history.erase(iter_obj);
-                continue;
-            }
-            // 5. Увеличиваем число кадров, на которых объект не был найден
-            (*iter_obj)->frames_left++;
-
-#if 1           // Закомментировано, так как выводится очень много левых объектов, можно включать для тестирования
-            //6. Отправляем объект на вывод
-            if ((*iter_obj)->life_time > selection_time &&
-                    (*iter_obj)->frames_left < selection_time / 4)
-            {
-                //Попадает ли оставленный предмет в зоны детекции
-                mstring zone_name;
-                if (is_in_zone(**iter_obj, &zone_name))
-                {
-                    add_object_to_out_rects(**iter_obj, **iter_obj, (*iter_obj)->get_type(), zone_name);
-                }
-            }
-#endif
-        }
-
-        ++iter_obj;
-    }
-
-    // Для оставшихся регионов (у которых нет подходящего объекта) создаём новые объекты, но пока не обводим
-    for (regions_container::iterator iter_reg = regions.begin(); iter_reg != regions.end(); ++iter_reg)
-    {
-        objects_history.push_back(std::unique_ptr<CTrackingObject>(new CTrackingObject(iter_reg->get_center_x(), iter_reg->get_center_y(), get_free_uid())));
-
-        (*objects_history.rbegin())->set_rect(iter_reg->get_left(), iter_reg->get_right(), iter_reg->get_top(), iter_reg->get_bottom());
-    }
-    //Oчищаем список регионов
-    regions.clear();
-
-    // Сортируем объекты по времени жизни
-    objects_history.sort(CTrackingObject::life_bigger);
-
-    // Удаляем объекты, не обнаруживающиеся в течение некоторого времени
-    analyze_shady_left_objects();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::add_to_shady_left_objects(CTrackingObject &obj)
-{
-    CShadyLeftObj new_obj(obj.uid, obj.get_left_frames(), obj.get_left(), obj.get_right(), obj.get_top(), obj.get_bottom());
-    // Если существует объект с центром в некоторой окрестности, то его удаляем а время складываем
-    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
-    {
-        if ((abs(iter->rect.center_x() - obj.get_last_center_x()) < 2 * obj.get_left_epsilon()) &&
-                (abs(iter->rect.center_y() - obj.get_last_center_y()) < 2 * obj.get_left_epsilon()))
-        {
-            new_obj.life_time += iter->life_time;
-            iter = shady_left_objects.erase(iter);
-        }
-        else
-        {
-            ++iter;
-        }
-    }
-    shady_left_objects.push_back(new_obj);
-    obj.set_left_frames(new_obj.life_time);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::del_from_shady_left_objects(unsigned int obj_uid)
-{
-    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end(); ++iter)
-    {
-        if (iter->obj_uid == obj_uid)
-        {
-            iter = shady_left_objects.erase(iter);
-            return;
-        }
-    }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::del_uid_from_shady_left_objects(unsigned int obj_uid)
-{
-    for (auto& obj : shady_left_objects)
-    {
-        if (obj.obj_uid == obj_uid)
-        {
-            obj.obj_uid = 0;
-            return;
-        }
-    }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::inc_time_shady_left_objects(unsigned int obj_uid)
-{
-    for (auto& obj : shady_left_objects)
-    {
-        if (obj.obj_uid == obj_uid)
-        {
-            obj.life_time++;
-            return;
-        }
-    }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::analyze_shady_left_objects()
-{
-    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
-    {
-        if (!iter->obj_uid)
-        {
-            iter->not_detect_time++;
-            if (iter->not_detect_time > left_object_time1)
-                iter = shady_left_objects.erase(iter);
-            else
-                ++iter;
-        }
-        else
-        {
-            ++iter;
-        }
-    }
-}
-////////////////////////////////////////////////////////////////////////////
-
-objects_container::iterator CFeinTrack::get_object_by_region(const CObjectRegion& region, objects_container::iterator from_obj)
-{
-    objects_container::iterator find_object(objects_history.end());
-    int min_x(std::numeric_limits<int>::max() / 2 - 1);
-    int min_y(std::numeric_limits<int>::max() / 2 - 1);
-
-    int tmp_x, tmp_y;
-    int c_x = region.get_center_x(), c_y = region.get_center_y();
-
-    int motion_delta_x = 2 * (*from_obj)->width();
-    int motion_delta_y = 2 * (*from_obj)->height();
-
-    // Ищем объект, центр которого наиболее приближен к центру региона
-    for (objects_container::iterator iter = ++from_obj; iter != objects_history.end(); ++iter)
-    {
-        tmp_x = abs((*iter)->get_new_center_x() - c_x);
-        tmp_y = abs((*iter)->get_new_center_y() - c_y);
-
-        if ((tmp_x + tmp_y < min_x + min_y) && (tmp_x < motion_delta_x) && (tmp_y < motion_delta_y))
-        {
-            min_x = tmp_x;
-            min_y = tmp_y;
-            find_object = iter;
-        }
-    }
-    return find_object;
-}
-////////////////////////////////////////////////////////////////////////////
-
-regions_container::iterator CFeinTrack::find_region_by_hist(const uchar* buf, int pitch, const std::unique_ptr<CTrackingObject>& obj)
-{
-    int c_x = obj->get_new_center_x();
-    int c_y = obj->get_new_center_y();
-
-    int left = obj->get_left();
-    int top = obj->get_top();
-    int width = obj->width();
-    int height = obj->height();
-
-    regions_container::iterator find_region(regions.end());
-
-    if ((c_x < 0) || (c_y < 0))
-    {
-        return find_region;
-    }
-
-    int min_x(std::numeric_limits<int>::max() / 2 - 1);
-    int min_y(std::numeric_limits<int>::max() / 2 - 1);
-
-    hist_cont standart_hist(256, 0);
-    // расчитываем гистограмму проверяемого объекта;
-    calculate_hist(buf, pitch, pixel_size, left, top, width, height, standart_hist, frame_width, &segmentator.get_mask()[0]);
-
-    // был ли найден ближайший регион
-    bool isFound = false;
-
-    width *= 2;
-    height *= 2;
-
-    // Ищем регион, центр которого наиболее приближен к центру рассматриваемого объекта
-    for (regions_container::iterator iter_reg = regions.begin(); iter_reg != regions.end(); ++iter_reg)
-    {
-        int tmp_x = abs(iter_reg->get_center_x() - c_x);
-        int tmp_y = abs(iter_reg->get_center_y() - c_y);
-
-        if ((tmp_x + tmp_y < min_x + min_y) && (tmp_x < width) && (tmp_y < height))
-        {
-            min_x = tmp_x;
-            min_y = tmp_y;
-            find_region = iter_reg;
-            isFound = true;
-        }
-    }
-
-#if 1
-    if (isFound)
-    {
-        hist_cont suggestion_hist(256, 0);
-        calculate_hist(buf, pitch, pixel_size, find_region->get_left(), find_region->get_top(),
-                       find_region->width(), find_region->height(), suggestion_hist, frame_width, &segmentator.get_mask()[0]);
-        // если расстояние оказалось слишком велико
-        double distance = bhattacharrya_dist(standart_hist, suggestion_hist);
-        if (distance < 0.6)
-            find_region = regions.end();
-        else
-            isFound = isFound;
-    }
-#endif
-    return find_region;
-}
-////////////////////////////////////////////////////////////////////////////
-
-regions_container::iterator CFeinTrack::find_region_by_center(int c_x, int c_y, int width, int height/*, Hist& object_hist*/)
-{
-    regions_container::iterator find_region(regions.end());
-    int min_x(std::numeric_limits<int>::max() / 2 - 1);
-    int min_y(std::numeric_limits<int>::max() / 2 - 1);
-
-    width *= 2;
-    height *= 2;
-
-#if 0
-    RECT_ source_rect = RECT_(c_x, c_x + width, c_y, c_y + height);
-    int maxIntersectionArea = 1;
-#endif
-
-    // Ищем регион, центр которого наиболее приближен к центру рассматриваемого объекта
-    for (regions_container::iterator iter_reg = regions.begin(); iter_reg != regions.end(); ++iter_reg)
-    {
-#if 0
-        int intersectionArea = get_intersect_area<int>(source_rect,
-                                                       RECT_(iter_reg->get_left(), iter_reg->get_right(), iter_reg->get_top(), iter_reg->get_bottom()));
-
-        if (intersectionArea > maxIntersectionArea)
-        {
-            find_region = iter_reg;
-            maxIntersectionArea = intersectionArea;
-        }
-#else
-        int tmp_x = abs(iter_reg->get_center_x() - c_x);
-        int tmp_y = abs(iter_reg->get_center_y() - c_y);
-
-        if ((tmp_x + tmp_y < min_x + min_y) && (tmp_x < width) && (tmp_y < height))
-        {
-            min_x = tmp_x;
-            min_y = tmp_y;
-            find_region = iter_reg;
-        }
-#endif
-    }
-    return find_region;
-}
-////////////////////////////////////////////////////////////////////////////
-
-unsigned int CFeinTrack::get_free_uid()
-{
-#if 0
-    // Получаем простым перебором
-    unsigned int ret_val = 1;
-    for (; ret_val < std::numeric_limits<unsigned int>::max(); ++ret_val)
-    {
-        // Поиск среди удалённых объектов
-        if (std::find(del_objects.begin(), del_objects.begin() + del_objects_count, ret_val) != del_objects.begin() + del_objects_count)
-            continue;
-
-        // Поиск среди существующих
-        bool find_uid = false;
-        for (objects_container::const_iterator iter = objects_history.begin(); iter != objects_history.end(); ++iter)
-        {
-            if (ret_val == (*iter)->uid)
-            {
-                find_uid = true;
-                break;
-            }
-        }
-        if (!find_uid)
-            break;
-    }
-    return ret_val;
-#else
-    // Глобальная индексация
-    unsigned int ret_val = lastUid;
-    if (lastUid < std::numeric_limits<unsigned int>::max())
-    {
-        ++lastUid;
-    }
-    else
-    {
-        lastUid = 1;
-    }
-    return ret_val;
-#endif
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::add_left_object_to_out_rects(const CLeftObjView &left_obj, CLeftObjRect::types type)
-{
-    // Здесь сделана попытка избежать лишних выделений памяти: массив left_obj_rects никогда не уменьшается
-    // Он может только увеличивать свой размер, если на последующих кадрах выделенных объектов больше, чем на предыдущих
-    if (++left_objects_count > left_obj_rects.size())
-    {
-        left_obj_rects.push_back(CLeftObjRect(left_obj.rect, type, left_obj.obj_uid));
-        if (left_padding)
-        {
-            left_obj_rects[left_objects_count - 1].left += left_padding;
-            left_obj_rects[left_objects_count - 1].right += left_padding;
-        }
-        if (top_padding)
-        {
-            left_obj_rects[left_objects_count - 1].top += top_padding;
-            left_obj_rects[left_objects_count - 1].bottom += top_padding;
-        }
-    }
-    else
-    {
-        left_obj_rects[left_objects_count - 1].left = left_obj.rect.left + left_padding;
-        left_obj_rects[left_objects_count - 1].right = left_obj.rect.right + left_padding;
-        left_obj_rects[left_objects_count - 1].top = left_obj.rect.top + top_padding;
-        left_obj_rects[left_objects_count - 1].bottom = left_obj.rect.bottom + top_padding;
-        left_obj_rects[left_objects_count - 1].type = type;
-        left_obj_rects[left_objects_count - 1].obj_uid = left_obj.obj_uid;
-    }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::analyze_lefted_objects()
-{
-    left_objects_count = 0;
-
-    // Если объекты пересекаются, то более старый удаляем
-    lefted_objects.sort(CLeftObjView::bigger);
-    for (std::list<CLeftObjView>::iterator iter1 = lefted_objects.begin(); iter1 != lefted_objects.end(); ++iter1)
-    {
-        std::list<CLeftObjView>::iterator iter2 = iter1;
-        ++iter2;
-        for (; iter2 != lefted_objects.end();)
-        {
-            if (segments_superposition(iter1->rect.left, iter1->rect.right, iter2->rect.left, iter2->rect.right) &&
-                    segments_superposition(iter1->rect.top, iter1->rect.bottom, iter2->rect.top, iter2->rect.bottom))
-            {
-                iter2 = lefted_objects.erase(iter2);
-            }
-            else
-            {
-                ++iter2;
-            }
-        }
-    }
-
-    // Заполняем массив для обводки
-    for (std::list<CLeftObjView>::iterator iter = lefted_objects.begin(); iter != lefted_objects.end();)
-    {
-        // Удаляем оставленные предметы, жизнь которых больше определённого времени (left_object_life_time)
-        if (iter->life_time < 1)
-        {
-            iter = lefted_objects.erase(iter);
-        }
-        else
-        {
-            // Уменьшаем время жизни объекта
-            iter->life_time--;
-
-            // Добавляем в массив оставленных объектов
-            add_left_object_to_out_rects(*iter, ((left_object_time3 - iter->life_time < left_object_time2)? CLeftObjRect::first: CLeftObjRect::second));
-            ++iter;
-        }
-    }
-}
-////////////////////////////////////////////////////////////////////////////
-
-bool CFeinTrack::with_line_intersect(const CTrackingObject &obj, int new_center_x, int new_center_y)
-{
-    bool ret_val(false);
-
-    if (correct_lines.empty())
-        return ret_val;
-
-    const float_t r = 50000.0;
-    float_t lx1, lx2, ly1, ly2;
-    float_t objx1, objx2, objy1, objy2;
-
-    for (size_t i = 0; i < correct_lines.size(); ++i)
-    {
-        // Проверка пересечения последнего шага траектории движения объекта и пользовательской линии
-
-        lx1 = wnd_to_x(correct_lines[i].x1, frame_width, -r, r);
-        lx2 = wnd_to_x(correct_lines[i].x2, frame_width, -r, r);
-        ly1 = wnd_to_x(correct_lines[i].y1, frame_height, -r, r);
-        ly2 = wnd_to_x(correct_lines[i].y2, frame_height, -r, r);
-
-        objx1 = wnd_to_x(obj.get_last_center_x(), frame_width, -r, r);
-        objy1 = wnd_to_x(obj.get_last_center_y(), frame_height, -r, r);
-        objx2 = wnd_to_x(new_center_x, frame_width, -r, r);
-        objy2 = wnd_to_x(new_center_y, frame_height, -r, r);
-
-        if (is_intersect(lx1, ly1, lx2, ly2, objx1, objy1, objx2, objy2))
-        {
-#if 0
-            // Необходимо узнать с какой стороны произошло пересечение
-            // Для этого выберается точка, заведомо лежащая на стороне 1
-            float_t x(0), y(0);
-            if ((correct_lines[i].x1 <= correct_lines[i].x2) && (correct_lines[i].y1 > correct_lines[i].y2))
-            {
-                x = wnd_to_x((correct_lines[i].x1 + correct_lines[i].x2) / 2 - 10, frame_width, -r, r);
-                y = wnd_to_x((correct_lines[i].y1 + correct_lines[i].y2) / 2 - 10, frame_height, -r, r);
-            }
-            else
-            {
-                if ((correct_lines[i].x1 <= correct_lines[i].x2) && (correct_lines[i].y1 <= correct_lines[i].y2))
-                {
-                    x = wnd_to_x((correct_lines[i].x1 + correct_lines[i].x2) / 2 + 10, frame_width, -r, r);
-                    y = wnd_to_x((correct_lines[i].y1 + correct_lines[i].y2) / 2 - 10, frame_height, -r, r);
-                }
-                else
-                {
-                    if ((correct_lines[i].x1 > correct_lines[i].x2) && (correct_lines[i].y1 > correct_lines[i].y2))
-                    {
-                        x = wnd_to_x((correct_lines[i].x1 + correct_lines[i].x2) / 2 - 10, frame_width, -r, r);
-                        y = wnd_to_x((correct_lines[i].y1 + correct_lines[i].y2) / 2 + 10, frame_height, -r, r);
-                    }
-                    else
-                    {
-                        if ((correct_lines[i].x1 > correct_lines[i].x2) && (correct_lines[i].y1 <= correct_lines[i].y2))
-                        {
-                            x = wnd_to_x((correct_lines[i].x1 + correct_lines[i].x2) / 2 + 10, frame_width, -r, r);
-                            y = wnd_to_x((correct_lines[i].y1 + correct_lines[i].y2) / 2 + 10, frame_height, -r, r);
-                        }
-                    }
-                }
-            }
-            direction = is_intersect(lx1, ly1, lx2, ly2, objx1, objy1, x, y) ? 1 : 0;
-#endif
-            ret_val = true;
-        }
-    }
-    return ret_val;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -1289,71 +636,50 @@ void CFeinTrack::recalc_correct_zones()
 
 void CFeinTrack::get_objects(CObjRect* &rect_arr, size_t& rect_count)
 {
-    rect_count = show_objects? objects_count: 0;
-    if (rect_count)
-        rect_arr = &obj_rects[0];
+    if (show_objects)
+    {
+        tracker.GetObjects(rect_arr, rect_count);
+    }
+    else
+    {
+        rect_count = 0;
+        rect_arr = nullptr;
+    }
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void CFeinTrack::set_one_object(unsigned int uid, int left, int right, int top, int bottom)
 {
-    if (uid)
-    {
-        for (objects_container::const_iterator iter = objects_history.begin(); iter != objects_history.end(); ++iter)
-        {
-            if (uid != (*iter)->uid)
-                add_uid_to_del_objects((*iter)->uid);
-        }
-        objects_history.clear();
-    }
-    else
-    {
-        uid = 1;
-        del_objects_count = 0;
-    }
-
-    if (!obj_rects.size())
-    {
-        CObjRect object(0, 0, 0, 0, 1, 0, 0);
-        obj_rects.push_back(object);
-    }
-
-    obj_rects[0].left = left;
-    obj_rects[0].right = right;
-    obj_rects[0].top = top;
-    obj_rects[0].bottom = bottom;
-    obj_rects[0].uid = uid;
-    obj_rects[0].type = unknown_object;
-    obj_rects[0].zone_name[0] = '\0';
-    obj_rects[0].traectory_size = 1;
-    objects_count = 1;
-
-
-    left_objects_count = 0;
+    tracker.SetOneObject(uid, left, right, top, bottom);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void CFeinTrack::get_del_objects(unsigned int* &uids_arr, size_t& uids_count)
 {
-    uids_count = del_objects_count;
-    if (uids_count)
-        uids_arr = &del_objects[0];
-    if (!show_objects)
-        del_objects_count = 0;
+    if (show_objects)
+    {
+        tracker.GetDelObjects(uids_arr, uids_count);
+    }
+    else
+    {
+        uids_count = 0;
+    }
 }
 ////////////////////////////////////////////////////////////////////////////
 
 bool CFeinTrack::get_object_points(size_t obj_ind, POINTF* points, size_t& max_points)
 {
-    if (use_cuda || (obj_ind >= obj_rects.size()))
+    CObjRect objRect;
+
+    if (use_cuda || !tracker.GetObject(obj_ind, objRect))
     {
         return false;
     }
 
-    uint32_t left = obj_rects[obj_ind].left - left_padding;
-    uint32_t right = obj_rects[obj_ind].right - left_padding;
-    uint32_t top = obj_rects[obj_ind].top - top_padding;
-    uint32_t bottom = obj_rects[obj_ind].bottom - top_padding;
+    uint32_t left = objRect.left - left_padding;
+    uint32_t right = objRect.right - left_padding;
+    uint32_t top = objRect.top - top_padding;
+    uint32_t bottom = objRect.bottom - top_padding;
 
     mask_type *par = nullptr;
     uint32_t step_x = std::max<uint32_t>(2, (right - left + 1) / 16);
@@ -1381,9 +707,16 @@ bool CFeinTrack::get_object_points(size_t obj_ind, POINTF* points, size_t& max_p
 
 void CFeinTrack::get_left_objects(CLeftObjRect* &rect_arr, size_t& rect_count)
 {
-    rect_count = (show_objects && show_left_objects) ? left_objects_count : 0;
-    if (rect_count)
-        rect_arr = &left_obj_rects[0];
+    if (show_objects && show_left_objects)
+    {
+        tracker.GetLeftObjects(rect_arr, rect_count);
+    }
+    else
+    {
+        rect_count = 0;
+        rect_arr = nullptr;
+    }
+
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -1431,18 +764,9 @@ void CFeinTrack::set_show_objects(bool new_val)
 
         segmentator.set_show_objects(show_objects);
 
-        for (objects_container::const_iterator iter = objects_history.begin(); iter != objects_history.end(); ++iter)
-        {
-            add_uid_to_del_objects((*iter)->uid);
-        }
-        objects_history.clear();
+        tracker.Reset(false);
 
         curr_frame = 0;
-
-        objects_count = 0;
-        left_objects_count = 0;
-
-        lefted_objects.clear();
     }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1491,30 +815,7 @@ bool CFeinTrack::cut_shadow(CObjectRegion& region)
 ////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-bool CFeinTrack::is_in_zone(const T &rect, mstring *zone_name) const
-{
-    if (zone_name)
-        *zone_name = "";
-    if (correct_zones.empty())
-        return true;
-
-    for (size_t i = 0; i < correct_zones.size(); ++i)
-    {
-        if (correct_zones[i].use_detection &&
-                segments_superposition(correct_zones[i].left, correct_zones[i].right, rect.get_left(), rect.get_right()) &&
-                segments_superposition(correct_zones[i].top, correct_zones[i].bottom, rect.get_top(), rect.get_bottom()))
-        {
-            if (zone_name)
-                *zone_name = correct_zones[i].name.c_str();
-            return true;
-        }
-    }
-    return false;
-}
-////////////////////////////////////////////////////////////////////////////
-
-template<class T>
-const CZone* CFeinTrack::get_zone(const T &rect) const
+const CZone* CFeinTrack::get_zone(const T& rect) const
 {
     for (size_t i = 0; i < correct_zones.size(); ++i)
     {
@@ -1527,55 +828,7 @@ const CZone* CFeinTrack::get_zone(const T &rect) const
     }
     return nullptr;
 }
-////////////////////////////////////////////////////////////////////////////
 
-template<class T>
-void CFeinTrack::add_object_to_out_rects(const T &rect, const CTrackingObject &object, object_types obj_type, const mstring &zone_name)
-{
-    int obj_left = rect.get_left();
-    int obj_right = rect.get_right();
-    int obj_top = rect.get_top();
-    int obj_bottom = rect.get_bottom();
-    if (analyze_area.left)
-    {
-        obj_left += left_padding;
-        obj_right += left_padding;
-    }
-    if (analyze_area.top)
-    {
-        obj_top += top_padding;
-        obj_bottom += top_padding;
-    }
-
-    // Здесь сделана попытка избежать лишних выделений памяти: массив obj_rects никогда не уменьшается
-    // Он может только увеличивать свой размер, если на последующих кадрах выделенных объектов больше, чем на предыдущих
-    if (++objects_count > obj_rects.size())
-    {
-        obj_rects.push_back(CObjRect(obj_left, obj_right, obj_top, obj_bottom, object.uid, object.get_new_center_x(), object.get_new_center_y()));
-        if (show_trajectory)
-            object.get_traectory(*obj_rects.rbegin(), frame_width, frame_height, left_padding, top_padding);
-        obj_rects.rbegin()->type = obj_type;
-        obj_rects.rbegin()->zone_name = zone_name;
-    }
-    else
-    {
-        obj_rects[objects_count - 1].left = obj_left;
-        obj_rects[objects_count - 1].right = obj_right;
-        obj_rects[objects_count - 1].top = obj_top;
-        obj_rects[objects_count - 1].bottom = obj_bottom;
-        obj_rects[objects_count - 1].uid = object.uid;
-        obj_rects[objects_count - 1].new_center_x = left_padding + object.get_x_future_val(fps);
-        obj_rects[objects_count - 1].new_center_y = top_padding + object.get_y_future_val(fps);
-        if (show_trajectory)
-            object.get_traectory(obj_rects[objects_count - 1], frame_width, frame_height, left_padding, top_padding);
-        else
-            obj_rects[objects_count - 1].traectory_size = 1;
-
-        obj_rects[objects_count - 1].type = obj_type;
-
-        obj_rects[objects_count - 1].zone_name = zone_name;
-    }
-}
 ////////////////////////////////////////////////////////////////////////////
 } //end namespace feintrack
 ////////////////////////////////////////////////////////////////////////////

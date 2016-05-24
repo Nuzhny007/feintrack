@@ -31,7 +31,6 @@ CBackSubstraction::CBackSubstraction()
 
     pixel_size = 3;
     fps = 25;
-    need_background_update = true;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -103,12 +102,6 @@ void CBackSubstraction::set_use_cuda(bool use_cuda_)
 void CBackSubstraction::set_fps(int new_fps)
 {
     fps = new_fps;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CBackSubstraction::enable_back_update(bool enable_val)
-{
-    need_background_update = enable_val;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -381,7 +374,7 @@ int CNormBackSubstraction::background_substraction(int& curr_frame, const uchar*
     const uchar* pbuf = buf;
 
     // Раз в секунду обновляем статистику - уточнение параметров фона
-    bool curr_background_update = (curr_frame % fps == fps - 1) && need_background_update;
+    bool curr_background_update = (curr_frame % fps == fps - 1);
 
     // Коэффициенты (0.587 / 0.144) и (0.299 / 0.144) служат как примитивный детектор теней
     // Их значения взяты из формулы перевода RGB->YUV для компоненты яркости

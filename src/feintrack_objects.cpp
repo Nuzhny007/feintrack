@@ -181,7 +181,6 @@ CTrackingObject::CTrackingObject(int center_x_, int center_y_, unsigned int uid_
       coords_collected(1),
       kx(0.0), bx(0.0), ky(0.0), by(0.0),
       #endif
-      obj_recogn_count(0),
       type(unknown_object),
       uid(uid_),
       weight(default_weight),
@@ -213,7 +212,6 @@ CTrackingObject::CTrackingObject(const CTrackingObject &obj)
       by(obj.by),
       stat(obj.stat),
       #endif
-      obj_recogn_count(obj.obj_recogn_count),
       type(obj.type),
       uid(obj.uid),
       weight(obj.weight),
@@ -230,36 +228,12 @@ CTrackingObject::~CTrackingObject()
 ////////////////////////////////////////////////////////////////////////////
 object_types CTrackingObject::get_type() const
 {
-#if 1
     return type;
-#else
-    if (obj_recogn_count > min_recogn_count)
-        return type;
-    else
-        return unknown;
-#endif
 }
 ////////////////////////////////////////////////////////////////////////////
 void CTrackingObject::set_new_type(object_types new_type)
 {
-    if (new_type == type)
-    {
-        if (new_type != unknown_object)
-            ++obj_recogn_count;
-        else
-            obj_recogn_count = 0;
-    }
-    else
-    {
-        if (new_type != unknown_object)
-        {
-            if (type != unknown_object)
-                obj_recogn_count = std::max(0, obj_recogn_count - 1);
-
-            if (!obj_recogn_count)
-                type = new_type;
-        }
-    }
+    type = new_type;
 }
 ////////////////////////////////////////////////////////////////////////////
 #if !LIN_MNK

@@ -5,14 +5,14 @@
 #include "src/feintrack_params.h"
 #include "src/feintrack.h"
 
-#define SAVE_DBG_VIDEO 1
+#define SAVE_DBG_VIDEO 0
 
 ////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[])
 {
-    //std::string input_file_name = "/home/snuzhny/Documents/automotive/pedestrians_datasets/ikoretsk/video/camera1.mov";
-    std::string input_file_name = "/home/nuzhny/Documents/megacam/test0.mp4";
+    std::string input_file_name = "/media/nuzhny/arc/video/ghost_objects/pets2000/test.mov";
+    //std::string input_file_name = "/home/nuzhny/Documents/megacam/test0.mp4";
     //std::string input_file_name = "/home/user/cv/uav_detection/151223-1846/%04d.png";
     //std::string input_file_name = "0";
 
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     }
 	int framesNum = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_COUNT));
 
-#if 1
+#if 0
     capture.set(CV_CAP_PROP_FPS, 50.0);
 #endif
     int fps = static_cast<int>(capture.get(CV_CAP_PROP_FPS));
@@ -57,16 +57,16 @@ int main(int argc, char* argv[])
 
     auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
-    ftrack->set_sensitivity(90);
+    ftrack->set_sensitivity(95);
     ftrack->set_fps(fps);
     ftrack->set_show_objects(true);
     ftrack->set_bgrnd_type(feintrack::norm_back);
     ftrack->set_use_recognition(false);
-    ftrack->set_use_morphology(false);
+    ftrack->set_use_morphology(true);
     ftrack->set_show_left_objects(true);
     ftrack->set_show_trajectory(true);
     ftrack->set_selection_time(12);
-#if 0
+#if 1
     ftrack->set_min_region_width(std::max(5, frameWidth / 100));
     ftrack->set_min_region_height(ftrack->get_min_region_width());
 #else
@@ -114,8 +114,6 @@ int main(int argc, char* argv[])
 
     feintrack::lines_cont lines;
     ftrack->set_lines_list(lines);
-
-    ftrack->enable_back_update(true);
 
     ftrack->set_use_cuda(false, 0);
 
@@ -304,7 +302,7 @@ int main(int argc, char* argv[])
             std::cout << "Frame " << frame_num << " of " << framesNum << ": " << rect_count << " objects are tracking at " << ((t2 - t1) / freq) << " sec" << std::endl;
 
             int workTime = static_cast<int>(1000. * (t2 - t1) / freq);
-            int waitTime = (workTime >= 1000 / fps) ? 1 : (1000 / fps - workTime);
+            int waitTime = 1;//(workTime >= 1000 / fps) ? 1 : (1000 / fps - workTime);
             if (cv::waitKey(waitTime) > 0)
             {
                 break;

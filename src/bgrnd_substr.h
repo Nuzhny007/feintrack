@@ -56,8 +56,6 @@ typedef int32_t ft_param_t;                 // Тип статистически
 
 		virtual void set_fps(int new_fps);                    // Задание fps
 
-		virtual void enable_back_update(bool enable_val);     // Разрешение/запрещение обновления фона
-
 		virtual void set_show_objects(bool show_objects);     // Показывать/не показывать объекты
 
 		virtual void set_use_cuda(bool use_cuda_);            // Задание использования CUDA
@@ -83,8 +81,6 @@ typedef int32_t ft_param_t;                 // Тип статистически
 		bool init_filter;                             // Собрана ли первоначальная статистика
 
 		int fps;                                      // Количество кадров в секунду, поступающих на фильтр. Обновление статистики производится раз в секунду. Время будет измеряться по кадрам.
-
-		bool need_background_update;                  // Обновлять ли модель заднего плана
 
         bool is_patch_of_sunlight(const ft_param_t* float_src, const size_t pixel_size); // Является ли данный пиксель частью блика
 

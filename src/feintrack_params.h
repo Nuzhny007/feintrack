@@ -79,6 +79,20 @@ namespace feintrack
     // Прямоугольник с координатами и идентификатором объекта
     struct CObjRect: public RECT_
     {
+        CObjRect()
+            :
+              type(unknown_object),
+              uid(0),
+              new_center_x(0), new_center_y(0),
+              traectory_size(0)
+        {
+            zone_name[0] = '\0';
+
+            traectory[0].x = center_x();
+            traectory[0].y = center_y();
+            traectory_size = 1;
+        }
+
         CObjRect(int left_, int right_, int top_, int bottom_, unsigned int uid_, int new_center_x_, int new_center_y_)
             : RECT_(left_, right_, top_, bottom_),
             type(unknown_object), uid(uid_),
@@ -225,5 +239,40 @@ namespace feintrack
 		gaussian_mixture     // Моделирование каждого пикселя смесью нормально распределённых случайных векторов
 	};
 	////////////////////////////////////////////////////////////////////////////
+    struct VideoHeader
+    {
+        const uchar* buf;
+        uint32_t pitch;
+        uint32_t frame_width;
+        uint32_t frame_height;
+        int left_padding;
+        int top_padding;
+        RECT_ analyze_area;
+        int fps;
+        int pixel_size;
+
+#if ADV_OUT
+        uchar* adv_buf_rgb24;
+#endif
+
+        VideoHeader()
+            :
+              buf(nullptr),
+              pitch(0),
+              frame_width(0),
+              frame_height(0),
+              left_padding(0),
+              top_padding(0),
+              fps(0),
+              pixel_size(0)
+#if ADV_OUT
+              , adv_buf_rgb24(nullptr)
+#endif
+        {
+
+        }
+    };
+
+    ////////////////////////////////////////////////////////////////////////////
 } // end namespace feintrack
 ////////////////////////////////////////////////////////////////////////////
