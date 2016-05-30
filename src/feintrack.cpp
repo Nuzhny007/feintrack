@@ -634,7 +634,7 @@ void CFeinTrack::recalc_correct_zones()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CFeinTrack::get_objects(CObjRect* &rect_arr, size_t& rect_count)
+void CFeinTrack::get_objects(const CObjRect* &rect_arr, size_t& rect_count)
 {
     if (show_objects)
     {
@@ -705,7 +705,7 @@ bool CFeinTrack::get_object_points(size_t obj_ind, POINTF* points, size_t& max_p
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CFeinTrack::get_left_objects(CLeftObjRect* &rect_arr, size_t& rect_count)
+void CFeinTrack::get_left_objects(const CLeftObjRect* &rect_arr, size_t& rect_count)
 {
     if (show_objects && show_left_objects)
     {

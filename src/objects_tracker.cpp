@@ -9,11 +9,6 @@ namespace feintrack
 NativeTracker::NativeTracker()
     :
       objects_count(0),
-      left_objects_count(0),
-      left_object_time0(0),
-      left_object_time1(0),
-      left_object_time2(0),
-      left_object_time3(0),
       del_objects_count(0),
       lastUid(1),
       weight_threshold(0.1f),
@@ -47,10 +42,10 @@ void NativeTracker::SetFps(
 {
     weight_alpha = 0.5f / new_fps;
 
-    left_object_time0 = 1 * new_fps;
-    left_object_time1 = left_object_time1_sec * new_fps;
-    left_object_time2 = left_object_time2_sec * new_fps;
-    left_object_time3 = left_object_time3_sec * new_fps;
+    left_detector.SetLeftObjectTime0(1 * new_fps);
+    left_detector.SetLeftObjectTime1(left_object_time1_sec * new_fps);
+    left_detector.SetLeftObjectTime1(left_object_time2_sec * new_fps);
+    left_detector.SetLeftObjectTime1(left_object_time3_sec * new_fps);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -59,7 +54,7 @@ void NativeTracker::SetFps(
 ///
 void NativeTracker::SetLeftObjectTime1(int left_object_time1_)
 {
-    left_object_time1 = left_object_time1_;
+    left_detector.SetLeftObjectTime1(left_object_time1_);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -68,13 +63,13 @@ void NativeTracker::SetLeftObjectTime1(int left_object_time1_)
 ///
 void NativeTracker::SetLeftObjectTime2(int left_object_time2_)
 {
-    left_object_time2 = left_object_time2_;
+    left_detector.SetLeftObjectTime2(left_object_time2_);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 void NativeTracker::SetLeftObjectTime3(int left_object_time3_)
 {
-    left_object_time3 = left_object_time3_;
+    left_detector.SetLeftObjectTime3(left_object_time3_);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -98,11 +93,9 @@ void NativeTracker::Reset(
     }
 
     objects_count = 0;
-    left_objects_count = 0;
-
     objects_history.clear();
-    shady_left_objects.clear();
-    lefted_objects.clear();
+
+    left_detector.Reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -172,13 +165,10 @@ void NativeTracker::Track(
             if ((*iter_obj)->life_time > selection_time)
             {
                 // Объект считается принадлежащим к спискам возможно являющихся оставленными предметами
-                if ((*iter_obj)->get_left_frames() == left_object_time0)
-                {
-                    add_to_shady_left_objects(**iter_obj);
-                }
+                left_detector.CheckShadyLeftObject(**iter_obj);
 
                 // Если объект двигается
-                if ((*iter_obj)->get_left_frames() < left_object_time1)
+                if (!left_detector.CheckLeftObject(**iter_obj))
                 {
                     // Попадает ли объект в зоны детекции
                     mstring zone_name;
@@ -192,11 +182,11 @@ void NativeTracker::Track(
                         // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
                         if (!(*iter_obj)->get_left_frames())
                         {
-                            del_uid_from_shady_left_objects((*iter_obj)->uid);
+                            left_detector.DelUidFromShadyLeftObjects((*iter_obj)->uid);
                         }
                         else
                         {
-                            inc_time_shady_left_objects((*iter_obj)->uid);
+                            left_detector.IncTimeShadyLeftObjects((*iter_obj)->uid);
                         }
 
                         // Отправляем объект на вывод
@@ -209,11 +199,11 @@ void NativeTracker::Track(
                         // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
                         if (!(*iter_obj)->get_left_frames())
                         {
-                            del_uid_from_shady_left_objects((*iter_obj)->uid);
+                            left_detector.DelUidFromShadyLeftObjects((*iter_obj)->uid);
                         }
                         else
                         {
-                            inc_time_shady_left_objects((*iter_obj)->uid);
+                            left_detector.IncTimeShadyLeftObjects((*iter_obj)->uid);
                         }
                     }
                 }
@@ -223,7 +213,7 @@ void NativeTracker::Track(
                     if (is_in_zone(zones, *find_region, nullptr))
                     {
                         // Cоздаём оставленный предмет
-                        lefted_objects.push_back(CLeftObjView(left_object_time3 - left_object_time1, find_region->get_left(), find_region->get_right(), find_region->get_top(), find_region->get_bottom(), (*iter_obj)->uid));
+                        left_detector.NewLeftObject((*iter_obj)->uid, *find_region);
                     }
 
                     // Удаляем найденный регион, чтобы избежать совпадений с другими объектами
@@ -243,11 +233,11 @@ void NativeTracker::Track(
                 // Удаляем идентификатор из списка объектов, возможно являющихся оставленными
                 if (!(*iter_obj)->get_left_frames())
                 {
-                    del_uid_from_shady_left_objects((*iter_obj)->uid);
+                    left_detector.DelUidFromShadyLeftObjects((*iter_obj)->uid);
                 }
                 else
                 {
-                    inc_time_shady_left_objects((*iter_obj)->uid);
+                    left_detector.IncTimeShadyLeftObjects((*iter_obj)->uid);
                 }
             }
 
@@ -310,10 +300,10 @@ void NativeTracker::Track(
     objects_history.sort(CTrackingObject::life_bigger);
 
     // Удаляем объекты, не обнаруживающиеся в течение некоторого времени
-    analyze_shady_left_objects();
+    left_detector.AnalyzeShadyLeftObjects();
 
     // Анализ оставленных предметов
-    analyze_lefted_objects(videoHeader);
+    left_detector.AnalyzeLeftedObjects(videoHeader);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -392,113 +382,10 @@ void NativeTracker::del_object(
     if (del_adv_data)
     {
         // Удаление из списка возможно оставленных предметов
-        del_from_shady_left_objects(object->uid);
+        left_detector.DelFromShadyLeftObjects(object->uid);
     }
     add_uid_to_del_objects(object->uid);
     object = nullptr;
-}
-
-////////////////////////////////////////////////////////////////////////////
-/// \brief NativeTracker::add_to_shady_left_objects
-/// \param obj
-///
-void NativeTracker::add_to_shady_left_objects(
-        CTrackingObject &obj
-        )
-{
-    CShadyLeftObj new_obj(obj.uid, obj.get_left_frames(), obj.get_left(), obj.get_right(), obj.get_top(), obj.get_bottom());
-    // Если существует объект с центром в некоторой окрестности, то его удаляем а время складываем
-    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
-    {
-        if ((abs(iter->rect.center_x() - obj.get_last_center_x()) < 2 * obj.get_left_epsilon()) &&
-                (abs(iter->rect.center_y() - obj.get_last_center_y()) < 2 * obj.get_left_epsilon()))
-        {
-            new_obj.life_time += iter->life_time;
-            iter = shady_left_objects.erase(iter);
-        }
-        else
-        {
-            ++iter;
-        }
-    }
-    shady_left_objects.push_back(new_obj);
-    obj.set_left_frames(new_obj.life_time);
-}
-
-////////////////////////////////////////////////////////////////////////////
-/// \brief NativeTracker::del_from_shady_left_objects
-/// \param obj_uid
-///
-void NativeTracker::del_from_shady_left_objects(
-        unsigned int obj_uid
-        )
-{
-    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end(); ++iter)
-    {
-        if (iter->obj_uid == obj_uid)
-        {
-            iter = shady_left_objects.erase(iter);
-            return;
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////
-/// \brief NativeTracker::del_uid_from_shady_left_objects
-/// \param obj_uid
-///
-void NativeTracker::del_uid_from_shady_left_objects(
-        unsigned int obj_uid
-        )
-{
-    for (auto& obj : shady_left_objects)
-    {
-        if (obj.obj_uid == obj_uid)
-        {
-            obj.obj_uid = 0;
-            return;
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////
-/// \brief NativeTracker::inc_time_shady_left_objects
-/// \param obj_uid
-///
-void NativeTracker::inc_time_shady_left_objects(
-        unsigned int obj_uid
-        )
-{
-    for (auto& obj : shady_left_objects)
-    {
-        if (obj.obj_uid == obj_uid)
-        {
-            obj.life_time++;
-            return;
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////
-/// \brief NativeTracker::analyze_shady_left_objects
-///
-void NativeTracker::analyze_shady_left_objects()
-{
-    for (auto iter = shady_left_objects.begin(); iter != shady_left_objects.end();)
-    {
-        if (!iter->obj_uid)
-        {
-            iter->not_detect_time++;
-            if (iter->not_detect_time > left_object_time1)
-                iter = shady_left_objects.erase(iter);
-            else
-                ++iter;
-        }
-        else
-        {
-            ++iter;
-        }
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -590,103 +477,14 @@ regions_container::iterator NativeTracker::find_region_by_center(
 }
 
 ////////////////////////////////////////////////////////////////////////////
-/// \brief NativeTracker::add_left_object_to_out_rects
-/// \param left_obj
-/// \param type
-/// \param videoHeader
-///
-void NativeTracker::add_left_object_to_out_rects(
-        const CLeftObjView &left_obj,
-        CLeftObjRect::types type,
-        const VideoHeader& videoHeader
-        )
-{
-    // Здесь сделана попытка избежать лишних выделений памяти: массив left_obj_rects никогда не уменьшается
-    // Он может только увеличивать свой размер, если на последующих кадрах выделенных объектов больше, чем на предыдущих
-    if (++left_objects_count > left_obj_rects.size())
-    {
-        left_obj_rects.push_back(CLeftObjRect(left_obj.rect, type, left_obj.obj_uid));
-        if (videoHeader.left_padding)
-        {
-            left_obj_rects[left_objects_count - 1].left += videoHeader.left_padding;
-            left_obj_rects[left_objects_count - 1].right += videoHeader.left_padding;
-        }
-        if (videoHeader.top_padding)
-        {
-            left_obj_rects[left_objects_count - 1].top += videoHeader.top_padding;
-            left_obj_rects[left_objects_count - 1].bottom += videoHeader.top_padding;
-        }
-    }
-    else
-    {
-        left_obj_rects[left_objects_count - 1].left = left_obj.rect.left + videoHeader.left_padding;
-        left_obj_rects[left_objects_count - 1].right = left_obj.rect.right + videoHeader.left_padding;
-        left_obj_rects[left_objects_count - 1].top = left_obj.rect.top + videoHeader.top_padding;
-        left_obj_rects[left_objects_count - 1].bottom = left_obj.rect.bottom + videoHeader.top_padding;
-        left_obj_rects[left_objects_count - 1].type = type;
-        left_obj_rects[left_objects_count - 1].obj_uid = left_obj.obj_uid;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////
-/// \brief NativeTracker::analyze_lefted_objects
-/// \param videoHeader
-///
-void NativeTracker::analyze_lefted_objects(
-        const VideoHeader& videoHeader
-        )
-{
-    left_objects_count = 0;
-
-    // Если объекты пересекаются, то более старый удаляем
-    lefted_objects.sort(CLeftObjView::bigger);
-    for (std::list<CLeftObjView>::iterator iter1 = lefted_objects.begin(); iter1 != lefted_objects.end(); ++iter1)
-    {
-        std::list<CLeftObjView>::iterator iter2 = iter1;
-        ++iter2;
-        for (; iter2 != lefted_objects.end();)
-        {
-            if (segments_superposition(iter1->rect.left, iter1->rect.right, iter2->rect.left, iter2->rect.right) &&
-                    segments_superposition(iter1->rect.top, iter1->rect.bottom, iter2->rect.top, iter2->rect.bottom))
-            {
-                iter2 = lefted_objects.erase(iter2);
-            }
-            else
-            {
-                ++iter2;
-            }
-        }
-    }
-
-    // Заполняем массив для обводки
-    for (std::list<CLeftObjView>::iterator iter = lefted_objects.begin(); iter != lefted_objects.end();)
-    {
-        // Удаляем оставленные предметы, жизнь которых больше определённого времени (left_object_life_time)
-        if (iter->life_time < 1)
-        {
-            iter = lefted_objects.erase(iter);
-        }
-        else
-        {
-            // Уменьшаем время жизни объекта
-            iter->life_time--;
-
-            // Добавляем в массив оставленных объектов
-            add_left_object_to_out_rects(*iter, ((left_object_time3 - iter->life_time < left_object_time2)? CLeftObjRect::first: CLeftObjRect::second), videoHeader);
-            ++iter;
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////
 /// \brief NativeTracker::GetObjects
 /// \param rect_arr
 /// \param rect_count
 ///
 void NativeTracker::GetObjects(
-        CObjRect* &rect_arr,
+        const CObjRect* &rect_arr,
         size_t& rect_count
-        )
+        ) const
 {
     rect_count = objects_count;
     if (rect_count)
@@ -746,7 +544,7 @@ void NativeTracker::SetOneObject(
     obj_rects[0].traectory_size = 1;
     objects_count = 1;
 
-    left_objects_count = 0;
+    left_detector.Reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -841,7 +639,7 @@ void NativeTracker::add_object_to_out_rects(
 bool NativeTracker::GetObject(
         size_t obj_ind,
         CObjRect& objRect
-        )
+        ) const
 {
     if (obj_ind >= obj_rects.size())
     {
@@ -861,19 +659,20 @@ bool NativeTracker::GetObject(
 /// \param rect_count
 ///
 void NativeTracker::GetLeftObjects(
-        CLeftObjRect* &rect_arr,
+        const CLeftObjRect* &rect_arr,
         size_t& rect_count
-        )
+        ) const
 {
-    rect_count = left_objects_count;
-    if (rect_count)
-    {
-        rect_arr = &left_obj_rects[0];
-    }
+    left_detector.GetLeftObjects(rect_arr, rect_count);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
+/// \brief NativeTracker::is_in_zone
+/// \param zones
+/// \param rect
+/// \param zone_name
+/// \return
+///
 template<typename ZONES_T, typename T>
 bool NativeTracker::is_in_zone(
         const ZONES_T& zones,

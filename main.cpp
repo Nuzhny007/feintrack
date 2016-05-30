@@ -78,9 +78,9 @@ int main(int argc, char* argv[])
     ftrack->set_detect_patches_of_sunlight(false);
     ftrack->set_cut_shadows(false);
 
-    ftrack->set_left_object_time1_sec(15);
-    ftrack->set_left_object_time2_sec(20);
-    ftrack->set_left_object_time3_sec(25);
+    ftrack->set_left_object_time1_sec(5);
+    ftrack->set_left_object_time2_sec(10);
+    ftrack->set_left_object_time3_sec(15);
 
 #if 0
     feintrack::zones_cont zones;
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 
 #if 1
             // Обводка объектов
-            feintrack::CObjRect *rect_arr;
+            const feintrack::CObjRect* rect_arr;
             size_t rect_count;
             ftrack->get_objects(rect_arr, rect_count);
 
@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
             }
 
             // Обводка оставленных объектов
-            feintrack::CLeftObjRect *left_rect_arr;
+            const feintrack::CLeftObjRect* left_rect_arr;
             size_t left_rect_count;
             ftrack->get_left_objects(left_rect_arr, left_rect_count);
 

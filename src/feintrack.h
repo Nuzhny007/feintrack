@@ -93,11 +93,11 @@ namespace feintrack
 		void set_sensitivity(int sens_level);                           // Задаёт уровень чувствительности для вычитания фона (от 1 до 100)
 		int get_sensitivity() const;                                    // Получение уровня чувствительности для вычитания фона (от 1 до 100)
 
-		void get_objects(CObjRect* &rect_arr, size_t& rect_count);      // Получение списка отображаемых объектов, обнаруженных на последнем кадре
+        void get_objects(const CObjRect* &rect_arr, size_t& rect_count);      // Получение списка отображаемых объектов, обнаруженных на последнем кадре
         void set_one_object(unsigned int uid, int left, int right, int top, int bottom); // Задание координат единственного объекта, который будет отображаться на кадре
 		bool get_object_points(size_t obj_ind, POINTF* points, size_t& max_points); // Получение набора точек, принадлежащих объекту
         void get_del_objects(unsigned int* &uids_arr, size_t& uids_count);     // Получение списка идентификаторов удалённых на последнем кадре объектов
-		void get_left_objects(CLeftObjRect* &rect_arr, size_t& rect_count); // Получение списка оставленных объектов
+        void get_left_objects(const CLeftObjRect* &rect_arr, size_t& rect_count); // Получение списка оставленных объектов
 
 		int get_fps() const;                                            // Получение и
 		void set_fps(int new_fps);                                      // задание fps
