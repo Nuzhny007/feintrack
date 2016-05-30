@@ -67,6 +67,7 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/left_objects_detector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/StaticLeftDetector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LeftObject.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HungrianAlg.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp
 )
 
@@ -79,6 +80,7 @@ set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/left_objects_detector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/StaticLeftDetector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LeftObject.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HungrianAlg.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/some_types.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/feintrack_params.h
