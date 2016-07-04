@@ -84,26 +84,26 @@ namespace feintrack
               type(unknown_object),
               uid(0),
               new_center_x(0), new_center_y(0),
-              traectory_size(0)
+              trajectory_size(0)
         {
             zone_name[0] = '\0';
 
-            traectory[0].x = center_x();
-            traectory[0].y = center_y();
-            traectory_size = 1;
+            trajectory[0].x = center_x();
+            trajectory[0].y = center_y();
+            trajectory_size = 1;
         }
 
         CObjRect(int left_, int right_, int top_, int bottom_, unsigned int uid_, int new_center_x_, int new_center_y_)
             : RECT_(left_, right_, top_, bottom_),
             type(unknown_object), uid(uid_),
             new_center_x(new_center_x_), new_center_y(new_center_y_),
-            traectory_size(0)
+            trajectory_size(0)
         {
             zone_name[0] = '\0';
 
-            traectory[0].x = center_x();
-            traectory[0].y = center_y();
-            traectory_size = 1;
+            trajectory[0].x = center_x();
+            trajectory[0].y = center_y();
+            trajectory_size = 1;
         }
 
         object_types type;                       // Тип объекта
@@ -116,8 +116,8 @@ namespace feintrack
         std::string zone_name;                   // Имя зоны, в которой обнаружен объект (если объект обнаружен одновременно в 2-х зонах, то записывается имя только одной зоны)
 
         static const size_t MAX_TRAECTORY = 200; // Максимальный размер отображаемой траектории
-        POINT_<int> traectory[MAX_TRAECTORY];    // Траектория движения объекта
-        size_t traectory_size;                   // Текущий размер траектории
+        POINT_<int> trajectory[MAX_TRAECTORY];    // Траектория движения объекта
+        size_t trajectory_size;                   // Текущий размер траектории
     };
     ////////////////////////////////////////////////////////////////////////////
 

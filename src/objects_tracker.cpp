@@ -541,7 +541,7 @@ void NativeTracker::SetOneObject(
     obj_rects[0].uid = uid;
     obj_rects[0].type = unknown_object;
     obj_rects[0].zone_name[0] = '\0';
-    obj_rects[0].traectory_size = 1;
+    obj_rects[0].trajectory_size = 1;
     objects_count = 1;
 
     left_detector.Reset();
@@ -601,7 +601,7 @@ void NativeTracker::add_object_to_out_rects(
         obj_rects.push_back(CObjRect(obj_left, obj_right, obj_top, obj_bottom, object.uid, object.get_new_center_x(), object.get_new_center_y()));
         if (show_trajectory)
         {
-            object.get_traectory(*obj_rects.rbegin(), videoHeader.frame_width, videoHeader.frame_height, videoHeader.left_padding, videoHeader.top_padding);
+            object.get_trajectory(*obj_rects.rbegin(), videoHeader.frame_width, videoHeader.frame_height, videoHeader.left_padding, videoHeader.top_padding);
         }
         obj_rects.rbegin()->type = obj_type;
         obj_rects.rbegin()->zone_name = zone_name;
@@ -617,11 +617,11 @@ void NativeTracker::add_object_to_out_rects(
         obj_rects[objects_count - 1].new_center_y = videoHeader.top_padding + object.get_y_future_val(videoHeader.fps);
         if (show_trajectory)
         {
-            object.get_traectory(obj_rects[objects_count - 1], videoHeader.frame_width, videoHeader.frame_height, videoHeader.left_padding, videoHeader.top_padding);
+            object.get_trajectory(obj_rects[objects_count - 1], videoHeader.frame_width, videoHeader.frame_height, videoHeader.left_padding, videoHeader.top_padding);
         }
         else
         {
-            obj_rects[objects_count - 1].traectory_size = 1;
+            obj_rects[objects_count - 1].trajectory_size = 1;
         }
 
         obj_rects[objects_count - 1].type = obj_type;
