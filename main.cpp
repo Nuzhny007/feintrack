@@ -5,7 +5,7 @@
 #include "src/feintrack_params.h"
 #include "src/feintrack.h"
 
-#define SAVE_DBG_VIDEO 0
+#define SAVE_DBG_VIDEO 1
 
 ////////////////////////////////////////////////////////////////////////
 
