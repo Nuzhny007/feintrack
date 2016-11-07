@@ -73,7 +73,7 @@ namespace feintrack
 	class CTrackingObject
 	{
 	private:
-        typedef std::deque<POINT_<int> > traectory_cont;
+        typedef std::deque<POINT_<int> > trajectory_cont;
         static const size_t MaxTrajectorySize = 500;      ///< Maximum size of the object trajectory
 
 		int center_x;                                     //Координаты последнего центра объекта
@@ -98,14 +98,14 @@ namespace feintrack
 		float_t kx, bx, ky, by;                           //Коэффициенты уравнений траектории движения объекта
 #else
 		static const int dp_epsilon = 5;                  // Точность работы алгоритма Дугласа-Пекера (в пикселях)
-		traectory_cont dp_traectory_x;                    // Траектория движения объекта по горизонтали и
-		traectory_cont dp_traectory_y;                    // по вертикали после обработки её алгоритмом Дугласа-Пекера
+		trajectory_cont dp_trajectory_x;                    // Траектория движения объекта по горизонтали и
+		trajectory_cont dp_trajectory_y;                    // по вертикали после обработки её алгоритмом Дугласа-Пекера
 
-		int predict(const traectory_cont& traectory, const traectory_cont& orig_traectory, int delta_time) const; // Предсказание положения объекта на указанный промежуток времени в кадрах
+		int predict(const trajectory_cont& trajectory, const trajectory_cont& orig_trajectory, int delta_time) const; // Предсказание положения объекта на указанный промежуток времени в кадрах
 #endif
 
-		traectory_cont traectory_x;                       //Полная траектория движения объекта по горизонтали и
-		traectory_cont traectory_y;                       //по вертикали
+		trajectory_cont trajectory_x;                       //Полная траектория движения объекта по горизонтали и
+		trajectory_cont trajectory_y;                       //по вертикали
 
 	public:
         CTrackingObject(int center_x_, int center_y_, unsigned int uid_);
@@ -145,7 +145,7 @@ namespace feintrack
 
 		void recalc_center(); //Пересчитывает координаты центра объекта при отсутствии информации о его местоположении на последнем кадре
 
-        void get_traectory(CObjRect &obj_rect, uint32_t frame_width, uint32_t frame_height, int left_padding, int top_padding) const; //Получение траектории движения объекта
+        void get_trajectory(CObjRect &obj_rect, uint32_t frame_width, uint32_t frame_height, int left_padding, int top_padding) const; //Получение траектории движения объекта
 
         unsigned int uid;            //Идентификатор (номер) объекта
 

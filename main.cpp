@@ -12,8 +12,6 @@
 int main(int argc, char* argv[])
 {
     std::string input_file_name = "/media/nuzhny/arc/video/ghost_objects/pets2000/test.mov";
-    //std::string input_file_name = "/home/nuzhny/Documents/megacam/test0.mp4";
-    //std::string input_file_name = "/home/user/cv/uav_detection/151223-1846/%04d.png";
     //std::string input_file_name = "0";
 
     if (argc > 1)
@@ -130,6 +128,8 @@ int main(int argc, char* argv[])
     cv::VideoWriter writer;
 #endif
 
+    double allTime = 0;
+
     for (int vc = 0; vc < 1; ++vc)
     {
         frame_num = 0;
@@ -221,12 +221,12 @@ int main(int argc, char* argv[])
                     cv::rectangle(frame, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::Point(rect_arr[i].right, rect_arr[i].bottom), colors[rect_arr[i].type]);
 
                     // Вывод траектории
-                    cv::Point p1(rect_arr[i].traectory[0].x, rect_arr[i].traectory[0].y);
+                    cv::Point p1(rect_arr[i].trajectory[0].x, rect_arr[i].trajectory[0].y);
                     cv::Point p2;
-                    for (size_t j = 1, stop = rect_arr[i].traectory_size - 1; j < stop; ++j)
+                    for (size_t j = 1, stop = rect_arr[i].trajectory_size - 1; j < stop; ++j)
                     {
-                        p2.x = rect_arr[i].traectory[j].x;
-                        p2.y = rect_arr[i].traectory[j].y;
+                        p2.x = rect_arr[i].trajectory[j].x;
+                        p2.y = rect_arr[i].trajectory[j].y;
 
                         cv::line(frame, p1, p2, cv::Scalar(0, 0, 255));
                         p1 = p2;
@@ -301,9 +301,12 @@ int main(int argc, char* argv[])
 
             std::cout << "Frame " << frame_num << " of " << framesNum << ": " << rect_count << " objects are tracking at " << ((t2 - t1) / freq) << " sec" << std::endl;
 
+            allTime += (t2 - t1) / freq;
+
             int workTime = static_cast<int>(1000. * (t2 - t1) / freq);
-            int waitTime = 1;//(workTime >= 1000 / fps) ? 1 : (1000 / fps - workTime);
-            if (cv::waitKey(waitTime) > 0)
+            int waitTime = (workTime >= 1000 / fps) ? 1 : (1000 / fps - workTime);
+            int key = 0xff & cv::waitKey(waitTime);
+            if (key == 27)
             {
                 break;
             }
@@ -311,6 +314,8 @@ int main(int argc, char* argv[])
             ++frame_num;
         }
     }
+
+    std::cout << "All work time = " << allTime << std::endl;
 
     return 0;
 }

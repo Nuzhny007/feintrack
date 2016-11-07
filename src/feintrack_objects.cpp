@@ -190,8 +190,8 @@ CTrackingObject::CTrackingObject(int center_x_, int center_y_, unsigned int uid_
 #if LIN_MNK
     stat[0] = POINT_<int>(center_x, center_y);
 #endif
-    traectory_x.push_back(traectory_cont::value_type(0, center_x));
-    traectory_y.push_back(traectory_cont::value_type(0, center_y));
+    trajectory_x.push_back(trajectory_cont::value_type(0, center_x));
+    trajectory_y.push_back(trajectory_cont::value_type(0, center_y));
 }
 ////////////////////////////////////////////////////////////////////////////
 CTrackingObject::CTrackingObject(const CTrackingObject &obj)
@@ -218,8 +218,8 @@ CTrackingObject::CTrackingObject(const CTrackingObject &obj)
       life_time(obj.life_time),
       frames_left(obj.frames_left)
 {
-    traectory_x.assign(obj.traectory_x.begin(), obj.traectory_x.end());
-    traectory_y.assign(obj.traectory_y.begin(), obj.traectory_y.end());
+    trajectory_x.assign(obj.trajectory_x.begin(), obj.trajectory_x.end());
+    trajectory_y.assign(obj.trajectory_y.begin(), obj.trajectory_y.end());
 }
 ////////////////////////////////////////////////////////////////////////////
 CTrackingObject::~CTrackingObject()
@@ -237,20 +237,20 @@ void CTrackingObject::set_new_type(object_types new_type)
 }
 ////////////////////////////////////////////////////////////////////////////
 #if !LIN_MNK
-int CTrackingObject::predict(const traectory_cont& traectory, const traectory_cont& orig_traectory, int delta_time) const
+int CTrackingObject::predict(const trajectory_cont& trajectory, const trajectory_cont& orig_trajectory, int delta_time) const
 {
-    if (orig_traectory.size() == 1)
-        return orig_traectory[0].y;
+    if (orig_trajectory.size() == 1)
+        return orig_trajectory[0].y;
 
-    traectory_cont::value_type p1 = traectory[traectory.size() - 2];
-    traectory_cont::value_type p2 = traectory[traectory.size() - 1];
+    trajectory_cont::value_type p1 = trajectory[trajectory.size() - 2];
+    trajectory_cont::value_type p2 = trajectory[trajectory.size() - 1];
 
     bool use_dp_predict = true;
 
     // Проверка величины текущей и предыдущей длин участков траектории для определения типа предсказания
-    if (traectory.size() > 2)
+    if (trajectory.size() > 2)
     {
-        traectory_cont::value_type p0 = traectory[traectory.size() - 3];
+        trajectory_cont::value_type p0 = trajectory[trajectory.size() - 3];
         // Если текущий участок достаточно короток
         if (p2.x - p1.x < 4 * dp_epsilon)
         {
@@ -261,9 +261,9 @@ int CTrackingObject::predict(const traectory_cont& traectory, const traectory_co
                 if (p2.x - p0.x < 4 * dp_epsilon)
                 {
                     // то проверям длину и предпредыдущего участка
-                    if (traectory.size() > 3)
+                    if (trajectory.size() > 3)
                     {
-                        traectory_cont::value_type p_1 = traectory[traectory.size() - 4];
+                        trajectory_cont::value_type p_1 = trajectory[trajectory.size() - 4];
                         // Если и он короток, то используем линейное предсказание адаптивным методом наименьших квадратов
                         if (p0.x - p_1.x < 4 * dp_epsilon)
                         {
@@ -302,7 +302,7 @@ int CTrackingObject::predict(const traectory_cont& traectory, const traectory_co
     {
         // Линейное предсказание адаптивным методом наименьших квадратов по некоторой части траектории объекта
         double x0(0.), v0_x(0.), y0(0.), v0_y(0.);
-        get_lin_regress_params_a(orig_traectory, std::max(0, (int)orig_traectory.size() - 25), orig_traectory.size(), v0_x, x0, v0_y, y0);
+        get_lin_regress_params_a(orig_trajectory, std::max(0, (int)orig_trajectory.size() - 25), orig_trajectory.size(), v0_x, x0, v0_y, y0);
         return static_cast<int>(y0 + v0_y * (p2.x + delta_time));
     }
 }
@@ -316,7 +316,7 @@ int CTrackingObject::get_x_future_val(int future_time) const
     else
         return static_cast<int>(kx * (future_time + stat.size()) + bx);
 #else
-    return predict(dp_traectory_x, traectory_x, future_time);
+    return predict(dp_trajectory_x, trajectory_x, future_time);
 #endif
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -328,7 +328,7 @@ int CTrackingObject::get_y_future_val(int future_time) const
     else
         return static_cast<int>(ky * (future_time + stat.size()) + by);
 #else
-    return predict(dp_traectory_y, traectory_y, future_time);
+    return predict(dp_trajectory_y, trajectory_y, future_time);
 #endif
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -388,36 +388,36 @@ void CTrackingObject::set_last_center(int new_center_x, int new_center_y)
     dx = new_center_x - center_x;
     dy = new_center_y - center_y;
 
-    traectory_x.push_back(traectory_cont::value_type(traectory_x.back().x + 1, new_center_x));
-    if (traectory_x.size() > MaxTrajectorySize)
+    trajectory_x.push_back(trajectory_cont::value_type(trajectory_x.back().x + 1, new_center_x));
+    if (trajectory_x.size() > MaxTrajectorySize)
     {
-        traectory_x.pop_front();
+        trajectory_x.pop_front();
     }
 
-    traectory_y.push_back(traectory_cont::value_type(traectory_y.back().x + 1, new_center_y));
-    if (traectory_y.size() > MaxTrajectorySize)
+    trajectory_y.push_back(trajectory_cont::value_type(trajectory_y.back().x + 1, new_center_y));
+    if (trajectory_y.size() > MaxTrajectorySize)
     {
-        traectory_y.pop_front();
+        trajectory_y.pop_front();
     }
 
 #if 0
     // Debug case
-    if (traectory_x.size() > MaxTrajectorySize / 2)
+    if (trajectory_x.size() > MaxTrajectorySize / 2)
     {
         char tmp[1024];
         static int iii = 0;
-        sprintf(tmp, "/home/nuzhny/Documents/tmp/%05u_%04i_x.txt", traectory_x.size(), iii);
+        sprintf(tmp, "/home/nuzhny/Documents/tmp/%05u_%04i_x.txt", trajectory_x.size(), iii);
         std::ofstream ff(tmp);
-        for (size_t i = 0; i < traectory_x.size(); ++i)
+        for (size_t i = 0; i < trajectory_x.size(); ++i)
         {
-            ff << traectory_x[i].y << std::endl;
+            ff << trajectory_x[i].y << std::endl;
         }
-        sprintf(tmp, "/home/nuzhny/Documents/tmp/%05u_%04i_y.txt", traectory_y.size(), iii);
+        sprintf(tmp, "/home/nuzhny/Documents/tmp/%05u_%04i_y.txt", trajectory_y.size(), iii);
         ff.close();
         ff.open(tmp);
-        for (size_t i = 0; i < traectory_y.size(); ++i)
+        for (size_t i = 0; i < trajectory_y.size(); ++i)
         {
-            ff << traectory_y[i].y << std::endl;
+            ff << trajectory_y[i].y << std::endl;
         }
         ++iii;
     }
@@ -437,11 +437,11 @@ void CTrackingObject::set_last_center(int new_center_x, int new_center_y)
     get_lin_regress_params_a(stat, 0, stat.size(), kx, bx, ky, by);
 #else
     // Обработка траектории движения объекта алгоритмом Дугласа-Пекера
-    dp_traectory_x.clear();
-    DouglasPeucker(traectory_x.begin(), traectory_x.end() - 1, dp_traectory_x, dp_epsilon);
+    dp_trajectory_x.clear();
+    DouglasPeucker(trajectory_x.begin(), trajectory_x.end() - 1, dp_trajectory_x, dp_epsilon);
 
-    dp_traectory_y.clear();
-    DouglasPeucker(traectory_y.begin(), traectory_y.end() - 1, dp_traectory_y, dp_epsilon);
+    dp_trajectory_y.clear();
+    DouglasPeucker(trajectory_y.begin(), trajectory_y.end() - 1, dp_trajectory_y, dp_epsilon);
 #endif
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -495,23 +495,23 @@ void CTrackingObject::recalc_center()
     set_last_center(get_new_center_x(), get_new_center_y());
 }
 ////////////////////////////////////////////////////////////////////////////
-void CTrackingObject::get_traectory(CObjRect &obj_rect, uint32_t frame_width, uint32_t frame_height, int left_padding, int top_padding) const
+void CTrackingObject::get_trajectory(CObjRect &obj_rect, uint32_t frame_width, uint32_t frame_height, int left_padding, int top_padding) const
 {
-    size_t i = (traectory_x.size() > CObjRect::MAX_TRAECTORY)? (traectory_x.size() - CObjRect::MAX_TRAECTORY): 1;
-    obj_rect.traectory_size = 0;
+    size_t i = (trajectory_x.size() > CObjRect::MAX_TRAECTORY)? (trajectory_x.size() - CObjRect::MAX_TRAECTORY): 1;
+    obj_rect.trajectory_size = 0;
     float_t alpha = 0.7f;
-    for (size_t stop = traectory_x.size(); i < stop; ++i)
+    for (size_t stop = trajectory_x.size(); i < stop; ++i)
     {
-        int vx = static_cast<int>(alpha * traectory_x[i].y + (1- alpha) * traectory_x[i - 1].y) + left_padding;
-        int vy = static_cast<int>(alpha * traectory_y[i].y + (1- alpha) * traectory_y[i - 1].y) + top_padding;
+        int vx = static_cast<int>(alpha * trajectory_x[i].y + (1- alpha) * trajectory_x[i - 1].y) + left_padding;
+        int vy = static_cast<int>(alpha * trajectory_y[i].y + (1- alpha) * trajectory_y[i - 1].y) + top_padding;
         set_range<int>(vx, 0, frame_width - 1);
         set_range<int>(vy, 0, frame_height - 1);
-        obj_rect.traectory[obj_rect.traectory_size].x = vx;
-        obj_rect.traectory[obj_rect.traectory_size].y = vy;
+        obj_rect.trajectory[obj_rect.trajectory_size].x = vx;
+        obj_rect.trajectory[obj_rect.trajectory_size].y = vy;
 
-        ++obj_rect.traectory_size;
+        ++obj_rect.trajectory_size;
     }
-    obj_rect.traectory_size--;
+    obj_rect.trajectory_size--;
 }
 ////////////////////////////////////////////////////////////////////////////
 bool CTrackingObject::weight_bigger(const CTrackingObject &obj1, const CTrackingObject &obj2)
