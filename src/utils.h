@@ -273,24 +273,6 @@ namespace feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	template<class T>
-	T get_intersect_area(const RECT_& source, const RECT_& dest)
-	{
-		int x_coord[4] = { source.left, source.right, dest.left, dest.right };
-		int y_coord[4] = { source.top, source.bottom, dest.top, dest.bottom };
-
-		// x1 x2 - source rect, x3 x4 - dest rect
-		if ((x_coord[2] > x_coord[1] || x_coord[0] > x_coord[3])  ||
-			(y_coord[2] > y_coord[1] || y_coord[0] > y_coord[3]))
-			return 0.0;
-
-        std::sort(x_coord, x_coord + 4);
-        std::sort(y_coord, y_coord + 4);
-
-		return (T)((x_coord[2] - x_coord[1]) * (y_coord[2] - y_coord[1]));
-	}
-	////////////////////////////////////////////////////////////////////////////
-
 	//Получение уравнения линейной регресии методом наименьших квадратов
 	template<class CONT>
 	void get_lin_regress_params(const CONT& in_data, size_t start_pos, size_t in_data_size, double &kx, double &bx, double &ky, double &by)
