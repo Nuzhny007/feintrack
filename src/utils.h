@@ -41,7 +41,7 @@ namespace feintrack
     }
 
     ////////////////////////////////////////////////////////////////////////
-	
+
 	// Циклический вектор
 	template<class T, size_t SIZE>
 	class cyclic_array
@@ -111,7 +111,7 @@ namespace feintrack
 		return p1.y < p2.y;
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает знак выражения
 	template<class T> inline
 	T sign(T val)
@@ -119,7 +119,7 @@ namespace feintrack
 		return (val < T(0))? T(-1): T(1);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возведение в квадрат
 	template<class T> inline
 	T sqr(T val)
@@ -127,7 +127,7 @@ namespace feintrack
 		return val * val;
 	}
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает расстояние между точками
 	template<class T, class POINT_TYPE> inline
 	T distance(const POINT_TYPE& p1, const POINT_TYPE& p2)
@@ -135,7 +135,7 @@ namespace feintrack
 		return sqrt((T)(sqr(p2.x - p1.x) + sqr(p2.y - p1.y)));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает длину вектора
 	template<class T> inline
 	T v_length(T x, T y)
@@ -143,7 +143,7 @@ namespace feintrack
 		return sqrt(sqr(x) + sqr(y));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Двумерный вектор
 	template<class T>
 	struct vector2
@@ -163,7 +163,7 @@ namespace feintrack
 		}
 	};
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает скалярное произведение векторов
 	template<class T, class VECTOR_TYPE> inline
 	T dot_product(const VECTOR_TYPE &v1, const VECTOR_TYPE &v2)
@@ -171,7 +171,7 @@ namespace feintrack
 		return (T)(v1.x * v2.x + v1.y * v2.y);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Преобразование двумерных декартовых координат в координаты окна и обратно
 	inline float_t wnd_to_x(int i, int wnd_width, float_t a, float_t b)
 	{
@@ -183,7 +183,7 @@ namespace feintrack
 		return (int)(((x - a) * wnd_width) / (b - a));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Проверка наложения друг на друга параллельных отрезков
 	template<class T> inline
 	bool segments_superposition(T a1, T a2, T b1, T b2)
@@ -192,7 +192,7 @@ namespace feintrack
 		else return a1 <= b2;
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Перевод из одной прямоугольной системы координат в другую
 	template<class T> inline
 	T from_to(T val, T a_to, T b_to, T c_from, T d_from)
@@ -200,7 +200,7 @@ namespace feintrack
 		return a_to + ((val - c_from) * (b_to - a_to)) / (d_from - c_from);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Ограничивает значение указанными рамками
 	template<class T> inline
 	T set_range(T &val, T min_val, T max_val)
@@ -223,7 +223,7 @@ namespace feintrack
 		return val;
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Проверка значения на принадлежность отрезку
 	template<class T> inline
 	bool in_range(T curr_val, T min_val, T max_val)
@@ -231,7 +231,7 @@ namespace feintrack
 		return ((curr_val >= min_val) && (curr_val <= max_val));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает true, если отрезки, заданные координатами конечных точек в однородных декартовых координатах, пересекаются
 	bool is_intersect(float_t x1_1, float_t y1_1, float_t x2_1, float_t y2_1,
 		              float_t x1_2, float_t y1_2, float_t x2_2, float_t y2_2);
@@ -286,7 +286,7 @@ namespace feintrack
 		{
 			m1 += i;
 			m2 += sqr(i);
-			
+
 			m3_x += in_data[i].x;
 			m4_x += i * in_data[i].x;
 
@@ -305,7 +305,7 @@ namespace feintrack
 		by = det_1 * (m2 * m3_y + m1 * m4_y);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	//Получение уравнения линейной регресии адаптивным методом наименьших квадратов
 	template<class CONT>
 	void get_lin_regress_params_a(const CONT& in_data, size_t start_pos, size_t in_data_size, double &kx, double &bx, double &ky, double &by)
@@ -324,7 +324,7 @@ namespace feintrack
 
 			m1 += tmp * i;
 			m2 += tmp * sqr(i);
-			
+
 			m3_x += tmp * in_data[i].x;
 			m4_x += i * tmp * in_data[i].x;
 
@@ -343,7 +343,7 @@ namespace feintrack
 		by = det_1 * (m2 * m3_y + m1 * m4_y);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	//Аппроксимация кривой, заданной рядом точек, квадратичной функцией методом наименьших квадратов
 	template<class CONT>
 	void mnk_parabola(const CONT& in_data, size_t start_pos, size_t in_data_size,
@@ -454,7 +454,7 @@ namespace feintrack
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-	// Построение гистограммы по столбцам	
+	// Построение гистограммы по столбцам
 	template<class SOME_RECT, class MASK_TYPE>
     void build_vert_hist(const SOME_RECT& region, hist_cont& hist, uint32_t frame_width, const MASK_TYPE* mask)
 	{
@@ -541,7 +541,7 @@ namespace feintrack
 
 	double bhattacharrya_dist(const hist_cont& source, const hist_cont& dest); // Расстояние между гистограмами
 
-	double calc_center_mass(const hist_cont& arr, double& area);               // Вычисление центра масс по гистограмме	
+	double calc_center_mass(const hist_cont& arr, double& area);               // Вычисление центра масс по гистограмме
 	double calc_mu(const hist_cont& arr, double center_mass, double area);     // Вычисление центрального момента второго порядка
 	////////////////////////////////////////////////////////////////////////////
 
@@ -551,24 +551,24 @@ namespace feintrack
 
 	// Копирование RGB24-буфера на RGB32-буфер
     void copy_24to32(uchar* dest_buf, uint32_t dest_pitch, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
-	
+
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Копирование RGB24-буфера на RGB24-буфер c переворачиванием
     void copy_24to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Копирование RGB32-буфера на RGB24-буфер
     void copy_32to24(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch);
-	
+
 	// Копирование RGB32-буфера на RGB24-буфер c переворачиванием
     void copy_32to24_flip(uchar* dest_buf, const uchar* src_buf, uint32_t src_heght, uint32_t src_pitch);
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Копирование gray-буфера на float-буфер
     void copy_gray_to_float(float *dest_buf, const uchar* src_buf, uint32_t src_width, uint32_t src_heght);
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Копирование буфера с resize'ом (метод Пешкова-Брезенхама)
     template <size_t SRC_pixel_size, size_t DEST_pixel_size>
     void StretchLine(uchar* src_buf, int src_width, uchar* dest_buf, int dest_width)
@@ -589,7 +589,7 @@ namespace feintrack
 		}
 	}
 	////////////////////////////////////////////////////////////////////////
-	
+
     template <size_t SRC_pixel_size, size_t DEST_pixel_size>
     void StretchBlt(uchar* src_buf, int src_width, int src_height, uchar* dest_buf, int dest_width, int dest_height, int dest_pitch)
 	{
@@ -606,7 +606,7 @@ namespace feintrack
 	////////////////////////////////////////////////////////////////////////
 
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Копирование части изображения в отдельный буфер
     template<int pixel_size>
 	void copy_buf_from_image(uchar* dest_buf, int dest_left, int dest_right, int dest_top, int dest_bottom, const uchar* src_buf, int src_pitch)
@@ -622,7 +622,7 @@ namespace feintrack
 	}
 	////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////
-	
+
 	template<class RET_TYPE, size_t SIZE>
 	RET_TYPE pixel_metric(const uchar* p1, const uchar* p2)
 	{
