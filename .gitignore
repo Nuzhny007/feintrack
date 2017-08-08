@@ -13,4 +13,6 @@ AdaBoost*
 .excludes
 *.json
 .idea
+html
+Doxyfile
 
