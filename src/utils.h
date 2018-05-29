@@ -41,7 +41,7 @@ namespace feintrack
     }
 
     ////////////////////////////////////////////////////////////////////////
-	
+
 	// Циклический вектор
 	template<class T, size_t SIZE>
 	class cyclic_array
@@ -111,7 +111,7 @@ namespace feintrack
 		return p1.y < p2.y;
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает знак выражения
 	template<class T> inline
 	T sign(T val)
@@ -119,7 +119,7 @@ namespace feintrack
 		return (val < T(0))? T(-1): T(1);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возведение в квадрат
 	template<class T> inline
 	T sqr(T val)
@@ -127,7 +127,7 @@ namespace feintrack
 		return val * val;
 	}
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает расстояние между точками
 	template<class T, class POINT_TYPE> inline
 	T distance(const POINT_TYPE& p1, const POINT_TYPE& p2)
@@ -135,7 +135,7 @@ namespace feintrack
 		return sqrt((T)(sqr(p2.x - p1.x) + sqr(p2.y - p1.y)));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает длину вектора
 	template<class T> inline
 	T v_length(T x, T y)
@@ -143,7 +143,7 @@ namespace feintrack
 		return sqrt(sqr(x) + sqr(y));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Двумерный вектор
 	template<class T>
 	struct vector2
@@ -163,7 +163,7 @@ namespace feintrack
 		}
 	};
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает скалярное произведение векторов
 	template<class T, class VECTOR_TYPE> inline
 	T dot_product(const VECTOR_TYPE &v1, const VECTOR_TYPE &v2)
@@ -171,7 +171,7 @@ namespace feintrack
 		return (T)(v1.x * v2.x + v1.y * v2.y);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Преобразование двумерных декартовых координат в координаты окна и обратно
 	inline float_t wnd_to_x(int i, int wnd_width, float_t a, float_t b)
 	{
@@ -183,7 +183,7 @@ namespace feintrack
 		return (int)(((x - a) * wnd_width) / (b - a));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Проверка наложения друг на друга параллельных отрезков
 	template<class T> inline
 	bool segments_superposition(T a1, T a2, T b1, T b2)
@@ -192,7 +192,7 @@ namespace feintrack
 		else return a1 <= b2;
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Перевод из одной прямоугольной системы координат в другую
 	template<class T> inline
 	T from_to(T val, T a_to, T b_to, T c_from, T d_from)
@@ -200,7 +200,7 @@ namespace feintrack
 		return a_to + ((val - c_from) * (b_to - a_to)) / (d_from - c_from);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Ограничивает значение указанными рамками
 	template<class T> inline
 	T set_range(T &val, T min_val, T max_val)
@@ -223,7 +223,7 @@ namespace feintrack
 		return val;
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Проверка значения на принадлежность отрезку
 	template<class T> inline
 	bool in_range(T curr_val, T min_val, T max_val)
@@ -231,7 +231,7 @@ namespace feintrack
 		return ((curr_val >= min_val) && (curr_val <= max_val));
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	// Возвращает true, если отрезки, заданные координатами конечных точек в однородных декартовых координатах, пересекаются
 	bool is_intersect(float_t x1_1, float_t y1_1, float_t x2_1, float_t y2_1,
 		              float_t x1_2, float_t y1_2, float_t x2_2, float_t y2_2);
@@ -343,7 +343,7 @@ namespace feintrack
 		by = det_1 * (m2 * m3_y + m1 * m4_y);
 	}
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	//Аппроксимация кривой, заданной рядом точек, квадратичной функцией методом наименьших квадратов
 	template<class CONT>
 	void mnk_parabola(const CONT& in_data, size_t start_pos, size_t in_data_size,
