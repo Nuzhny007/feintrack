@@ -76,9 +76,9 @@ int main(int argc, char* argv[])
     ftrack->set_detect_patches_of_sunlight(false);
     ftrack->set_cut_shadows(false);
 
-    ftrack->set_left_object_time1_sec(5);
-    ftrack->set_left_object_time2_sec(10);
-    ftrack->set_left_object_time3_sec(15);
+    ftrack->set_left_object_time1_sec(10);
+    ftrack->set_left_object_time2_sec(15);
+    ftrack->set_left_object_time3_sec(60);
 
 #if 0
     feintrack::zones_cont zones;
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 
     uint32_t frame_num(0);
 
-    feintrack::color_type cl_type = feintrack::buf_gray;
+    feintrack::color_type cl_type = feintrack::buf_rgb24;
 
 #if ADV_OUT
     cv::Mat adv_img;
@@ -144,9 +144,9 @@ int main(int argc, char* argv[])
             frameHeight = frame.rows;
 
 #if SAVE_DBG_VIDEO
-            cv::Size resultFrameSize(2 * frameWidth, frameHeight);
+            cv::Size resultFrameSize(frameWidth, frameHeight);
 #if ADV_OUT
-            resultFrameSize.height *= 2;
+            cv::Size resultFrameSize(2 * frameWidth, 2 * frameHeight);
 #endif
 
             if (!writer.isOpened())
@@ -290,9 +290,11 @@ int main(int argc, char* argv[])
             if (writer.isOpened())
             {
                 cv::Mat resDbg(resultFrameSize, CV_8UC3);
+#if !ADV_OUT
+                frame.copyTo(resDbg);
+#else
                 frameOrig.copyTo(cv::Mat(resDbg, cv::Rect(0, 0, frameWidth, frameHeight)));
                 frame.copyTo(cv::Mat(resDbg, cv::Rect(frameWidth, 0, frameWidth, frameHeight)));
-#if ADV_OUT
                 adv_img.copyTo(cv::Mat(resDbg, cv::Rect(0, frameHeight, 2 * frameWidth, frameHeight)));
 #endif
                 writer << resDbg;
