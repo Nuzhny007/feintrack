@@ -6,4 +6,8 @@ A motion detector for video surveillance system.
 segmentation algorithms. Tested  with  CUDA  6.5  on  Windows  10:  compilation
 passed, but work with bugs
 
-Now it's a hobby project. A source codes from my (unwritten) PhD dissertation. 
+* Simple Abandoned detector:
+
+[![Simple Abandoned detector:](https://img.youtube.com/vi/G73Fg0rk5yM/0.jpg)](https://www.youtube.com/watch?v=G73Fg0rk5yM)
+
+P.S. Now it's a hobby project. A source codes from my (unwritten) PhD dissertation. 
