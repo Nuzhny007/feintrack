@@ -1,4 +1,4 @@
-![travis ci:](https://travis-ci.org/Nuzhny/feintrack.svg?branch=master)
+![travis ci:](https://travis-ci.org/Nuzhny007/feintrack.svg?branch=master)
 
 A motion detector for video surveillance system.
 
