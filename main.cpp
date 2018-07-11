@@ -5,7 +5,7 @@
 #include "src/feintrack_params.h"
 #include "src/feintrack.h"
 
-#define SAVE_DBG_VIDEO 1
+#define SAVE_DBG_VIDEO 0
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 #if SAVE_DBG_VIDEO
             cv::Size resultFrameSize(frameWidth, frameHeight);
 #if ADV_OUT
-            cv::Size resultFrameSize(2 * frameWidth, 2 * frameHeight);
+            resultFrameSize = cv::Size(2 * frameWidth, 2 * frameHeight);
 #endif
 
             if (!writer.isOpened())
