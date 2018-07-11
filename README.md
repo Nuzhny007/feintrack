@@ -1,3 +1,5 @@
+![travis ci:](https://travis-ci.org/Smorodov/Multitarget-tracker.svg?branch=master)
+
 A motion detector for video surveillance system.
 
 1. Background subtraction algorithm based on Gaussian or Mixture of Gaussians model for each pixel.
