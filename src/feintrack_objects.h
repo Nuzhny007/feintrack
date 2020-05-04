@@ -89,8 +89,6 @@ namespace feintrack
 		int frames_in_eps;                                //Количество кадров, на которых центр объекта не вышел за границы left_eps
 		int left_epsilon;                                 //Максимальная величина смещения цетра объекта, при превышении которой объект перестаёт быть оставленным
 
-		object_types type;                                //Текущий тип объекта
-
 #if LIN_MNK
 		static const size_t STAT_FRAME_COUNT = 24;        //Количество кадров, которые используются для предсказания будущего положения объекта
 		cyclic_array<POINT_<int>, STAT_FRAME_COUNT> stat; //Координаты объекта на предыдущих кадрах
@@ -111,9 +109,6 @@ namespace feintrack
         CTrackingObject(int center_x_, int center_y_, unsigned int uid_);
 		CTrackingObject(const CTrackingObject &obj);
 		~CTrackingObject();
-
-		object_types get_type() const;                    //Получение типа объекта
-		void set_new_type(object_types new_type);         //Задание распознанного на очередном кадре типа объекта
 
 		static const float_t default_weight;              //Первоначальное значение веса объекта
 

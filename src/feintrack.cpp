@@ -32,7 +32,6 @@ CFeinTrack::CFeinTrack()
       show_objects(false),
       show_trajectory(false),
       show_left_objects(true),
-      use_recognition(false),
       bgrnd_type(norm_back),
       back_substractor(nullptr)
 {
@@ -466,16 +465,6 @@ int CFeinTrack::new_frame(const uchar* buf, uint32_t pitch, uint32_t width, uint
     //segmentator.draw_mask(use_cuda, adv_buf_rgb24);
 #endif
 
-    // Если используется cuda и требуется распознавание, то копируем маску из видеопамяти в системную
-    if (use_recognition && use_cuda)
-    {
-#ifdef USE_GPU
-        segmentator.copy_gpu2cpu();
-#else
-        assert(false);
-#endif
-    }
-
     // Cегментация объектов переднего плана
     regions.clear();
     if (use_cuda)
@@ -729,18 +718,6 @@ bool CFeinTrack::get_use_square_segmentation() const
 void CFeinTrack::set_use_square_segmentation(bool use_square_segmentation_)
 {
     use_square_segmentation = use_square_segmentation_;
-}
-////////////////////////////////////////////////////////////////////////////
-
-bool CFeinTrack::get_use_recognition() const
-{
-    return use_recognition;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CFeinTrack::set_use_recognition(bool new_val)
-{
-    use_recognition = new_val;
 }
 ////////////////////////////////////////////////////////////////////////////
 

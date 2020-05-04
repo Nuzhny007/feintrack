@@ -181,7 +181,6 @@ CTrackingObject::CTrackingObject(int center_x_, int center_y_, unsigned int uid_
       coords_collected(1),
       kx(0.0), bx(0.0), ky(0.0), by(0.0),
       #endif
-      type(unknown_object),
       uid(uid_),
       weight(default_weight),
       life_time(0),
@@ -212,7 +211,6 @@ CTrackingObject::CTrackingObject(const CTrackingObject &obj)
       by(obj.by),
       stat(obj.stat),
       #endif
-      type(obj.type),
       uid(obj.uid),
       weight(obj.weight),
       life_time(obj.life_time),
@@ -224,16 +222,6 @@ CTrackingObject::CTrackingObject(const CTrackingObject &obj)
 ////////////////////////////////////////////////////////////////////////////
 CTrackingObject::~CTrackingObject()
 {
-}
-////////////////////////////////////////////////////////////////////////////
-object_types CTrackingObject::get_type() const
-{
-    return type;
-}
-////////////////////////////////////////////////////////////////////////////
-void CTrackingObject::set_new_type(object_types new_type)
-{
-    type = new_type;
 }
 ////////////////////////////////////////////////////////////////////////////
 #if !LIN_MNK

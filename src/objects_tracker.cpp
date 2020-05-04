@@ -190,7 +190,7 @@ void NativeTracker::Track(
                         }
 
                         // Отправляем объект на вывод
-                        add_object_to_out_rects(*find_region, **iter_obj, unknown_object, zone_name, videoHeader, show_trajectory);
+                        add_object_to_out_rects(*find_region, **iter_obj, zone_name, videoHeader, show_trajectory);
                     }
                     else // Объект не попал в зоны детекции
                     {
@@ -277,7 +277,7 @@ void NativeTracker::Track(
                 mstring zone_name;
                 if (is_in_zone(zones, **iter_obj, &zone_name))
                 {
-                    add_object_to_out_rects(**iter_obj, **iter_obj, (*iter_obj)->get_type(), zone_name, videoHeader, show_trajectory);
+                    add_object_to_out_rects(**iter_obj, **iter_obj, zone_name, videoHeader, show_trajectory);
                 }
             }
 #endif
@@ -539,7 +539,6 @@ void NativeTracker::SetOneObject(
     obj_rects[0].top = top;
     obj_rects[0].bottom = bottom;
     obj_rects[0].uid = uid;
-    obj_rects[0].type = unknown_object;
     obj_rects[0].zone_name[0] = '\0';
     obj_rects[0].trajectory_size = 1;
     objects_count = 1;
@@ -573,7 +572,6 @@ template<class T>
 void NativeTracker::add_object_to_out_rects(
         const T& rect,
         const CTrackingObject& object,
-        object_types obj_type,
         const mstring& zone_name,
         const VideoHeader& videoHeader,
         bool show_trajectory
@@ -603,7 +601,6 @@ void NativeTracker::add_object_to_out_rects(
         {
             object.get_trajectory(*obj_rects.rbegin(), videoHeader.frame_width, videoHeader.frame_height, videoHeader.left_padding, videoHeader.top_padding);
         }
-        obj_rects.rbegin()->type = obj_type;
         obj_rects.rbegin()->zone_name = zone_name;
     }
     else
@@ -623,9 +620,6 @@ void NativeTracker::add_object_to_out_rects(
         {
             obj_rects[objects_count - 1].trajectory_size = 1;
         }
-
-        obj_rects[objects_count - 1].type = obj_type;
-
         obj_rects[objects_count - 1].zone_name = zone_name;
     }
 }

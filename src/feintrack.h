@@ -70,8 +70,6 @@ namespace feintrack
 		void recalc_correct_zones();                          // Пересчёт координат зон на кадре
         template<class T> const CZone* get_zone(const T& rect) const;               // Получение зоны, в которую попадает прямоугольник
 
-        bool use_recognition;                                // Использовать распознавание объектов
-
         bool cut_shadow(CObjectRegion& region);              // Отсечение тени
 
         bgrnd_substr_types bgrnd_type;                       // Тип алгоритма вычитания фона
@@ -122,9 +120,6 @@ namespace feintrack
 
 		bool get_use_square_segmentation() const;                        // Получение и
 		void set_use_square_segmentation(bool use_square_segmentation_); // задание режима сегментации
-
-		bool get_use_recognition() const;                           // Получение и
-		void set_use_recognition(bool new_val);                     // задание значения use_recognition
 
 		int get_min_region_width() const;                           // Получение и
 		void set_min_region_width(int min_region_width_);           // задание минимального размера региона

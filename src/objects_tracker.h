@@ -92,7 +92,7 @@ private:
     objects_container::iterator get_object_by_region(const CObjectRegion& region, objects_container::iterator from_obj); //Получение объекта, наиболее приближённого к данному региону
 
     template<class T>
-    void add_object_to_out_rects(const T &rect, const CTrackingObject &object, object_types obj_type, const mstring &zone_name,
+    void add_object_to_out_rects(const T &rect, const CTrackingObject &object, const mstring &zone_name,
                                  const VideoHeader& videoHeader,
                                  bool show_trajectory
                                  ); // Добавление объекта на вывод

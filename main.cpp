@@ -59,7 +59,6 @@ int main(int argc, char* argv[])
     ftrack->set_fps(fps);
     ftrack->set_show_objects(true);
     ftrack->set_bgrnd_type(feintrack::norm_back);
-    ftrack->set_use_recognition(false);
     ftrack->set_use_morphology(true);
     ftrack->set_show_left_objects(true);
     ftrack->set_show_trajectory(true);
@@ -206,19 +205,11 @@ int main(int argc, char* argv[])
 
             if (rect_count && rect_arr)
             {
-                cv::Scalar colors[feintrack::max_types] = {
-                    cv::Scalar(0, 255, 0),
-                    cv::Scalar(0, 0, 0),
-                    cv::Scalar(0, 0, 0),
-                    cv::Scalar(0, 0, 0),
-                    cv::Scalar(0, 0, 0)
-                };
-
                 for (size_t i = 0; i < rect_count; ++i)
                 {
                     assert(rect_arr[i].type < feintrack::max_types);
 
-                    cv::rectangle(frame, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::Point(rect_arr[i].right, rect_arr[i].bottom), colors[rect_arr[i].type]);
+                    cv::rectangle(frame, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::Point(rect_arr[i].right, rect_arr[i].bottom), cv::Scalar(0, 255, 0));
 
                     // Вывод траектории
                     cv::Point p1(rect_arr[i].trajectory[0].x, rect_arr[i].trajectory[0].y);
@@ -232,29 +223,7 @@ int main(int argc, char* argv[])
                         p1 = p2;
                     }
 
-#if 1
-                    char object_name[256];
-
-                    if (ftrack->get_use_recognition())
-                    {
-                        std::string type_str("u");
-                        switch (rect_arr[i].type)
-                        {
-                        case feintrack::unknown_object: type_str = "u";  break;
-                        case feintrack::human:          type_str = "h";  break;
-                        case feintrack::vehicle:        type_str = "v";  break;
-                        case feintrack::animal:         type_str = "a";  break;
-                        case feintrack::humans:         type_str = "hh"; break;
-                        case feintrack::max_types:      assert(0);       break;
-                        }
-
-                        sprintf(object_name, "%u %s", rect_arr[i].uid, type_str.c_str());
-                    }
-                    {
-                        sprintf(object_name, "%u", rect_arr[i].uid);
-                    }
-                    cv::putText(frame, object_name, cv::Point(rect_arr[i].left, rect_arr[i].top), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 255, 255));
-#endif
+                    cv::putText(frame, std::to_string(rect_arr[i].uid), cv::Point(rect_arr[i].left, rect_arr[i].top), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 255, 255));
                 }
             }
 

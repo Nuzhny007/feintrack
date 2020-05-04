@@ -65,23 +65,11 @@ namespace feintrack
     typedef TRECT_<double> RECTF_;
     ////////////////////////////////////////////////////////////////////////////
 
-    enum object_types                        // Типы объекта
-    {
-        unknown_object = 0,                  // объект неизвестного типа
-        human,                               // человек
-        vehicle,                             // автомобиль
-        animal,                              // животное
-        humans,                              // группа людей
-        max_types
-    };
-    ////////////////////////////////////////////////////////////////////////////
-
     // Прямоугольник с координатами и идентификатором объекта
     struct CObjRect: public RECT_
     {
         CObjRect()
             :
-              type(unknown_object),
               uid(0),
               new_center_x(0), new_center_y(0),
               trajectory_size(0)
@@ -95,7 +83,7 @@ namespace feintrack
 
         CObjRect(int left_, int right_, int top_, int bottom_, unsigned int uid_, int new_center_x_, int new_center_y_)
             : RECT_(left_, right_, top_, bottom_),
-            type(unknown_object), uid(uid_),
+            uid(uid_),
             new_center_x(new_center_x_), new_center_y(new_center_y_),
             trajectory_size(0)
         {
@@ -105,8 +93,6 @@ namespace feintrack
             trajectory[0].y = center_y();
             trajectory_size = 1;
         }
-
-        object_types type;                       // Тип объекта
 
         unsigned int uid;                        // Уникальный идентификатор объекта
 
