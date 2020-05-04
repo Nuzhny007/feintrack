@@ -1,21 +1,8 @@
-cmake_minimum_required (VERSION 2.8)
-
-cmake_policy(SET CMP0020 NEW)
-cmake_policy(SET CMP0028 NEW)
-
+cmake_minimum_required (VERSION 3.8)
 
 project (feintrack)
 
-FIND_PACKAGE(OpenCV 3.0 REQUIRED)
-
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-#    find_package(Qt5Widgets)
-#    find_package(Qt5OpenGL)
-#    find_package(Qt5Test)
-#    find_package(Qt5Concurrent)
-endif()
-
+FIND_PACKAGE(OpenCV 4 REQUIRED)
 
 unset(CMAKE_CXX_FLAGS CACHE)
 

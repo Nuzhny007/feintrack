@@ -38,20 +38,20 @@ int main(int argc, char* argv[])
         std::cerr << "File " <<  input_file_name << " not opened!" << std::endl;
         return 1;
     }
-	int framesNum = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_COUNT));
+	int framesNum = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_COUNT));
 
 #if 0
     capture.set(CV_CAP_PROP_FPS, 50.0);
 #endif
-    int fps = static_cast<int>(capture.get(CV_CAP_PROP_FPS));
+    int fps = static_cast<int>(capture.get(cv::CAP_PROP_FPS));
     std::cout << "Default fps = " << fps << std::endl;
 	if (fps < 1)
 	{
 		fps = 25;
 	}
 
-    int frameWidth = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH));
-    int frameHeight = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_HEIGHT));
+    int frameWidth = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_WIDTH));
+    int frameHeight = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_HEIGHT));
 
     auto ftrack = std::shared_ptr<feintrack::CFeinTrack>(new feintrack::CFeinTrack);
 
@@ -172,13 +172,13 @@ int main(int argc, char* argv[])
             {
             case feintrack::buf_gray:
             {
-                cv::cvtColor(frame, curr_frame, CV_RGB2GRAY);
+                cv::cvtColor(frame, curr_frame, cv::COLOR_RGB2GRAY);
                 break;
             }
 
             case feintrack::buf_rgb32:
             {
-                cv::cvtColor(frame, curr_frame, CV_RGB2RGBA);
+                cv::cvtColor(frame, curr_frame, cv::COLOR_RGB2RGBA);
                 break;
             }
 

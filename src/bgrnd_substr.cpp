@@ -51,12 +51,12 @@ void CBackSubstraction::set_detect_patches_of_sunlight(bool detect_patches_of_su
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CBackSubstraction::is_patch_of_sunlight(const ft_param_t* float_src, const size_t pixel_size)
+bool CBackSubstraction::is_patch_of_sunlight(const ft_param_t* float_src, size_t curr_pixel_size)
 {
     if (detect_patches_of_sunlight)
     {
         bool res = true;
-        for (size_t i = 0; i < pixel_size; ++i)
+        for (size_t i = 0; i < curr_pixel_size; ++i)
         {
             res &= (float_src[i] > sunlight_threshold);
         }
